@@ -47,6 +47,7 @@ int main()
 
         // Initialize camera
         FreeflyCamera camera;
+        camera.moveFront(-5);
         
         // Initialize Render Matrix  
         glm::mat4 ProjMatrix = glm::perspective(glm::radians(70.f), (GLfloat)width/(GLfloat)height, 0.1f, 100.f);
@@ -89,8 +90,6 @@ int main()
 
         glBindVertexArray(0);
 
-
-
     /*********************************/
 
     // Declare your infinite update loop.
@@ -120,7 +119,7 @@ int main()
         }
 
         //camera rotation
-        if (ctx.key_is_pressed(GLFW_KEY_A))
+        if (ctx.key_is_pressed(GLFW_KEY_Q))
         {
             camera.rotateLeft(CAM_ROTATION_FORCE);
         }
@@ -146,11 +145,11 @@ int main()
         }
         if (ctx.mouse_moved)
         {
-            // if(ctx.alt() || ctx.mouse_button_is_pressed(p6::Button::Right))
-            // {
+            if(ctx.alt() || ctx.mouse_button_is_pressed(p6::Button::Right))
+            {
                 camera.rotateLeft(-ctx.mouse_delta().x*MOUSE_ROTATION_FORCE);
                 camera.rotateUp(ctx.mouse_delta().y*MOUSE_ROTATION_FORCE);
-            // }
+            }
         }
 
 
