@@ -13,7 +13,6 @@ float FAST_SPEED_FACTOR=10;
 
 struct BoidProgram 
 {
-
     p6::Shader m_Program;
 
     GLuint uMVPMatrix;
@@ -49,7 +48,6 @@ int main()
 
         // Initialize camera
         FreeflyCamera camera;
-        camera.moveFront(-5);
         
         // Initialize Render Matrix  
         glm::mat4 ProjMatrix = glm::perspective(glm::radians(70.f), (GLfloat)width/(GLfloat)height, 0.1f, 100.f);
