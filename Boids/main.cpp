@@ -1,9 +1,11 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "p6/p6.h"
-#include "FreeflyCamera.hpp"
 #include "glimac/cone_vertices.hpp"
 
+#include "FreeflyCamera.hpp"
+#include "BoidsManager.hpp"
 
+// CAMERA PARAMETERS
 float CAM_TRANSLATION_FORCE=0.001;
 float CAM_ROTATION_FORCE=0.1;
 float MOUSE_ROTATION_FORCE=50;
