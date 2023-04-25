@@ -1,7 +1,7 @@
 #include "glm/fwd.hpp"
 #include "p6/p6.h"
 
-#include "Boid.hpp"
+#include "BoidsManager.hpp"
 
 /////////////////////////////////
     // PARAMETERS
@@ -52,7 +52,7 @@ std::vector<Boid> createBoids(const size_t nb)
     return boids;
 }
 
-void neighborsManager(std::vector<Boid>& boids, const float parameters[6])
+void neighborsManager(std::vector<Boid>& boids, const NeighborsParameters parameters)
 {
     for(size_t i=0; i<boids.size(); ++i)
     {
@@ -60,9 +60,9 @@ void neighborsManager(std::vector<Boid>& boids, const float parameters[6])
         {
             if(j!=i)
             {
-                boids[i].neighborsAlignement(boids[j], parameters[0], parameters[1]);
-                boids[i].neighborsCohesion(boids[j], parameters[2], parameters[3]);
-                boids[i].neighborsSeparation(boids[j], parameters[4], parameters[5]);
+                boids[i].neighborsAlignement(boids[j], parameters.AlignmentDistance, parameters.AlignementStrength);
+                boids[i].neighborsCohesion(boids[j], parameters.CohesionDistance, parameters.CohesionStrength);
+                boids[i].neighborsSeparation(boids[j], parameters.SeparationDistance, parameters.SeparationStength);
             }
         }    
     }

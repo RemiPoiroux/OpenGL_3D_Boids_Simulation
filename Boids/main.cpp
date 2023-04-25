@@ -23,10 +23,11 @@
     float BORDERS_DISTANCE=0.2;
     float BORDERS_STRENGTH=0.3; 
 
-    float NEIGHBORS_PARAMETERS[]={  0.4f, 0.005f, // Alignment distance and strength
-                                    0.3f, 0.002f, // Cohesion          //
-                                    0.1f, 0.5f    // Separation        //
-                                };
+    NeighborsParameters NEIGHBORS_PARAMETERS=
+    {   0.4f, 0.005f,
+        0.3f, 0.002f, 
+        0.1f, 0.5f
+    };
 
     /////////////////////////////////
 
@@ -121,12 +122,12 @@ int main()
         ImGui::Begin("Control");
         ImGui::SliderFloat("Boids size", &BOIDS_SIZE, 0.01f, 1.f);
         ImGui::SliderFloat("Tails size", &TAILS_SIZE, 1.f, 10000.f);
-        ImGui::SliderFloat("Alignment distance", &NEIGHBORS_PARAMETERS[0], 0.f, 2.f);
-        ImGui::SliderFloat("Alignment strength", &NEIGHBORS_PARAMETERS[1], 0.f, 1.f);
-        ImGui::SliderFloat("Cohesion distance", &NEIGHBORS_PARAMETERS[2], 0.f, 2.f);
-        ImGui::SliderFloat("Cohesion strength", &NEIGHBORS_PARAMETERS[3], 0.f, 1.f);
-        ImGui::SliderFloat("Separation distance", &NEIGHBORS_PARAMETERS[4], 0.f, 2.f);
-        ImGui::SliderFloat("Separation strength", &NEIGHBORS_PARAMETERS[5], 0.f, 1.f);
+        ImGui::SliderFloat("Alignment distance", &NEIGHBORS_PARAMETERS.AlignmentDistance, 0.f, 2.f);
+        ImGui::SliderFloat("Alignment strength", &NEIGHBORS_PARAMETERS.AlignementStrength, 0.f, 1.f);
+        ImGui::SliderFloat("Cohesion distance", &NEIGHBORS_PARAMETERS.CohesionDistance, 0.f, 2.f);
+        ImGui::SliderFloat("Cohesion strength", &NEIGHBORS_PARAMETERS.CohesionStrength, 0.f, 1.f);
+        ImGui::SliderFloat("Separation distance", &NEIGHBORS_PARAMETERS.SeparationDistance, 0.f, 2.f);
+        ImGui::SliderFloat("Separation strength", &NEIGHBORS_PARAMETERS.SeparationStength, 0.f, 1.f);
         ImGui::SliderFloat("Borders distance", &BORDERS_DISTANCE, 0.f, 1.f);
         ImGui::SliderFloat("Borders strength", &BORDERS_STRENGTH, 0.f, 1.f);
         ImGui::End();
