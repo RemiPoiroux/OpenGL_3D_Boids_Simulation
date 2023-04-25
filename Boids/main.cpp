@@ -5,11 +5,30 @@
 #include "FreeflyCamera.hpp"
 #include "BoidsManager.hpp"
 
-// CAMERA PARAMETERS
-float CAM_TRANSLATION_FORCE=0.001;
-float CAM_ROTATION_FORCE=0.1;
-float MOUSE_ROTATION_FORCE=50;
-float FAST_SPEED_FACTOR=10;
+/////////////////////////////////
+
+    // CAMERA PARAMETERS
+
+    float CAM_TRANSLATION_FORCE=0.001;
+    float CAM_ROTATION_FORCE=0.1;
+    float MOUSE_ROTATION_FORCE=50;
+    float FAST_SPEED_FACTOR=10;
+
+    // SIMULATION PARAMETERS
+
+    const int NB_BOIDS=20;
+    float BOIDS_SIZE=0.04;
+    float TAILS_SIZE=20;
+
+    float BORDERS_DISTANCE=0.2;
+    float BORDERS_STRENGTH=0.3; 
+
+    float NEIGHBORS_PARAMETERS[]={  0.4f, 0.005f, // Alignment distance and strength
+                                    0.3f, 0.002f, // Cohesion          //
+                                    0.1f, 0.5f    // Separation        //
+                                };
+
+    /////////////////////////////////
 
 struct BoidProgram 
 {
@@ -48,6 +67,9 @@ int main()
 
         // Initialize camera
         FreeflyCamera camera;
+
+        // Initialize Boids
+        std::vector<Boid> boids=createBoids(NB_BOIDS);
         
         // Initialize Render Matrix  
         glm::mat4 ProjMatrix = glm::perspective(glm::radians(70.f), (GLfloat)width/(GLfloat)height, 0.1f, 100.f);
@@ -96,8 +118,20 @@ int main()
     ctx.update = [&]() {
 
         //Events
+        ImGui::Begin("Control");
+        ImGui::SliderFloat("Boids size", &BOIDS_SIZE, 0.01f, 1.f);
+        ImGui::SliderFloat("Tails size", &TAILS_SIZE, 1.f, 10000.f);
+        ImGui::SliderFloat("Alignment distance", &NEIGHBORS_PARAMETERS[0], 0.f, 2.f);
+        ImGui::SliderFloat("Alignment strength", &NEIGHBORS_PARAMETERS[1], 0.f, 1.f);
+        ImGui::SliderFloat("Cohesion distance", &NEIGHBORS_PARAMETERS[2], 0.f, 2.f);
+        ImGui::SliderFloat("Cohesion strength", &NEIGHBORS_PARAMETERS[3], 0.f, 1.f);
+        ImGui::SliderFloat("Separation distance", &NEIGHBORS_PARAMETERS[4], 0.f, 2.f);
+        ImGui::SliderFloat("Separation strength", &NEIGHBORS_PARAMETERS[5], 0.f, 1.f);
+        ImGui::SliderFloat("Borders distance", &BORDERS_DISTANCE, 0.f, 1.f);
+        ImGui::SliderFloat("Borders strength", &BORDERS_STRENGTH, 0.f, 1.f);
+        ImGui::End();
 
-        //move
+        //camera move
         float factor=1;
         if (ctx.shift()){factor=FAST_SPEED_FACTOR;};
 
@@ -151,6 +185,13 @@ int main()
                 camera.rotateUp(ctx.mouse_delta().y*MOUSE_ROTATION_FORCE);
             }
         }
+
+        //Boids simulation
+        neighborsManager(boids, NEIGHBORS_PARAMETERS);
+
+        borderManager(boids, BORDERS_DISTANCE, BORDERS_STRENGTH);
+
+        boidsDisplacement(boids);
 
 
         /*********************************

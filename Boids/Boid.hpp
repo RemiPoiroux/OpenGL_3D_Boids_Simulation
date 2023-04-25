@@ -21,6 +21,11 @@ class Boid
 
         void slowing(const float amount);
 
+        glm::vec3 TurningDirection(const size_t axisIndex);
+        glm::vec3 HalfTurnDirection(const size_t axisIndex);
+
+        void ChecksBordersOnAxis(const size_t axisIndex, const float distance, float strength);
+
     public :
 
         Boid(const glm::vec3 p, const float mS, const glm::vec3 d);
