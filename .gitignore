@@ -1,6 +1,9 @@
 # Prerequisites
 *.d
 
+# My Template
+Template
+
 # Compiled Object files
 *.slo
 *.lo
