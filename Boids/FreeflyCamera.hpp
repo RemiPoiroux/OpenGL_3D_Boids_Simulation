@@ -4,25 +4,25 @@
 
 class FreeflyCamera
 {
-    private:
+private:
     glm::vec3 m_Position;
-    float m_fPhi;
-    float m_fTheta;
+    float     m_fPhi;
+    float     m_fTheta;
     glm::vec3 m_FrontVector;
     glm::vec3 m_LeftVector;
     glm::vec3 m_UpVector;
 
-    private:
+private:
     void computeDirectionVectors();
 
-    public:
+public:
     FreeflyCamera();
 
-    void moveFront(const float delta);
-    void moveLeft(const float delta);
+    void moveFront(float delta);
+    void moveLeft(float delta);
 
-    void rotateLeft(const float degrees);
-    void rotateUp(const float degrees);
+    void rotateLeft(float degrees);
+    void rotateUp(float degrees);
 
     glm::mat4 getViewMatrix() const;
 };

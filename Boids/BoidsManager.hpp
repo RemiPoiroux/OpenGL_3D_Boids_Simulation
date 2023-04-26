@@ -3,7 +3,7 @@
 #include "Boid.hpp"
 
 struct NeighborsParameters
-{  
+{
     float AlignmentDistance;
     float AlignementStrength;
 
@@ -14,10 +14,10 @@ struct NeighborsParameters
     float SeparationStength;
 };
 
-std::vector<Boid> createBoids(const size_t nb);
+std::vector<Boid> createBoids(size_t nb);
 
-void neighborsManager(std::vector<Boid>& boids, const NeighborsParameters parameters);
+void neighborsManager(std::vector<Boid>& boids, NeighborsParameters parameters);
 
-void borderManager(std::vector<Boid>& boids, const float distance, const float strength);
+void borderManager(std::vector<Boid>& boids, float distance, float strength);
 
 void boidsDisplacement(std::vector<Boid>& boids);

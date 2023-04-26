@@ -3,42 +3,40 @@
 #include "glm/fwd.hpp"
 #include "p6/p6.h"
 
-void normaliseVector(glm::vec3 &v);
+void normaliseVector(glm::vec3& v);
 
 class Boid
-#include "p6/p6.h"
 {
-    private :
-        glm::vec3 position;
-        float maxSpeed;
-        float speed;
-        glm::vec3 direction;
+private:
+    glm::vec3 position;
+    float     maxSpeed;
+    float     speed;
+    glm::vec3 direction;
 
-    private : 
-        void applyForce(const glm::vec3 direction, const float strength);
+private:
+    void applyForce(glm::vec3 direction, float strength);
 
-        float distance(const Boid boid) const;
+    float distance(Boid boid) const;
 
-        void slowing(const float amount);
+    void slowing(float amount);
 
-        glm::vec3 TurningDirection(const size_t axisIndex);
-        glm::vec3 HalfTurnDirection(const size_t axisIndex);
+    glm::vec3 TurningDirection(size_t axisIndex) const;
+    glm::vec3 HalfTurnDirection(size_t axisIndex) const;
 
-        void ChecksBordersOnAxis(const size_t axisIndex, const float distance, float strength);
+    void ChecksBordersOnAxis(size_t axisIndex, float distance, float strength);
 
-    public :
+public:
+    Boid(glm::vec3 p, float mS, glm::vec3 d);
 
-        Boid(const glm::vec3 p, const float mS, const glm::vec3 d);
+    void acceleration(float a);
 
-        void acceleration(const float a);
+    void displacement();
 
-        void displacement();
+    void neighborsAlignement(Boid boid, float distance, float strength);
 
-        void neighborsAlignement(const Boid boid, const float distance, const float strength);
+    void neighborsCohesion(Boid boid, float distance, float strength);
 
-        void neighborsCohesion(const Boid boid, const float distance, const float strength);
+    void neighborsSeparation(Boid boid, float distance, float strength);
 
-        void neighborsSeparation(const Boid boid, const float distance, const float strength);
-
-        void bordersAvoidance(const float distance, const float strength);
+    void bordersAvoidance(float distance, float strength);
 };

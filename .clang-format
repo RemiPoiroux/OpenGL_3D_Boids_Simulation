@@ -26,13 +26,13 @@ BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
 BraceWrapping:
     AfterCaseLabel: true
-    AfterClass: false
+    AfterClass: true
     AfterControlStatement: true
     AfterEnum: false
     AfterFunction: true
-    AfterNamespace: false
+    AfterNamespace: true
     AfterObjCDeclaration: true
-    AfterStruct: false
+    AfterStruct: true
     AfterUnion: false
     AfterExternBlock: true
     BeforeCatch: true
