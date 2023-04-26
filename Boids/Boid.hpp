@@ -20,10 +20,10 @@ private:
 
     void slowing(float amount);
 
-    glm::vec3 TurningDirection(size_t axisIndex) const;
-    glm::vec3 HalfTurnDirection(size_t axisIndex) const;
+    glm::vec3 TurningDirection(int axisIndex) const;
+    glm::vec3 HalfTurnDirection(int axisIndex) const;
 
-    void ChecksBordersOnAxis(size_t axisIndex, float distance, float strength);
+    void ChecksBordersOnAxis(int axisIndex, float distance, float strength);
 
 public:
     Boid(glm::vec3 p, float mS, glm::vec3 d);

@@ -44,13 +44,13 @@ void Boid::displacement()
 }
 
 // clang-format off
-glm::vec3 Boid::TurningDirection(const size_t axisIndex) const 
+glm::vec3 Boid::TurningDirection(const int axisIndex) const 
 {
     if(axisIndex==0){return {1, -this->direction.y, -this->direction.z};} // x
     if(axisIndex==1){return {-this->direction.x, 1, -this->direction.z};} // y
     if(axisIndex==2){return {-this->direction.x, -this->direction.y, 1};} // z
 }
-glm::vec3 Boid::HalfTurnDirection(const size_t axisIndex) const
+glm::vec3 Boid::HalfTurnDirection(const int axisIndex) const
 {
     if(axisIndex==0){return {-1, -this->direction.y, -this->direction.z};} // x
     if(axisIndex==1){return {-this->direction.x, -1, -this->direction.z};} // y
@@ -58,7 +58,7 @@ glm::vec3 Boid::HalfTurnDirection(const size_t axisIndex) const
 }
 // clang-format on
 
-void Boid::ChecksBordersOnAxis(const size_t axisIndex, const float distance, float strength)
+void Boid::ChecksBordersOnAxis(const int axisIndex, const float distance, float strength)
 {
     if ((this->position[axisIndex] > (1 - distance))
         && this->direction[axisIndex] > 0)
@@ -114,7 +114,7 @@ void Boid::neighborsSeparation(const Boid boid, const float distance, const floa
 
 void Boid::bordersAvoidance(const float distance, const float strength)
 {
-    for (size_t axisIndex = 0; axisIndex < 3; ++axisIndex)
+    for (int axisIndex = 0; axisIndex < 3; ++axisIndex)
     {
         this->ChecksBordersOnAxis(axisIndex, distance, strength); // 0:x axis, 1:y, 2:z
     }

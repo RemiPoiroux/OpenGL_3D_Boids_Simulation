@@ -8,9 +8,9 @@ struct BoidProgram
 {
     p6::Shader m_Program;
 
-    GLuint uMVPMatrix;
-    GLuint uMVMatrix;
-    GLuint uNormalMatrix;
+    GLint uMVPMatrix;
+    GLint uMVMatrix;
+    GLint uNormalMatrix;
 
     BoidProgram()
         : m_Program{p6::load_shader("shaders/3D.vs.glsl", "shaders/normals.fs.glsl")}, uMVPMatrix(glGetUniformLocation(m_Program.id(), "uMVPMatrix")), uMVMatrix(glGetUniformLocation(m_Program.id(), "uMVMatrix")), uNormalMatrix(glGetUniformLocation(m_Program.id(), "uNormalMatrix"))
@@ -66,19 +66,19 @@ int main()
     std::vector<Boid> boids = createBoids(NB_BOIDS);
 
     // Initialize Render Matrix
-    glm::mat4 ProjMatrix = glm::perspective(glm::radians(70.f), (GLfloat)width / (GLfloat)height, 0.1f, 100.f);
+    glm::mat4 ProjMatrix = glm::perspective(glm::radians(70.f), static_cast<GLfloat>(width) / static_cast<GLfloat>(height), 0.1f, 100.f);
     glm::mat4 MVMatrix;
     glm::mat4 NormalMatrix;
     glm::mat4 ViewMatrix;
 
-    GLuint vbo;
+    GLuint vbo = 0;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     std::vector<glimac::ShapeVertex> cone = glimac::cone_vertices(1, 1, 32, 16);
     glBufferData(GL_ARRAY_BUFFER, cone.size() * sizeof(glimac::ShapeVertex), cone.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    GLuint vao;
+    GLuint vao = 0;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
@@ -92,7 +92,7 @@ int main()
     glEnableVertexAttribArray(VERTEX_ATTR_TEXTURE);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexAttribPointer(VERTEX_ATTR_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), 0);
+    glVertexAttribPointer(VERTEX_ATTR_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), nullptr);
     glVertexAttribPointer(VERTEX_ATTR_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)offsetof(glimac::ShapeVertex, position));
     glVertexAttribPointer(VERTEX_ATTR_TEXTURE, 2, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)offsetof(glimac::ShapeVertex, position));
     glBindBuffer(GL_ARRAY_BUFFER, 0);

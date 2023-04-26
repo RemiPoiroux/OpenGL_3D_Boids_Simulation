@@ -13,7 +13,7 @@ const float MAX_SPEED_MAX = 0.004;
 
 float RandomFloat(const float a, const float b)
 {
-    float random = ((float)rand()) / (float)RAND_MAX;
+    float random = (static_cast<float>(rand())) / static_cast<float>(RAND_MAX);
     float diff   = b - a;
     float r      = random * diff;
     return a + r;
