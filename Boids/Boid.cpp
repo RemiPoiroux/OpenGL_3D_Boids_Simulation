@@ -44,22 +44,27 @@ void Boid::displacement()
     this->position += this->direction * this->speed;
 }
 
-// clang-format off
-glm::vec3 Boid::TurningDirection(const int axisIndex) const 
+glm::vec3 Boid::TurningDirection(const int axisIndex) const
 {
-    if(axisIndex==0){return {-this->direction.x, this->direction.y, this->direction.z};} // x
-    if(axisIndex==1){return {this->direction.x, -this->direction.y, this->direction.z};} // y
-    if(axisIndex==2){return {this->direction.x, this->direction.y, -this->direction.z};} // z  
-    return {0,0,0};
+    switch (axisIndex)
+    {
+    case 0: return {-this->direction.x, this->direction.y, this->direction.z}; // x
+    case 1: return {this->direction.x, -this->direction.y, this->direction.z}; // y
+    case 2: return {this->direction.x, this->direction.y, -this->direction.z}; // z
+    default: return {0, 0, 0};
+    }
 }
+
 glm::vec3 Boid::HalfTurnDirection(const int axisIndex) const
 {
-    if(axisIndex==0){return {-this->direction.x, 0, 0};} // x
-    if(axisIndex==1){return {0, -this->direction.y, 0};} // y
-    if(axisIndex==2){return {0, 0, -this->direction.z};} // z
-    return {0,0,0};
+    switch (axisIndex)
+    {
+    case 0: return {-this->direction.x, 0, 0}; // x
+    case 1: return {0, -this->direction.y, 0}; // y
+    case 2: return {0, 0, -this->direction.z}; // z
+    default: return {0, 0, 0};
+    }
 }
-// clang-format on
 
 void Boid::ChecksBordersOnAxis(const int axisIndex, const Parameters p)
 {

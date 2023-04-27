@@ -1,4 +1,6 @@
 #include "BoidsManager.hpp"
+#include <algorithm>
+#include <vector>
 #include "glm/fwd.hpp"
 #include "p6/p6.h"
 
@@ -44,26 +46,33 @@ Boid randomBoid()
 std::vector<Boid> createBoids(const size_t nb)
 {
     std::vector<Boid> boids;
-    for (size_t i = 0; i < nb; ++i)
-    {
-        boids.push_back(randomBoid());
-    }
+    boids.reserve(nb);
+    std::generate_n(std::back_inserter(boids), nb, [] { return randomBoid(); });
     return boids;
 }
 
 void neighborsManager(std::vector<Boid>& boids, const NeighborsParameters parameters)
 {
-    for (size_t i = 0; i < boids.size(); ++i)
+    for (Boid& boid : boids)
     {
-        for (size_t j = 0; j < boids.size(); ++j)
-        {
-            if (j != i)
-            {
-                boids[i].neighborsAlignement(boids[j], parameters.alignment);
-                boids[i].neighborsCohesion(boids[j], parameters.cohesion);
-                boids[i].neighborsSeparation(boids[j], parameters.separation);
-            }
-        }
+        auto isNotSelf = [&](const Boid& other) {
+            return &boid != &other;
+        };
+        auto getAlignment = [&](const Boid& other) {
+            return boid.neighborsAlignement(other, parameters.alignment);
+        };
+        auto getCohesion = [&](const Boid& other) {
+            return boid.neighborsCohesion(other, parameters.cohesion);
+        };
+        auto getSeparation = [&](const Boid& other) {
+            return boid.neighborsSeparation(other, parameters.separation);
+        };
+
+        std::vector<Boid> neighbors(boids.size() - 1);
+        std::copy_if(boids.begin(), boids.end(), neighbors.begin(), isNotSelf);
+        std::transform(neighbors.begin(), neighbors.end(), neighbors.begin(), getAlignment);
+        std::transform(neighbors.begin(), neighbors.end(), neighbors.begin(), getCohesion);
+        std::transform(neighbors.begin(), neighbors.end(), neighbors.begin(), getSeparation);
     }
 }
 
