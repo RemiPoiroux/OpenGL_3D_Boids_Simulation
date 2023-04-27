@@ -28,8 +28,6 @@ private:
 private:
     void applyForce(glm::vec3 direction, float strength);
 
-    float distance(Boid boid) const;
-
     void slowing(float amount);
 
     glm::vec3 TurningDirection(AxisIndex axisIndex) const;
@@ -40,15 +38,17 @@ private:
 public:
     Boid(glm::vec3 position, float maxSpeed, glm::vec3 direction);
 
+    float distance(Boid boid) const;
+
     void acceleration(float a);
 
     void displacement();
 
-    void neighborsAlignement(const Boid& boid, Parameters parameters);
+    void neighborsAlignement(const Boid& boid, float strength);
 
-    void neighborsCohesion(const Boid& boid, Parameters parameters);
+    void neighborsCohesion(const Boid& boid, float strength);
 
-    void neighborsSeparation(const Boid& boid, Parameters parameters);
+    void neighborsSeparation(const Boid& boid, float strength);
 
     void bordersAvoidance(Parameters parameters);
 };

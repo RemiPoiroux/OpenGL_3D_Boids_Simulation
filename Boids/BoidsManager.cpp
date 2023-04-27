@@ -1,6 +1,4 @@
 #include "BoidsManager.hpp"
-#include <algorithm>
-#include <vector>
 #include "glm/fwd.hpp"
 #include "p6/p6.h"
 
@@ -51,15 +49,34 @@ void neighborsManager(std::vector<Boid>& boids, const NeighborsParameters parame
 {
     for (size_t i = 0; i < boids.size(); ++i)
     {
-        for (size_t j = 0; j < boids.size(); ++j)
-        {
-            if (j != i)
+        Boid* currentBoid = &boids[i];
+        float distance    = parameters.alignment.distance;
+
+        auto applyToCloseBoids = [&](const auto& func) {
+            auto isClose = [&](const Boid& other) {
+                return currentBoid->distance(other) < distance;
+            };
+            auto closeBoidsBegin = std::find_if(std::begin(boids), std::end(boids), isClose);
+            auto closeBoidsEnd   = std::find_if_not(closeBoidsBegin, std::end(boids), isClose);
+            for (auto boid = closeBoidsBegin; boid != closeBoidsEnd; ++boid)
             {
-                boids[i].neighborsAlignement(boids[j], parameters.alignment);
-                boids[i].neighborsCohesion(boids[j], parameters.cohesion);
-                boids[i].neighborsSeparation(boids[j], parameters.separation);
+                func(*boid);
             }
-        }
+        };
+
+        applyToCloseBoids([&](const Boid& other) {
+            currentBoid->neighborsAlignement(other, parameters.alignment.strength);
+        });
+
+        distance = parameters.cohesion.distance;
+        applyToCloseBoids([&](const Boid& other) {
+            currentBoid->neighborsCohesion(other, parameters.cohesion.strength);
+        });
+
+        distance = parameters.separation.distance;
+        applyToCloseBoids([&](const Boid& other) {
+            currentBoid->neighborsSeparation(other, parameters.separation.strength);
+        });
     }
 }
 

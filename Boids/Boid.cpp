@@ -95,27 +95,18 @@ void Boid::ChecksBordersOnAxis(const AxisIndex axisIndex, const Parameters p)
     }
 }
 
-void Boid::neighborsAlignement(const Boid& boid, const Parameters p)
+void Boid::neighborsAlignement(const Boid& boid, const float strength)
 {
-    if (this->distance(boid) < p.distance)
-    {
-        this->applyForce(boid.direction - this->direction, p.strength);
-    }
+    this->applyForce(boid.direction - this->direction, strength);
 }
-void Boid::neighborsCohesion(const Boid& boid, const Parameters p)
+void Boid::neighborsCohesion(const Boid& boid, const float strength)
 {
-    if (this->distance(boid) < p.distance)
-    {
-        this->applyForce(boid.position - this->position, p.strength);
-    }
+    this->applyForce(boid.position - this->position, strength);
 }
-void Boid::neighborsSeparation(const Boid& boid, const Parameters p)
+void Boid::neighborsSeparation(const Boid& boid, const float strength)
 {
-    if (this->distance(boid) < p.distance)
-    {
-        this->applyForce(boid.direction - this->direction, -p.strength);
-        this->applyForce(boid.position - this->position, -p.strength / 10);
-    }
+    this->applyForce(boid.direction - this->direction, -strength);
+    this->applyForce(boid.position - this->position, -strength / 10);
 }
 
 void Boid::bordersAvoidance(const Parameters p)
