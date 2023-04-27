@@ -48,9 +48,9 @@ glm::vec3 Boid::TurningDirection(const AxisIndex axisIndex) const
 {
     switch (axisIndex)
     {
-    case 0: return {-this->direction.x, this->direction.y, this->direction.z}; // x
-    case 1: return {this->direction.x, -this->direction.y, this->direction.z}; // y
-    case 2: return {this->direction.x, this->direction.y, -this->direction.z}; // z
+    case AxisIndex::x: return {-this->direction.x, this->direction.y, this->direction.z};
+    case AxisIndex::y: return {this->direction.x, -this->direction.y, this->direction.z};
+    case AxisIndex::z: return {this->direction.x, this->direction.y, -this->direction.z};
     }
 }
 
@@ -58,9 +58,9 @@ glm::vec3 Boid::HalfTurnDirection(const AxisIndex axisIndex) const
 {
     switch (axisIndex)
     {
-    case 0: return {-this->direction.x, 0, 0}; // x
-    case 1: return {0, -this->direction.y, 0}; // y
-    case 2: return {0, 0, -this->direction.z}; // z
+    case AxisIndex::x: return {-this->direction.x, 0, 0};
+    case AxisIndex::y: return {0, -this->direction.y, 0};
+    case AxisIndex::z: return {0, 0, -this->direction.z};
     }
 }
 
