@@ -1,21 +1,8 @@
 #include "BoidsManager.hpp"
 #include "FreeflyCamera.hpp"
+#include "Programs.hpp"
 #include "glimac/cone_vertices.hpp"
 #include "glm/gtc/type_ptr.hpp"
-#include "p6/p6.h"
-
-struct BoidProgram
-{
-    p6::Shader m_Program;
-
-    GLint uMVPMatrix;
-    GLint uMVMatrix;
-    GLint uNormalMatrix;
-
-    BoidProgram()
-        : m_Program{p6::load_shader("shaders/3D.vs.glsl", "shaders/normals.fs.glsl")}, uMVPMatrix(glGetUniformLocation(m_Program.id(), "uMVPMatrix")), uMVMatrix(glGetUniformLocation(m_Program.id(), "uMVMatrix")), uNormalMatrix(glGetUniformLocation(m_Program.id(), "uNormalMatrix"))
-    {}
-};
 
 int main()
 {
@@ -34,13 +21,12 @@ int main()
     float     BOIDS_SIZE = 0.04;
     float     TAILS_SIZE = 20;
 
-    float BORDERS_DISTANCE = 0.2;
-    float BORDERS_STRENGTH = 0.3;
+    Parameters BORDERS_PARAMETERS = {0.2, 0.3};
 
     NeighborsParameters NEIGHBORS_PARAMETERS =
-        {0.4f, 0.005f,
-         0.3f, 0.002f,
-         0.1f, 0.5f};
+        {{0.4f, 0.005f},
+         {0.3f, 0.002f},
+         {0.1f, 0.5f}};
 
     /////////////////////////////////
 
@@ -107,14 +93,14 @@ int main()
         ImGui::Begin("Control");
         ImGui::SliderFloat("Boids size", &BOIDS_SIZE, 0.01f, 1.f);
         ImGui::SliderFloat("Tails size", &TAILS_SIZE, 1.f, 10000.f);
-        ImGui::SliderFloat("Alignment distance", &NEIGHBORS_PARAMETERS.AlignmentDistance, 0.f, 2.f);
-        ImGui::SliderFloat("Alignment strength", &NEIGHBORS_PARAMETERS.AlignementStrength, 0.f, 1.f);
-        ImGui::SliderFloat("Cohesion distance", &NEIGHBORS_PARAMETERS.CohesionDistance, 0.f, 2.f);
-        ImGui::SliderFloat("Cohesion strength", &NEIGHBORS_PARAMETERS.CohesionStrength, 0.f, 1.f);
-        ImGui::SliderFloat("Separation distance", &NEIGHBORS_PARAMETERS.SeparationDistance, 0.f, 2.f);
-        ImGui::SliderFloat("Separation strength", &NEIGHBORS_PARAMETERS.SeparationStength, 0.f, 1.f);
-        ImGui::SliderFloat("Borders distance", &BORDERS_DISTANCE, 0.f, 1.f);
-        ImGui::SliderFloat("Borders strength", &BORDERS_STRENGTH, 0.f, 1.f);
+        ImGui::SliderFloat("Alignment distance", &NEIGHBORS_PARAMETERS.alignment.distance, 0.f, 2.f);
+        ImGui::SliderFloat("Alignment strength", &NEIGHBORS_PARAMETERS.alignment.strength, 0.f, 1.f);
+        ImGui::SliderFloat("Cohesion distance", &NEIGHBORS_PARAMETERS.cohesion.distance, 0.f, 2.f);
+        ImGui::SliderFloat("Cohesion strength", &NEIGHBORS_PARAMETERS.cohesion.strength, 0.f, 1.f);
+        ImGui::SliderFloat("Separation distance", &NEIGHBORS_PARAMETERS.separation.distance, 0.f, 2.f);
+        ImGui::SliderFloat("Separation strength", &NEIGHBORS_PARAMETERS.separation.strength, 0.f, 1.f);
+        ImGui::SliderFloat("Borders distance", &BORDERS_PARAMETERS.distance, 0.f, 1.f);
+        ImGui::SliderFloat("Borders strength", &BORDERS_PARAMETERS.strength, 0.f, 1.f);
         ImGui::End();
 
         // camera move
@@ -178,7 +164,7 @@ int main()
         // Boids simulation
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
 
-        borderManager(boids, BORDERS_DISTANCE, BORDERS_STRENGTH);
+        borderManager(boids, BORDERS_PARAMETERS);
 
         boidsDisplacement(boids);
 
@@ -188,7 +174,7 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        boidProgram.m_Program.use();
+        boidProgram.use();
 
         ViewMatrix = camera.getViewMatrix();
 
@@ -196,9 +182,9 @@ int main()
         MVMatrix     = ViewMatrix * MVMatrix;
         NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
 
-        glUniformMatrix4fv(boidProgram.uMVMatrix, 1, GL_FALSE, glm::value_ptr(MVMatrix));
-        glUniformMatrix4fv(boidProgram.uMVPMatrix, 1, GL_FALSE, glm::value_ptr(ProjMatrix * MVMatrix));
-        glUniformMatrix4fv(boidProgram.uNormalMatrix, 1, GL_FALSE, glm::value_ptr(NormalMatrix));
+        glUniformMatrix4fv(boidProgram.uMVMatrix(), 1, GL_FALSE, glm::value_ptr(MVMatrix));
+        glUniformMatrix4fv(boidProgram.uMVPMatrix(), 1, GL_FALSE, glm::value_ptr(ProjMatrix * MVMatrix));
+        glUniformMatrix4fv(boidProgram.uNormalMatrix(), 1, GL_FALSE, glm::value_ptr(NormalMatrix));
 
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(cone.size()));

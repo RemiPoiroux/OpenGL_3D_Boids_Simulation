@@ -1,0 +1,20 @@
+#include "p6/p6.h"
+
+class BoidProgram
+{
+private:
+    const p6::Shader m_Program;
+
+    const GLint m_uMVPMatrix;
+    const GLint m_uMVMatrix;
+    const GLint m_uNormalMatrix;
+
+public:
+    BoidProgram()
+        : m_Program{p6::load_shader("shaders/3D.vs.glsl", "shaders/normals.fs.glsl")}, m_uMVPMatrix(glGetUniformLocation(m_Program.id(), "uMVPMatrix")), m_uMVMatrix(glGetUniformLocation(m_Program.id(), "uMVMatrix")), m_uNormalMatrix(glGetUniformLocation(m_Program.id(), "uNormalMatrix"))
+    {}
+    void  use() const { m_Program.use(); }
+    GLint uMVPMatrix() const { return m_uMVPMatrix; }
+    GLint uMVMatrix() const { return m_uMVMatrix; }
+    GLint uNormalMatrix() const { return m_uNormalMatrix; }
+};

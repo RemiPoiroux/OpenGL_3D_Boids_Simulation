@@ -3,6 +3,12 @@
 #include "glm/fwd.hpp"
 #include "p6/p6.h"
 
+struct Parameters
+{
+    float distance;
+    float strength;
+};
+
 void normaliseVector(glm::vec3& v);
 
 class Boid
@@ -23,7 +29,7 @@ private:
     glm::vec3 TurningDirection(int axisIndex) const;
     glm::vec3 HalfTurnDirection(int axisIndex) const;
 
-    void ChecksBordersOnAxis(int axisIndex, float distance, float strength);
+    void ChecksBordersOnAxis(int axisIndex, Parameters parameters);
 
 public:
     Boid(glm::vec3 p, float mS, glm::vec3 d);
@@ -32,11 +38,11 @@ public:
 
     void displacement();
 
-    void neighborsAlignement(Boid boid, float distance, float strength);
+    void neighborsAlignement(const Boid& boid, Parameters parameters);
 
-    void neighborsCohesion(Boid boid, float distance, float strength);
+    void neighborsCohesion(const Boid& boid, Parameters parameters);
 
-    void neighborsSeparation(Boid boid, float distance, float strength);
+    void neighborsSeparation(const Boid& boid, Parameters parameters);
 
-    void bordersAvoidance(float distance, float strength);
+    void bordersAvoidance(Parameters parameters);
 };

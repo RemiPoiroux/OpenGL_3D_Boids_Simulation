@@ -1,6 +1,7 @@
 #include "Boid.hpp"
 #include <cmath>
 #include <cstddef>
+#include <iostream>
 #include "glm/fwd.hpp"
 #include "p6/p6.h"
 
@@ -20,7 +21,7 @@ void Boid::applyForce(const glm::vec3 direction, const float strength)
 
 float Boid::distance(const Boid boid) const
 {
-    return sqrt(pow(this->position.x - boid.position.x, 2) + pow(this->position.y - boid.position.y, 2) + pow(this->position.z - boid.position.z, 2));
+    return static_cast<float>(sqrt(pow(this->position.x - boid.position.x, 2) + pow(this->position.y - boid.position.y, 2) + pow(this->position.z - boid.position.z, 2)));
 }
 
 void Boid::slowing(const float amount)
@@ -46,21 +47,23 @@ void Boid::displacement()
 // clang-format off
 glm::vec3 Boid::TurningDirection(const int axisIndex) const 
 {
-    if(axisIndex==0){return {1, -this->direction.y, -this->direction.z};} // x
-    if(axisIndex==1){return {-this->direction.x, 1, -this->direction.z};} // y
-    if(axisIndex==2){return {-this->direction.x, -this->direction.y, 1};} // z
+    if(axisIndex==0){return {-this->direction.x, this->direction.y, this->direction.z};} // x
+    if(axisIndex==1){return {this->direction.x, -this->direction.y, this->direction.z};} // y
+    if(axisIndex==2){return {this->direction.x, this->direction.y, -this->direction.z};} // z  
+    return {0,0,0};
 }
 glm::vec3 Boid::HalfTurnDirection(const int axisIndex) const
 {
-    if(axisIndex==0){return {-1, -this->direction.y, -this->direction.z};} // x
-    if(axisIndex==1){return {-this->direction.x, -1, -this->direction.z};} // y
-    if(axisIndex==2){return {-this->direction.x, -this->direction.y, -1};} // z
+    if(axisIndex==0){return {-this->direction.x, 0, 0};} // x
+    if(axisIndex==1){return {0, -this->direction.y, 0};} // y
+    if(axisIndex==2){return {0, 0, -this->direction.z};} // z
+    return {0,0,0};
 }
 // clang-format on
 
-void Boid::ChecksBordersOnAxis(const int axisIndex, const float distance, float strength)
+void Boid::ChecksBordersOnAxis(const int axisIndex, const Parameters p)
 {
-    if ((this->position[axisIndex] > (1 - distance))
+    if ((this->position[axisIndex] > (1 - p.distance))
         && this->direction[axisIndex] > 0)
     {
         if (this->position[axisIndex] > 1)
@@ -69,12 +72,12 @@ void Boid::ChecksBordersOnAxis(const int axisIndex, const float distance, float 
         }
         else
         {
-            strength = (distance + this->position[axisIndex] - 1) * strength;
+            float strength = (p.distance + this->position[axisIndex] - 1) * p.strength;
             this->applyForce(this->TurningDirection(axisIndex), strength);
             this->slowing(strength);
         }
     }
-    else if ((this->position[axisIndex] < -(1 - distance)) && this->direction[axisIndex] < 0)
+    else if ((this->position[axisIndex] < -(1 - p.distance)) && this->direction[axisIndex] < 0)
     {
         if (this->position[axisIndex] < -1)
         {
@@ -82,40 +85,40 @@ void Boid::ChecksBordersOnAxis(const int axisIndex, const float distance, float 
         }
         else
         {
-            strength = (distance - this->position[axisIndex] - 1) * strength;
+            float strength = (p.distance - this->position[axisIndex] - 1) * p.strength;
             this->applyForce(-this->TurningDirection(axisIndex), strength);
-            this->slowing(strength / 2);
+            this->slowing(strength);
         }
     }
 }
 
-void Boid::neighborsAlignement(const Boid boid, const float distance, const float strength)
+void Boid::neighborsAlignement(const Boid& boid, const Parameters p)
 {
-    if (this->distance(boid) < distance)
+    if (this->distance(boid) < p.distance)
     {
-        this->applyForce(boid.direction - this->direction, strength);
+        this->applyForce(boid.direction - this->direction, p.strength);
     }
 }
-void Boid::neighborsCohesion(const Boid boid, const float distance, const float strength)
+void Boid::neighborsCohesion(const Boid& boid, const Parameters p)
 {
-    if (this->distance(boid) < distance)
+    if (this->distance(boid) < p.distance)
     {
-        this->applyForce(boid.position - this->position, strength);
+        this->applyForce(boid.position - this->position, p.strength);
     }
 }
-void Boid::neighborsSeparation(const Boid boid, const float distance, const float strength)
+void Boid::neighborsSeparation(const Boid& boid, const Parameters p)
 {
-    if (this->distance(boid) < distance)
+    if (this->distance(boid) < p.distance)
     {
-        this->applyForce(boid.direction - this->direction, -strength);
-        this->applyForce(boid.position - this->position, -strength / 10);
+        this->applyForce(boid.direction - this->direction, -p.strength);
+        this->applyForce(boid.position - this->position, -p.strength / 10);
     }
 }
 
-void Boid::bordersAvoidance(const float distance, const float strength)
+void Boid::bordersAvoidance(const Parameters p)
 {
     for (int axisIndex = 0; axisIndex < 3; ++axisIndex)
     {
-        this->ChecksBordersOnAxis(axisIndex, distance, strength); // 0:x axis, 1:y, 2:z
+        this->ChecksBordersOnAxis(axisIndex, p); // 0:x axis, 1:y, 2:z
     }
 }

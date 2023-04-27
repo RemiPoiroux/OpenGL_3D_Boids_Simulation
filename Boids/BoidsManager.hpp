@@ -4,20 +4,17 @@
 
 struct NeighborsParameters
 {
-    float AlignmentDistance;
-    float AlignementStrength;
+    Parameters alignment;
 
-    float CohesionDistance;
-    float CohesionStrength;
+    Parameters cohesion;
 
-    float SeparationDistance;
-    float SeparationStength;
+    Parameters separation;
 };
 
 std::vector<Boid> createBoids(size_t nb);
 
 void neighborsManager(std::vector<Boid>& boids, NeighborsParameters parameters);
 
-void borderManager(std::vector<Boid>& boids, float distance, float strength);
+void borderManager(std::vector<Boid>& boids, Parameters parameters);
 
 void boidsDisplacement(std::vector<Boid>& boids);

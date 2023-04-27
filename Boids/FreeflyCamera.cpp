@@ -18,7 +18,7 @@ void BordersCheck(glm::vec3& position)
 }
 
 FreeflyCamera::FreeflyCamera()
-    : m_Position(0), m_fPhi(glm::pi<float>()), m_fTheta(0)
+    : m_Position(0), m_fPhi(glm::pi<float>()), m_fTheta(0), m_FrontVector(), m_LeftVector(), m_UpVector()
 {
     this->computeDirectionVectors();
 }

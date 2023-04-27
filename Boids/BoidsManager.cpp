@@ -13,7 +13,11 @@ const float MAX_SPEED_MAX = 0.004;
 
 float RandomFloat(const float a, const float b)
 {
-    float random = (static_cast<float>(rand())) / static_cast<float>(RAND_MAX);
+    std::random_device                    rd;
+    std::mt19937                          mt(rd());
+    std::uniform_real_distribution<float> rand(0.f, 1.0f);
+
+    float random = rand(mt);
     float diff   = b - a;
     float r      = random * diff;
     return a + r;
@@ -59,19 +63,19 @@ void neighborsManager(std::vector<Boid>& boids, const NeighborsParameters parame
         {
             if (j != i)
             {
-                boids[i].neighborsAlignement(boids[j], parameters.AlignmentDistance, parameters.AlignementStrength);
-                boids[i].neighborsCohesion(boids[j], parameters.CohesionDistance, parameters.CohesionStrength);
-                boids[i].neighborsSeparation(boids[j], parameters.SeparationDistance, parameters.SeparationStength);
+                boids[i].neighborsAlignement(boids[j], parameters.alignment);
+                boids[i].neighborsCohesion(boids[j], parameters.cohesion);
+                boids[i].neighborsSeparation(boids[j], parameters.separation);
             }
         }
     }
 }
 
-void borderManager(std::vector<Boid>& boids, const float distance, const float strength)
+void borderManager(std::vector<Boid>& boids, const Parameters parameters)
 {
     for (Boid& boid : boids)
     {
-        boid.bordersAvoidance(distance, strength);
+        boid.bordersAvoidance(parameters);
     }
 }
 
