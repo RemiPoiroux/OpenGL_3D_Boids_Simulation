@@ -36,11 +36,7 @@ glm::vec3 RandomDirection()
 
 Boid randomBoid()
 {
-    glm::vec3 position  = RandomVec3();
-    float     maxSpeed  = RandomFloat(MAX_SPEED_MIN, MAX_SPEED_MAX);
-    glm::vec3 direction = RandomDirection();
-
-    return {position, maxSpeed, direction};
+    return {RandomVec3(), RandomFloat(MAX_SPEED_MIN, MAX_SPEED_MAX), RandomDirection()};
 }
 
 std::vector<Boid> createBoids(const size_t nb)
@@ -53,26 +49,17 @@ std::vector<Boid> createBoids(const size_t nb)
 
 void neighborsManager(std::vector<Boid>& boids, const NeighborsParameters parameters)
 {
-    for (Boid& boid : boids)
+    for (size_t i = 0; i < boids.size(); ++i)
     {
-        auto isNotSelf = [&](const Boid& other) {
-            return &boid != &other;
-        };
-        auto getAlignment = [&](const Boid& other) {
-            return boid.neighborsAlignement(other, parameters.alignment);
-        };
-        auto getCohesion = [&](const Boid& other) {
-            return boid.neighborsCohesion(other, parameters.cohesion);
-        };
-        auto getSeparation = [&](const Boid& other) {
-            return boid.neighborsSeparation(other, parameters.separation);
-        };
-
-        std::vector<Boid> neighbors(boids.size() - 1);
-        std::copy_if(boids.begin(), boids.end(), neighbors.begin(), isNotSelf);
-        std::transform(neighbors.begin(), neighbors.end(), neighbors.begin(), getAlignment);
-        std::transform(neighbors.begin(), neighbors.end(), neighbors.begin(), getCohesion);
-        std::transform(neighbors.begin(), neighbors.end(), neighbors.begin(), getSeparation);
+        for (size_t j = 0; j < boids.size(); ++j)
+        {
+            if (j != i)
+            {
+                boids[i].neighborsAlignement(boids[j], parameters.alignment);
+                boids[i].neighborsCohesion(boids[j], parameters.cohesion);
+                boids[i].neighborsSeparation(boids[j], parameters.separation);
+            }
+        }
     }
 }
 

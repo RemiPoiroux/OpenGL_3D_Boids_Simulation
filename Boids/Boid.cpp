@@ -29,8 +29,8 @@ void Boid::slowing(const float amount)
     this->speed -= this->speed * amount;
 }
 
-Boid::Boid(const glm::vec3 p, const float mS, const glm::vec3 d)
-    : position(p), maxSpeed(mS), speed(), direction(d) {}
+Boid::Boid(const glm::vec3 pos, const float maxSpeed, const glm::vec3 dir)
+    : position(pos), maxSpeed(maxSpeed), speed(), direction(dir) {}
 
 void Boid::acceleration(float a)
 {
@@ -44,29 +44,27 @@ void Boid::displacement()
     this->position += this->direction * this->speed;
 }
 
-glm::vec3 Boid::TurningDirection(const int axisIndex) const
+glm::vec3 Boid::TurningDirection(const AxisIndex axisIndex) const
 {
     switch (axisIndex)
     {
     case 0: return {-this->direction.x, this->direction.y, this->direction.z}; // x
     case 1: return {this->direction.x, -this->direction.y, this->direction.z}; // y
     case 2: return {this->direction.x, this->direction.y, -this->direction.z}; // z
-    default: return {0, 0, 0};
     }
 }
 
-glm::vec3 Boid::HalfTurnDirection(const int axisIndex) const
+glm::vec3 Boid::HalfTurnDirection(const AxisIndex axisIndex) const
 {
     switch (axisIndex)
     {
     case 0: return {-this->direction.x, 0, 0}; // x
     case 1: return {0, -this->direction.y, 0}; // y
     case 2: return {0, 0, -this->direction.z}; // z
-    default: return {0, 0, 0};
     }
 }
 
-void Boid::ChecksBordersOnAxis(const int axisIndex, const Parameters p)
+void Boid::ChecksBordersOnAxis(const AxisIndex axisIndex, const Parameters p)
 {
     if ((this->position[axisIndex] > (1 - p.distance))
         && this->direction[axisIndex] > 0)
@@ -122,8 +120,7 @@ void Boid::neighborsSeparation(const Boid& boid, const Parameters p)
 
 void Boid::bordersAvoidance(const Parameters p)
 {
-    for (int axisIndex = 0; axisIndex < 3; ++axisIndex)
-    {
-        this->ChecksBordersOnAxis(axisIndex, p); // 0:x axis, 1:y, 2:z
-    }
+    this->ChecksBordersOnAxis(AxisIndex::x, p);
+    this->ChecksBordersOnAxis(AxisIndex::y, p);
+    this->ChecksBordersOnAxis(AxisIndex::z, p);
 }

@@ -9,6 +9,12 @@ struct Parameters
     float strength;
 };
 
+enum AxisIndex {
+    x = 0,
+    y = 1,
+    z = 2
+};
+
 void normaliseVector(glm::vec3& v);
 
 class Boid
@@ -26,13 +32,13 @@ private:
 
     void slowing(float amount);
 
-    glm::vec3 TurningDirection(int axisIndex) const;
-    glm::vec3 HalfTurnDirection(int axisIndex) const;
+    glm::vec3 TurningDirection(AxisIndex axisIndex) const;
+    glm::vec3 HalfTurnDirection(AxisIndex axisIndex) const;
 
-    void ChecksBordersOnAxis(int axisIndex, Parameters parameters);
+    void ChecksBordersOnAxis(AxisIndex axisIndex, Parameters parameters);
 
 public:
-    Boid(glm::vec3 p, float mS, glm::vec3 d);
+    Boid(glm::vec3 position, float maxSpeed, glm::vec3 direction);
 
     void acceleration(float a);
 
