@@ -15,12 +15,8 @@ float RandomFloat(const float a, const float b)
 {
     std::random_device                    rd;
     std::mt19937                          mt(rd());
-    std::uniform_real_distribution<float> rand(0.f, 1.0f);
-
-    float random = rand(mt);
-    float diff   = b - a;
-    float r      = random * diff;
-    return a + r;
+    std::uniform_real_distribution<float> rand(a, b);
+    return rand(mt);
 }
 
 glm::vec3 RandomVec3()
