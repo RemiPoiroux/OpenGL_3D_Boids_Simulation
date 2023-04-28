@@ -52,6 +52,7 @@ glm::vec3 Boid::TurningDirection(const AxisIndex axisIndex) const
     case AxisIndex::y: return {this->direction.x, -this->direction.y, this->direction.z};
     case AxisIndex::z: return {this->direction.x, this->direction.y, -this->direction.z};
     }
+    return {};
 }
 
 glm::vec3 Boid::HalfTurnDirection(const AxisIndex axisIndex) const
@@ -62,6 +63,7 @@ glm::vec3 Boid::HalfTurnDirection(const AxisIndex axisIndex) const
     case AxisIndex::y: return {0, -this->direction.y, 0};
     case AxisIndex::z: return {0, 0, -this->direction.z};
     }
+    return {};
 }
 
 void Boid::ChecksBordersOnAxis(const AxisIndex axisIndex, const Parameters p)
