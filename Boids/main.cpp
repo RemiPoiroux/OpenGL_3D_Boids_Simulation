@@ -42,7 +42,7 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     // Initialise Programs
-    BoidProgram boidProgram = BoidProgram();
+    BackgroundProgram backgroundProgram = BackgroundProgram();
 
     // Initialize camera
     FreeflyCamera camera;
@@ -92,6 +92,20 @@ int main()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     glBindVertexArray(0);
+
+    // Initialize textures
+    img::Image backgroundImage = p6::load_image_buffer("assets/textures/starry-night-sky.jpg");
+
+    GLuint backgroundTexture{};
+
+    GLuint textures[] = {backgroundTexture};
+
+    glGenTextures(1, textures);
+    glBindTexture(GL_TEXTURE_2D, textures[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backgroundImage.width(), backgroundImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, backgroundImage.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     /*********************************/
 
@@ -181,23 +195,29 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        boidProgram.use();
-
         ViewMatrix = camera.getViewMatrix();
+
+        backgroundProgram.use();
+        glUniform1i(backgroundProgram.uTexture(), 0);
 
         MVMatrix     = glm::mat4(1);
         MVMatrix     = ViewMatrix * MVMatrix;
         NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
 
-        glUniformMatrix4fv(boidProgram.uMVMatrix(), 1, GL_FALSE, glm::value_ptr(MVMatrix));
-        glUniformMatrix4fv(boidProgram.uMVPMatrix(), 1, GL_FALSE, glm::value_ptr(ProjMatrix * MVMatrix));
-        glUniformMatrix4fv(boidProgram.uNormalMatrix(), 1, GL_FALSE, glm::value_ptr(NormalMatrix));
+        glUniformMatrix4fv(backgroundProgram.uMVMatrix(), 1, GL_FALSE, glm::value_ptr(MVMatrix));
+        glUniformMatrix4fv(backgroundProgram.uMVPMatrix(), 1, GL_FALSE, glm::value_ptr(ProjMatrix * MVMatrix));
+        glUniformMatrix4fv(backgroundProgram.uNormalMatrix(), 1, GL_FALSE, glm::value_ptr(NormalMatrix));
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textures[0]);
 
         glBindVertexArray(vaos);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibos);
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(backgroundIndices.size()), GL_UNSIGNED_INT, nullptr);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         /*********************************/
     };
@@ -209,5 +229,5 @@ int main()
     glDeleteBuffers(1, &vbos);
     glDeleteBuffers(1, &ibos);
     glDeleteVertexArrays(1, &vaos);
-    // glDeleteTextures(1, &textures);
+    glDeleteTextures(1, textures);
 }
