@@ -1,3 +1,7 @@
+# Install assimp library
+
+sudo apt-get install libassimp-dev
+
 # OpenGL TPs Template
 
 This template will help you follow the lessons from [this OpenGL class](https://julesfouchy.github.io/Learn--OpenGL/).

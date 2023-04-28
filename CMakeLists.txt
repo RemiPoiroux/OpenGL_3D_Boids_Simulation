@@ -37,6 +37,8 @@ function(add_exercise EXERCISE_NAME)
 
     # ---Link p6 library---
     target_link_libraries(${TARGET_NAME} PRIVATE p6::p6)
+    # ---Link assimp library---
+    target_link_libraries(${TARGET_NAME} PRIVATE assimp)
 
     # ---Set the output folder---
     set_target_properties(${TARGET_NAME} PROPERTIES
