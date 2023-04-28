@@ -1,8 +1,8 @@
+#include <ostream>
 #include "BoidsManager.hpp"
 #include "FreeflyCamera.hpp"
 #include "Programs.hpp"
-#include "glimac/cone_vertices.hpp"
-#include "glm/gtc/type_ptr.hpp"
+#include "Vbos&Ibos.hpp"
 
 int main()
 {
@@ -19,7 +19,6 @@ int main()
 
     const int NB_BOIDS   = 20;
     float     BOIDS_SIZE = 0.04;
-    float     TAILS_SIZE = 20;
 
     Parameters BORDERS_PARAMETERS = {0.2, 0.3};
 
@@ -57,31 +56,40 @@ int main()
     glm::mat4 NormalMatrix;
     glm::mat4 ViewMatrix;
 
-    GLuint vbo = 0;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    std::vector<glimac::ShapeVertex> cone = glimac::cone_vertices(1, 1, 32, 16);
-    glBufferData(GL_ARRAY_BUFFER, cone.size() * sizeof(glimac::ShapeVertex), cone.data(), GL_STATIC_DRAW);
+    GLuint vbos{};
+    glGenBuffers(1, &vbos);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos);
+    std::vector<glimac::ShapeVertex> backgroundVertices = cubeVbo();
+    glBufferData(GL_ARRAY_BUFFER, backgroundVertices.size() * sizeof(glimac::ShapeVertex), backgroundVertices.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    GLuint vao = 0;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    GLuint ibos{};
+    glGenBuffers(1, &ibos);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibos);
+    std::vector<uint32_t> backgroundIndices = cubeIbo();
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, backgroundIndices.size() * sizeof(uint32_t), backgroundIndices.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    GLuint vaos{};
+    glGenVertexArrays(1, &vaos);
+    glBindVertexArray(vaos);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibos);
 
     static constexpr GLuint VERTEX_ATTR_POSITION = 0;
     glEnableVertexAttribArray(VERTEX_ATTR_POSITION);
-
     static constexpr GLuint VERTEX_ATTR_NORMAL = 1;
     glEnableVertexAttribArray(VERTEX_ATTR_NORMAL);
-
     static constexpr GLuint VERTEX_ATTR_TEXTURE = 2;
     glEnableVertexAttribArray(VERTEX_ATTR_TEXTURE);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos);
     glVertexAttribPointer(VERTEX_ATTR_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), nullptr);
-    glVertexAttribPointer(VERTEX_ATTR_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)offsetof(glimac::ShapeVertex, position));
-    glVertexAttribPointer(VERTEX_ATTR_TEXTURE, 2, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)offsetof(glimac::ShapeVertex, position));
+    glVertexAttribPointer(VERTEX_ATTR_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)offsetof(glimac::ShapeVertex, normal));
+    glVertexAttribPointer(VERTEX_ATTR_TEXTURE, 2, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)offsetof(glimac::ShapeVertex, texCoords));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     glBindVertexArray(0);
 
@@ -92,7 +100,6 @@ int main()
         // Events
         ImGui::Begin("Control");
         ImGui::SliderFloat("Boids size", &BOIDS_SIZE, 0.01f, 1.f);
-        ImGui::SliderFloat("Tails size", &TAILS_SIZE, 1.f, 10000.f);
         ImGui::SliderFloat("Alignment distance", &NEIGHBORS_PARAMETERS.alignment.distance, 0.f, 2.f);
         ImGui::SliderFloat("Alignment strength", &NEIGHBORS_PARAMETERS.alignment.strength, 0.f, 1.f);
         ImGui::SliderFloat("Cohesion distance", &NEIGHBORS_PARAMETERS.cohesion.distance, 0.f, 2.f);
@@ -186,8 +193,10 @@ int main()
         glUniformMatrix4fv(boidProgram.uMVPMatrix(), 1, GL_FALSE, glm::value_ptr(ProjMatrix * MVMatrix));
         glUniformMatrix4fv(boidProgram.uNormalMatrix(), 1, GL_FALSE, glm::value_ptr(NormalMatrix));
 
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(cone.size()));
+        glBindVertexArray(vaos);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibos);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(backgroundIndices.size()), GL_UNSIGNED_INT, nullptr);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
 
         /*********************************/
@@ -197,7 +206,8 @@ int main()
     ctx.start();
 
     // Ressources released
-    glDeleteBuffers(1, &vbo);
-    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbos);
+    glDeleteBuffers(1, &ibos);
+    glDeleteVertexArrays(1, &vaos);
     // glDeleteTextures(1, &textures);
 }
