@@ -49,12 +49,11 @@ void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuf
         glBindTexture(GL_TEXTURE_2D, 0);
     };
 
+    // Background Buffers Init
     initializeVbo(cubeVbo, vbos.m_["background"]);
     initializeIbo(cubeIbo, ibos.m_["background"]);
     initializeVao(vaos.m_["background"], vbos.m_["background"], ibos.m_["background"]);
-
     img::Image backgroundImage = p6::load_image_buffer("assets/textures/starry-night-sky.jpg");
-
     initializeTexture(backgroundImage, textures.m_["background"]);
 }
 
@@ -86,10 +85,11 @@ void render(MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, c
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    OneTextureProgram oneTextureProgram = OneTextureProgram();
+
     // Background Render
-    BackgroundProgram backgroundProgram = BackgroundProgram();
-    glm::mat4         MVMatrix          = glm::mat4(1);
-    renderWithOneTexture(ViewMatrix, backgroundProgram, MVMatrix, textures.m_["background"], ProjMatrix, vaos.m_["background"]);
+    glm::mat4 MVMatrix = glm::mat4(1);
+    renderWithOneTexture(ViewMatrix, oneTextureProgram, MVMatrix, textures.m_["background"], ProjMatrix, vaos.m_["background"]);
 }
 
 void releasesRessources(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuffers& textures)
