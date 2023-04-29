@@ -1,3 +1,5 @@
+#pragma once
+
 #include "BoidsManager.hpp"
 
-void ImGuiInterface(float& BOIDS_SIZE, NeighborsParameters& NEIGHBORS_PARAMETERS, Parameters& BORDERS_PARAMETERS);
+void ImGuiInterface(float& boidsSize, NeighborsParameters& neighborsParameters, Parameters& bordersParameters);

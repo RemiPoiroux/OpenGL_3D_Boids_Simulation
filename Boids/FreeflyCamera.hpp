@@ -2,6 +2,14 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
+struct CameraParameters
+{
+    float cameraTranslationForce;
+    float fastSpeedFactor;
+    float cameraRotationForce;
+    float mouseRotationForce;
+};
+
 class FreeflyCamera
 {
 private:

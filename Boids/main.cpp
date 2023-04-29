@@ -1,7 +1,6 @@
 #include <ostream>
-#include "BoidsManager.hpp"
-#include "FreeflyCamera.hpp"
 #include "ImGuiInterface.hpp"
+#include "Inputs.hpp"
 #include "Programs.hpp"
 #include "Vbos&Ibos.hpp"
 
@@ -11,10 +10,11 @@ int main()
 
     // CAMERA PARAMETERS
 
-    float CAM_TRANSLATION_FORCE = 0.001;
-    float CAM_ROTATION_FORCE    = 0.1;
-    float MOUSE_ROTATION_FORCE  = 50;
-    float FAST_SPEED_FACTOR     = 10;
+    CameraParameters CAM_PARAMETERS =
+        {0.001,
+         10,
+         0.1,
+         50};
 
     // SIMULATION PARAMETERS
 
@@ -114,63 +114,7 @@ int main()
     ctx.update = [&]() {
         ImGuiInterface(BOIDS_SIZE, NEIGHBORS_PARAMETERS, BORDERS_PARAMETERS);
 
-        // camera move
-        float factor = 1;
-        if (ctx.shift())
-        {
-            factor = FAST_SPEED_FACTOR;
-        };
-
-        if (ctx.key_is_pressed(GLFW_KEY_A))
-        {
-            camera.moveLeft(factor * CAM_TRANSLATION_FORCE);
-        }
-        if (ctx.key_is_pressed(GLFW_KEY_D))
-        {
-            camera.moveLeft(-factor * CAM_TRANSLATION_FORCE);
-        }
-        if (ctx.key_is_pressed(GLFW_KEY_W))
-        {
-            camera.moveFront(factor * CAM_TRANSLATION_FORCE);
-        }
-        if (ctx.key_is_pressed(GLFW_KEY_S))
-        {
-            camera.moveFront(-factor * CAM_TRANSLATION_FORCE);
-        }
-
-        // camera rotation
-        if (ctx.key_is_pressed(GLFW_KEY_Q))
-        {
-            camera.rotateLeft(CAM_ROTATION_FORCE);
-        }
-        if (ctx.key_is_pressed(GLFW_KEY_E))
-        {
-            camera.rotateLeft(-CAM_ROTATION_FORCE);
-        }
-        if (ctx.key_is_pressed(GLFW_KEY_LEFT))
-        {
-            camera.rotateLeft(CAM_ROTATION_FORCE);
-        }
-        if (ctx.key_is_pressed(GLFW_KEY_RIGHT))
-        {
-            camera.rotateLeft(-CAM_ROTATION_FORCE);
-        }
-        if (ctx.key_is_pressed(GLFW_KEY_UP))
-        {
-            camera.rotateUp(CAM_ROTATION_FORCE);
-        }
-        if (ctx.key_is_pressed(GLFW_KEY_DOWN))
-        {
-            camera.rotateUp(-CAM_ROTATION_FORCE);
-        }
-        if (ctx.mouse_moved)
-        {
-            if (ctx.alt() || ctx.mouse_button_is_pressed(p6::Button::Right))
-            {
-                camera.rotateLeft(-ctx.mouse_delta().x * MOUSE_ROTATION_FORCE);
-                camera.rotateUp(ctx.mouse_delta().y * MOUSE_ROTATION_FORCE);
-            }
-        }
+        inputsEvents(ctx, CAM_PARAMETERS, camera);
 
         // Boids simulation
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
