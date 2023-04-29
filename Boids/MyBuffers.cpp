@@ -1,4 +1,4 @@
-#include "Vbos&Ibos.hpp"
+#include "MyBuffers.hpp"
 #include "ObjLoad.hpp"
 
 std::vector<glimac::ShapeVertex> cubeVbo()
