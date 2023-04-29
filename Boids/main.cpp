@@ -3,16 +3,9 @@
 #include "MyBuffers.hpp"
 #include "Programs.hpp"
 
-void ReleasesRessources(Vbos& vbos, Ibos& ibos, Vaos& vaos, Textures& textures)
-{
-    glDeleteBuffers(1, &vbos.backgroundVbo);
-    glDeleteBuffers(1, &ibos.backgroundIbo);
-    glDeleteVertexArrays(1, &vaos.backgroundVao);
-    glDeleteTextures(1, &textures.backgroundTex);
-}
-
 int main()
 {
+    /////////////////////////////////
     /////////////////////////////////
 
     // CAMERA PARAMETERS
@@ -35,6 +28,7 @@ int main()
          {0.3f, 0.002f},
          {0.1f, 0.5f}};
 
+    /////////////////////////////////
     /////////////////////////////////
 
     int  width  = 1280;
@@ -64,54 +58,15 @@ int main()
     glm::mat4 NormalMatrix;
     glm::mat4 ViewMatrix;
 
-    Vbos vbos{};
-    glGenBuffers(1, &vbos.backgroundVbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbos.backgroundVbo);
-    std::vector<glimac::ShapeVertex> backgroundVertices = cubeVbo();
-    glBufferData(GL_ARRAY_BUFFER, backgroundVertices.size() * sizeof(glimac::ShapeVertex), backgroundVertices.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // Initialize Maps of Buffers
+    MyBuffers vbos{};
+    MyBuffers ibos{};
+    MyBuffers vaos{};
+    MyBuffers textures{};
+    initializesBuffers(vbos, ibos, vaos, textures);
 
-    Ibos ibos{};
-    glGenBuffers(1, &ibos.backgroundIbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibos.backgroundIbo);
-    std::vector<uint32_t> backgroundIndices = cubeIbo();
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, backgroundIndices.size() * sizeof(uint32_t), backgroundIndices.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    Vaos vaos{};
-    glGenVertexArrays(1, &vaos.backgroundVao);
-    glBindVertexArray(vaos.backgroundVao);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibos.backgroundIbo);
-
-    static constexpr GLuint VERTEX_ATTR_POSITION = 0;
-    glEnableVertexAttribArray(VERTEX_ATTR_POSITION);
-    static constexpr GLuint VERTEX_ATTR_NORMAL = 1;
-    glEnableVertexAttribArray(VERTEX_ATTR_NORMAL);
-    static constexpr GLuint VERTEX_ATTR_TEXTURE = 2;
-    glEnableVertexAttribArray(VERTEX_ATTR_TEXTURE);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbos.backgroundVbo);
-    glVertexAttribPointer(VERTEX_ATTR_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), nullptr);
-    glVertexAttribPointer(VERTEX_ATTR_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)offsetof(glimac::ShapeVertex, normal));
-    glVertexAttribPointer(VERTEX_ATTR_TEXTURE, 2, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)offsetof(glimac::ShapeVertex, texCoords));
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glBindVertexArray(0);
-
-    // Initialize textures
-    img::Image backgroundImage = p6::load_image_buffer("assets/textures/starry-night-sky.jpg");
-
-    Textures textures{};
-
-    glGenTextures(1, &textures.backgroundTex);
-    glBindTexture(GL_TEXTURE_2D, textures.backgroundTex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backgroundImage.width(), backgroundImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, backgroundImage.data());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    /*********************************/
+    /////////////////////////////////
+    /////////////////////////////////
 
     // Declare your infinite update loop.
     ctx.update = [&]() {
@@ -121,9 +76,7 @@ int main()
 
         // Boids simulation
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
-
         borderManager(boids, BORDERS_PARAMETERS);
-
         boidsDisplacement(boids);
 
         /*********************************
@@ -146,10 +99,12 @@ int main()
         glUniformMatrix4fv(backgroundProgram.uNormalMatrix(), 1, GL_FALSE, glm::value_ptr(NormalMatrix));
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, textures.backgroundTex);
+        glBindTexture(GL_TEXTURE_2D, textures.m_["background"]);
 
-        glBindVertexArray(vaos.backgroundVao);
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(backgroundIndices.size()), GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(vaos.m_["background"]);
+        GLint size{};
+        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+        glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
 
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -160,6 +115,5 @@ int main()
     // Should be done last. It starts the infinite loop.
     ctx.start();
 
-    // Ressources released
-    ReleasesRessources(vbos, ibos, vaos, textures);
+    releasesRessources(vbos, ibos, vaos, textures);
 }
