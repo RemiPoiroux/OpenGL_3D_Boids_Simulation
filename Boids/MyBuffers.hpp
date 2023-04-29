@@ -18,9 +18,8 @@ struct MyBuffers
         {"obstacleSD", 0}};
 };
 
-std::vector<glimac::ShapeVertex> cubeVbo();
-std::vector<unsigned int>        cubeIbo();
-
 void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuffers& textures);
+
+void render(MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix);
 
 void releasesRessources(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuffers& textures);

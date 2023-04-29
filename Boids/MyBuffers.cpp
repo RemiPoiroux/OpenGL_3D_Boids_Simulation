@@ -1,17 +1,7 @@
 #include "MyBuffers.hpp"
-#include "ObjLoad.hpp"
+#include "Programs.hpp"
+#include "Vbos&Ibos.hpp"
 #include "img/src/Image.h"
-
-std::vector<glimac::ShapeVertex> cubeVbo()
-{
-    std::string cubeFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/background.obj");
-    return loadVboFromObj(cubeFile);
-}
-std::vector<uint32_t> cubeIbo()
-{
-    std::string cubeFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/background.obj");
-    return loadIboFromObj(cubeFile);
-}
 
 void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuffers& textures)
 {
@@ -66,6 +56,40 @@ void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuf
     img::Image backgroundImage = p6::load_image_buffer("assets/textures/starry-night-sky.jpg");
 
     initializeTexture(backgroundImage, textures.m_["background"]);
+}
+
+void render(MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix)
+{
+    auto renderWithOneTexture = [](const glm::mat4& ViewMatrix, const auto& program, glm::mat4& MVMatrix, const GLuint& texture, const glm::mat4& ProjMatrix, const GLuint& vao) {
+        program.use();
+        glUniform1i(program.uTexture(), 0);
+
+        MVMatrix               = ViewMatrix * MVMatrix;
+        glm::mat4 MVPMatrix    = ProjMatrix * MVMatrix;
+        glm::mat4 NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
+
+        glUniformMatrix4fv(program.uMVMatrix(), 1, GL_FALSE, glm::value_ptr(MVMatrix));
+        glUniformMatrix4fv(program.uMVPMatrix(), 1, GL_FALSE, glm::value_ptr(MVPMatrix));
+        glUniformMatrix4fv(program.uNormalMatrix(), 1, GL_FALSE, glm::value_ptr(NormalMatrix));
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        glBindVertexArray(vao);
+        GLint size{};
+        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+        glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+    };
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Background Render
+    BackgroundProgram backgroundProgram = BackgroundProgram();
+    glm::mat4         MVMatrix          = glm::mat4(1);
+    renderWithOneTexture(ViewMatrix, backgroundProgram, MVMatrix, textures.m_["background"], ProjMatrix, vaos.m_["background"]);
 }
 
 void releasesRessources(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuffers& textures)
