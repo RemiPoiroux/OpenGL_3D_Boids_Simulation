@@ -2,26 +2,41 @@
 #include <cmath>
 #include <cstddef>
 #include <iostream>
+#include "glm/ext/quaternion_geometric.hpp"
 #include "glm/fwd.hpp"
+#include "glm/gtx/rotate_vector.hpp"
 #include "p6/p6.h"
-
-void normaliseVector(glm::vec3& v)
-{
-    float norm = std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-    v.x        = v.x / norm;
-    v.y        = v.y / norm;
-    v.z        = v.z / norm;
-}
 
 void Boid::applyForce(const glm::vec3 direction, const float strength)
 {
     this->direction += direction * strength;
-    normaliseVector(this->direction);
+    glm::normalize(this->direction);
 }
 
 float Boid::distance(const Boid boid) const
 {
     return static_cast<float>(sqrt(pow(this->position.x - boid.position.x, 2) + pow(this->position.y - boid.position.y, 2) + pow(this->position.z - boid.position.z, 2)));
+}
+glm::vec3 Boid::pos() const
+{
+    return position;
+}
+
+glm::mat4 Boid::getRotationMatrix() const
+{
+    glm::vec3 originalVec = {0, 0, -1};
+    glm::vec3 targetVec   = this->direction;
+
+    glm::vec3 axis  = glm::cross(originalVec, targetVec);
+    float     angle = glm::acos(glm::dot(originalVec, targetVec) / (glm::length(originalVec) * glm::length(targetVec)));
+
+    glm::mat4 rotMatrix = glm::mat4(1.0f);
+    if (angle != 0 && !glm::isnan(angle))
+    {
+        rotMatrix = glm::rotate(rotMatrix, angle, glm::normalize(axis));
+    }
+
+    return rotMatrix;
 }
 
 void Boid::slowing(const float amount)
@@ -30,7 +45,8 @@ void Boid::slowing(const float amount)
 }
 
 Boid::Boid(const glm::vec3 pos, const float maxSpeed, const glm::vec3 dir)
-    : position(pos), maxSpeed(maxSpeed), speed(), direction(dir) {}
+    : position(pos), maxSpeed(maxSpeed), speed(), direction(dir)
+{}
 
 void Boid::acceleration(float a)
 {
@@ -75,25 +91,25 @@ void Boid::ChecksBordersOnAxis(const AxisIndex axisIndex, const Parameters p)
         {
             this->applyForce(this->HalfTurnDirection(axisIndex), 2);
         }
-        else
-        {
-            float strength = (p.distance + this->position[axisIndex] - 1) * p.strength;
-            this->applyForce(this->TurningDirection(axisIndex), strength);
-            this->slowing(strength);
-        }
+        // else
+        // {
+        //     float strength = (p.distance + this->position[axisIndex] - 1) * p.strength;
+        //     this->applyForce(this->TurningDirection(axisIndex), strength);
+        //     this->slowing(strength / 4);
+        // }
     }
     else if ((this->position[axisIndex] < -(1 - p.distance)) && this->direction[axisIndex] < 0)
     {
         if (this->position[axisIndex] < -1)
         {
-            this->applyForce(-this->HalfTurnDirection(axisIndex), 2);
+            this->applyForce(this->HalfTurnDirection(axisIndex), 2);
         }
-        else
-        {
-            float strength = (p.distance - this->position[axisIndex] - 1) * p.strength;
-            this->applyForce(-this->TurningDirection(axisIndex), strength);
-            this->slowing(strength);
-        }
+        // else
+        // {
+        //     float strength = (p.distance - this->position[axisIndex] - 1) * p.strength;
+        //     this->applyForce(this->TurningDirection(axisIndex), strength);
+        //     this->slowing(strength / 4);
+        // }
     }
 }
 

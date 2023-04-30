@@ -17,8 +17,8 @@ int main()
 
     // SIMULATION PARAMETERS
 
-    const int NB_BOIDS   = 20;
-    float     BOIDS_SIZE = 0.04;
+    const int NB_BOIDS      = 50;
+    float     BOIDS_QUALITY = 1;
 
     Parameters BORDERS_PARAMETERS = {0.2, 0.3};
 
@@ -60,17 +60,17 @@ int main()
 
     // Declare your infinite update loop.
     ctx.update = [&]() {
-        ImGuiInterface(BOIDS_SIZE, NEIGHBORS_PARAMETERS, BORDERS_PARAMETERS);
+        ImGuiInterface(BOIDS_QUALITY, NEIGHBORS_PARAMETERS, BORDERS_PARAMETERS);
 
         inputsEvents(ctx, CAM_PARAMETERS, camera);
 
         // Boids simulation
-        neighborsManager(boids, NEIGHBORS_PARAMETERS);
+        // neighborsManager(boids, NEIGHBORS_PARAMETERS);
         borderManager(boids, BORDERS_PARAMETERS);
         boidsDisplacement(boids);
 
         ViewMatrix = camera.getViewMatrix();
-        render(vaos, ViewMatrix, textures, ProjMatrix);
+        render(boids, vaos, ViewMatrix, textures, ProjMatrix);
     };
 
     /////////////////////////////////

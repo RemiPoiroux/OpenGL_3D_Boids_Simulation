@@ -2,4 +2,4 @@
 
 #include "BoidsManager.hpp"
 
-void ImGuiInterface(float& boidsSize, NeighborsParameters& neighborsParameters, Parameters& bordersParameters);
+void ImGuiInterface(float& boidsQuality, NeighborsParameters& neighborsParameters, Parameters& bordersParameters);

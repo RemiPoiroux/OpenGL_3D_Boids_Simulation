@@ -1,6 +1,8 @@
 #include "MyBuffers.hpp"
 #include "Programs.hpp"
 #include "Vbos&Ibos.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/quaternion_common.hpp"
 #include "img/src/Image.h"
 
 void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuffers& textures)
@@ -55,9 +57,16 @@ void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuf
     initializeVao(vaos.m_["background"], vbos.m_["background"], ibos.m_["background"]);
     img::Image backgroundImage = p6::load_image_buffer("assets/textures/starry-night-sky.jpg");
     initializeTexture(backgroundImage, textures.m_["background"]);
+
+    // Boid buffers Init
+    initializeVbo(tieHDVbo, vbos.m_["boid"]);
+    initializeIbo(tieHDIbo, ibos.m_["boid"]);
+    initializeVao(vaos.m_["boid"], vbos.m_["boid"], ibos.m_["boid"]);
+    img::Image boidImage = p6::load_image_buffer("assets/textures/TF_diffuse.png");
+    initializeTexture(boidImage, textures.m_["boid"]);
 }
 
-void render(MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix)
+void render(std::vector<Boid>& boids, MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix)
 {
     auto renderWithOneTexture = [](const glm::mat4& ViewMatrix, const auto& program, glm::mat4& MVMatrix, const GLuint& texture, const glm::mat4& ProjMatrix, const GLuint& vao) {
         program.use();
@@ -90,6 +99,15 @@ void render(MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, c
     // Background Render
     glm::mat4 MVMatrix = glm::mat4(1);
     renderWithOneTexture(ViewMatrix, oneTextureProgram, MVMatrix, textures.m_["background"], ProjMatrix, vaos.m_["background"]);
+
+    // Boids Render
+    for (Boid& boid : boids)
+    {
+        MVMatrix            = glm::translate(glm::mat4(1.0f), boid.pos());
+        glm::mat4 rotMatrix = boid.getRotationMatrix();
+        MVMatrix            = MVMatrix * rotMatrix;
+        renderWithOneTexture(ViewMatrix, oneTextureProgram, MVMatrix, textures.m_["boid"], ProjMatrix, vaos.m_["boid"]);
+    }
 }
 
 void releasesRessources(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuffers& textures)

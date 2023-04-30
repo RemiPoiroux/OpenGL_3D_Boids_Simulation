@@ -6,8 +6,8 @@
 // PARAMETERS
 
 const float ACCELERATION  = 0.01;
-const float MAX_SPEED_MIN = 0.003;
-const float MAX_SPEED_MAX = 0.004;
+const float MAX_SPEED_MIN = 0.0003;
+const float MAX_SPEED_MAX = 0.0004;
 
 /////////////////////////////////
 
@@ -28,7 +28,7 @@ glm::vec3 RandomVec3()
 glm::vec3 RandomDirection()
 {
     glm::vec3 vec = RandomVec3();
-    normaliseVector(vec);
+    glm::normalize(vec);
     return vec;
 }
 

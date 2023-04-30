@@ -15,8 +15,6 @@ enum AxisIndex {
     z = 2
 };
 
-void normaliseVector(glm::vec3& v);
-
 class Boid
 {
 private:
@@ -39,6 +37,10 @@ public:
     Boid(glm::vec3 position, float maxSpeed, glm::vec3 direction);
 
     float distance(Boid boid) const;
+
+    glm::vec3 pos() const;
+
+    glm::mat4 getRotationMatrix() const;
 
     void acceleration(float a);
 

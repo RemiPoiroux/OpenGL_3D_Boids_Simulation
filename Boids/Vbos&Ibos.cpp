@@ -10,3 +10,14 @@ std::vector<uint32_t> cubeIbo()
     std::string cubeFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/background.obj");
     return loadIboFromObj(cubeFile);
 }
+
+std::vector<glimac::ShapeVertex> tieHDVbo()
+{
+    std::string cubeFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/tieHD.obj");
+    return loadVboFromObj(cubeFile);
+}
+std::vector<uint32_t> tieHDIbo()
+{
+    std::string cubeFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/tieHD.obj");
+    return loadIboFromObj(cubeFile);
+}
