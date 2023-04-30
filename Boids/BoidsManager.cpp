@@ -5,7 +5,6 @@
 /////////////////////////////////
 // PARAMETERS
 
-const float ACCELERATION  = 0.01;
 const float MAX_SPEED_MIN = 0.15;
 const float MAX_SPEED_MAX = 0.2;
 
@@ -28,7 +27,7 @@ glm::vec3 RandomVec3()
 glm::vec3 RandomDirection()
 {
     glm::vec3 vec = RandomVec3();
-    glm::normalize(vec);
+    normaliseVector(vec);
     return vec;
 }
 
@@ -92,7 +91,7 @@ void boidsDisplacement(std::vector<Boid>& boids, const float deltaTime)
 {
     for (Boid& boid : boids)
     {
-        boid.acceleration(ACCELERATION);
+        boid.acceleration();
         boid.displacement(deltaTime);
     }
 }

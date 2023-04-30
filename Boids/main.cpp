@@ -9,23 +9,24 @@ int main()
 
     // CAMERA PARAMETERS
 
+    const float      viewField = 70.f;
     CameraParameters CAM_PARAMETERS =
-        {0.3,
-         4,
+        {0.2,
+         2,
          50,
          10000};
 
     // SIMULATION PARAMETERS
 
-    const int NB_BOIDS      = 50;
+    const int NB_BOIDS      = 200;
     float     BOIDS_QUALITY = 1;
 
-    Parameters BORDERS_PARAMETERS = {0.2, 0.f};
+    Parameters BORDERS_PARAMETERS = {0.2, 0.02f};
 
     NeighborsParameters NEIGHBORS_PARAMETERS =
-        {{0.1f, 0.f},
-         {0.1f, 0.f},
-         {0.1f, 0.f}};
+        {{0.35f, 0.02f},
+         {0.25f, 0.002f},
+         {0.1f, 0.5f}};
 
     /////////////////////////////////
     /////////////////////////////////
@@ -45,7 +46,7 @@ int main()
     std::vector<Boid> boids = createBoids(NB_BOIDS);
 
     // Initialize Render Matrices
-    glm::mat4 ProjMatrix = glm::perspective(glm::radians(70.f), static_cast<GLfloat>(width) / static_cast<GLfloat>(height), 0.1f, 100.f);
+    glm::mat4 ProjMatrix = glm::perspective(glm::radians(viewField), static_cast<GLfloat>(width) / static_cast<GLfloat>(height), 0.01f, 3.f);
     glm::mat4 ViewMatrix;
 
     // Initialize Maps of Buffers

@@ -55,7 +55,7 @@ void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuf
     initializeVbo(cubeVbo, vbos.m_["background"]);
     initializeIbo(cubeIbo, ibos.m_["background"]);
     initializeVao(vaos.m_["background"], vbos.m_["background"], ibos.m_["background"]);
-    img::Image backgroundImage = p6::load_image_buffer("assets/textures/starry-night-sky.jpg");
+    img::Image backgroundImage = p6::load_image_buffer("assets/textures/Solarsystemscope_texture_8k_stars.jpg");
     initializeTexture(backgroundImage, textures.m_["background"]);
 
     // Boid buffers Init

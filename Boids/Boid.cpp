@@ -1,11 +1,7 @@
 #include "Boid.hpp"
-#include <cmath>
-#include <cstddef>
-#include <iostream>
-#include "glm/ext/quaternion_geometric.hpp"
-#include "glm/fwd.hpp"
 #include "glm/gtx/rotate_vector.hpp"
-#include "p6/p6.h"
+
+const float ACCELERATION = 0.01f;
 
 float strength(const glm::vec3 boidsPosition, const float distance, const glm::vec3 obstaclePosition)
 {
@@ -26,10 +22,37 @@ float strength(const glm::vec3 boidsPosition, const float distance, const glm::v
     return a * d * d + b * d + c;
 }
 
+void normaliseVector(glm::vec3& v)
+{
+    float norm = std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    v.x        = v.x / norm;
+    v.y        = v.y / norm;
+    v.z        = v.z / norm;
+}
+// clang-format off
+void bordersCheck(glm::vec3& position)
+{
+    if      (position.x > 1)  {position.x = 1;}
+    else if (position.x < -1) {position.x = -1;}
+
+    if      (position.y > 1)  {position.y = 1;}
+    else if (position.y < -1) {position.y = -1;}
+
+    if      (position.z > 1)  {position.z = 1;}
+    else if (position.z < -1) {position.z = -1;}
+}
+void speedCheck(float& speed, float& maxSpeed)
+{
+    if (speed < 0)          {speed = 0;}
+    if (speed > maxSpeed)   {speed = maxSpeed;}
+}
+// clang-format on
+
 void Boid::applyForce(const glm::vec3 direction, const float strength)
 {
     this->direction += direction * strength;
-    glm::normalize(this->direction);
+    normaliseVector(this->direction);
+    this->slowing();
 }
 
 float Boid::distance(const Boid boid) const
@@ -58,36 +81,24 @@ glm::mat4 Boid::getRotationMatrix() const
     return rotMatrix;
 }
 
-void Boid::slowing(const float amount)
-{
-    this->speed -= this->speed * amount;
-}
-
 Boid::Boid(const glm::vec3 pos, const float maxSpeed, const glm::vec3 dir)
     : position(pos), maxSpeed(maxSpeed), speed(), direction(dir)
 {}
 
-void Boid::acceleration(float a)
+void Boid::slowing()
 {
-    if (this->speed < this->maxSpeed)
-    {
-        this->speed += a * this->maxSpeed;
-    }
+    this->speed += 2 * ACCELERATION * this->maxSpeed;
 }
-void Boid::displacement(const float deltaTime)
+void Boid::acceleration()
 {
-    this->position += this->direction * this->speed * deltaTime;
+    this->speed += ACCELERATION * this->maxSpeed;
 }
 
-glm::vec3 Boid::TurningDirection(const AxisIndex axisIndex) const
+void Boid::displacement(const float deltaTime)
 {
-    switch (axisIndex)
-    {
-    case AxisIndex::x: return {-this->direction.x, this->direction.y, this->direction.z};
-    case AxisIndex::y: return {this->direction.x, -this->direction.y, this->direction.z};
-    case AxisIndex::z: return {this->direction.x, this->direction.y, -this->direction.z};
-    }
-    return {};
+    bordersCheck(this->position);
+    speedCheck(this->speed, this->maxSpeed);
+    this->position += this->direction * this->speed * deltaTime;
 }
 
 glm::vec3 Boid::HalfTurnDirection(const AxisIndex axisIndex) const
@@ -115,8 +126,7 @@ void Boid::ChecksBordersOnAxis(const AxisIndex axisIndex, const Parameters p)
             glm::vec3 obstaclePosition  = this->position;
             obstaclePosition[axisIndex] = 1;
             float strength              = ::strength(this->position, p.distance, obstaclePosition) * p.strength;
-            this->applyForce(this->TurningDirection(axisIndex), strength);
-            // this->slowing(strength / 4);
+            this->applyForce(-this->position, strength);
         }
     }
     else if ((this->position[axisIndex] < -(1 - p.distance)) && this->direction[axisIndex] < 0)
@@ -130,8 +140,7 @@ void Boid::ChecksBordersOnAxis(const AxisIndex axisIndex, const Parameters p)
             glm::vec3 obstaclePosition  = this->position;
             obstaclePosition[axisIndex] = -1;
             float strength              = ::strength(this->position, p.distance, obstaclePosition) * p.strength;
-            this->applyForce(this->TurningDirection(axisIndex), strength);
-            // this->slowing(strength / 4);
+            this->applyForce(-this->position, strength);
         }
     }
 }

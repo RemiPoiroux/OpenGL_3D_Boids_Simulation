@@ -15,6 +15,8 @@ enum AxisIndex {
     z = 2
 };
 
+void normaliseVector(glm::vec3& v);
+
 class Boid
 {
 private:
@@ -26,9 +28,8 @@ private:
 private:
     void applyForce(glm::vec3 direction, float strength);
 
-    void slowing(float amount);
+    void slowing();
 
-    glm::vec3 TurningDirection(AxisIndex axisIndex) const;
     glm::vec3 HalfTurnDirection(AxisIndex axisIndex) const;
 
     void ChecksBordersOnAxis(AxisIndex axisIndex, Parameters parameters);
@@ -42,7 +43,7 @@ public:
 
     glm::mat4 getRotationMatrix() const;
 
-    void acceleration(float a);
+    void acceleration();
 
     void displacement(float deltaTime);
 
