@@ -17,4 +17,4 @@ void neighborsManager(std::vector<Boid>& boids, NeighborsParameters parameters);
 
 void borderManager(std::vector<Boid>& boids, Parameters parameters);
 
-void boidsDisplacement(std::vector<Boid>& boids);
+void boidsDisplacement(std::vector<Boid>& boids, float deltaTime);

@@ -10,22 +10,22 @@ int main()
     // CAMERA PARAMETERS
 
     CameraParameters CAM_PARAMETERS =
-        {0.001,
-         10,
-         0.1,
-         50};
+        {0.3,
+         4,
+         50,
+         10000};
 
     // SIMULATION PARAMETERS
 
     const int NB_BOIDS      = 50;
     float     BOIDS_QUALITY = 1;
 
-    Parameters BORDERS_PARAMETERS = {0.2, 0.3};
+    Parameters BORDERS_PARAMETERS = {0.2, 0.f};
 
     NeighborsParameters NEIGHBORS_PARAMETERS =
-        {{0.4f, 0.005f},
-         {0.3f, 0.002f},
-         {0.1f, 0.5f}};
+        {{0.1f, 0.f},
+         {0.1f, 0.f},
+         {0.1f, 0.f}};
 
     /////////////////////////////////
     /////////////////////////////////
@@ -65,9 +65,9 @@ int main()
         inputsEvents(ctx, CAM_PARAMETERS, camera);
 
         // Boids simulation
-        // neighborsManager(boids, NEIGHBORS_PARAMETERS);
+        neighborsManager(boids, NEIGHBORS_PARAMETERS);
         borderManager(boids, BORDERS_PARAMETERS);
-        boidsDisplacement(boids);
+        boidsDisplacement(boids, ctx.delta_time());
 
         ViewMatrix = camera.getViewMatrix();
         render(boids, vaos, ViewMatrix, textures, ProjMatrix);

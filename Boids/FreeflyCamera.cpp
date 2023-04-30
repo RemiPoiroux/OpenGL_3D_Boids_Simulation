@@ -36,25 +36,25 @@ void FreeflyCamera::computeDirectionVectors()
     // clang-format on
 }
 
-void FreeflyCamera::moveFront(const float delta)
+void FreeflyCamera::moveFront(const float delta, const float deltaTime)
 {
-    this->m_Position += delta * this->m_FrontVector;
+    this->m_Position += delta * this->m_FrontVector * deltaTime;
     BordersCheck(this->m_Position);
 }
-void FreeflyCamera::moveLeft(const float delta)
+void FreeflyCamera::moveLeft(const float delta, const float deltaTime)
 {
-    this->m_Position += delta * this->m_LeftVector;
+    this->m_Position += delta * this->m_LeftVector * deltaTime;
     BordersCheck(this->m_Position);
 }
 
-void FreeflyCamera::rotateLeft(const float degrees)
+void FreeflyCamera::rotateLeft(const float degrees, const float deltaTime)
 {
-    this->m_fPhi += glm::radians(degrees);
+    this->m_fPhi += glm::radians(degrees * deltaTime);
     this->computeDirectionVectors();
 }
-void FreeflyCamera::rotateUp(const float degrees)
+void FreeflyCamera::rotateUp(const float degrees, const float deltaTime)
 {
-    this->m_fTheta += glm::radians(degrees);
+    this->m_fTheta += glm::radians(degrees * deltaTime);
     this->computeDirectionVectors();
 }
 

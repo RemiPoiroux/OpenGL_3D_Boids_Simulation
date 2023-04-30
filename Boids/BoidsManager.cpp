@@ -6,8 +6,8 @@
 // PARAMETERS
 
 const float ACCELERATION  = 0.01;
-const float MAX_SPEED_MIN = 0.0003;
-const float MAX_SPEED_MAX = 0.0004;
+const float MAX_SPEED_MIN = 0.15;
+const float MAX_SPEED_MAX = 0.2;
 
 /////////////////////////////////
 
@@ -88,11 +88,11 @@ void borderManager(std::vector<Boid>& boids, const Parameters parameters)
     }
 }
 
-void boidsDisplacement(std::vector<Boid>& boids)
+void boidsDisplacement(std::vector<Boid>& boids, const float deltaTime)
 {
     for (Boid& boid : boids)
     {
         boid.acceleration(ACCELERATION);
-        boid.displacement();
+        boid.displacement(deltaTime);
     }
 }

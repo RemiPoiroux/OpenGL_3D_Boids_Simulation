@@ -7,6 +7,25 @@
 #include "glm/gtx/rotate_vector.hpp"
 #include "p6/p6.h"
 
+float strength(const glm::vec3 boidsPosition, const float distance, const glm::vec3 obstaclePosition)
+{
+    float d = glm::distance(boidsPosition, obstaclePosition);
+
+    if (d >= distance)
+    {
+        return 0.f;
+    }
+    if (d == 0.0f)
+    {
+        return 1.0f;
+    }
+
+    float a = 4.0f / (distance * distance);
+    float b = -2.0f / distance;
+    float c = 1.0f + b * distance;
+    return a * d * d + b * d + c;
+}
+
 void Boid::applyForce(const glm::vec3 direction, const float strength)
 {
     this->direction += direction * strength;
@@ -55,9 +74,9 @@ void Boid::acceleration(float a)
         this->speed += a * this->maxSpeed;
     }
 }
-void Boid::displacement()
+void Boid::displacement(const float deltaTime)
 {
-    this->position += this->direction * this->speed;
+    this->position += this->direction * this->speed * deltaTime;
 }
 
 glm::vec3 Boid::TurningDirection(const AxisIndex axisIndex) const
@@ -91,12 +110,14 @@ void Boid::ChecksBordersOnAxis(const AxisIndex axisIndex, const Parameters p)
         {
             this->applyForce(this->HalfTurnDirection(axisIndex), 2);
         }
-        // else
-        // {
-        //     float strength = (p.distance + this->position[axisIndex] - 1) * p.strength;
-        //     this->applyForce(this->TurningDirection(axisIndex), strength);
-        //     this->slowing(strength / 4);
-        // }
+        else
+        {
+            glm::vec3 obstaclePosition  = this->position;
+            obstaclePosition[axisIndex] = 1;
+            float strength              = ::strength(this->position, p.distance, obstaclePosition) * p.strength;
+            this->applyForce(this->TurningDirection(axisIndex), strength);
+            // this->slowing(strength / 4);
+        }
     }
     else if ((this->position[axisIndex] < -(1 - p.distance)) && this->direction[axisIndex] < 0)
     {
@@ -104,12 +125,14 @@ void Boid::ChecksBordersOnAxis(const AxisIndex axisIndex, const Parameters p)
         {
             this->applyForce(this->HalfTurnDirection(axisIndex), 2);
         }
-        // else
-        // {
-        //     float strength = (p.distance - this->position[axisIndex] - 1) * p.strength;
-        //     this->applyForce(this->TurningDirection(axisIndex), strength);
-        //     this->slowing(strength / 4);
-        // }
+        else
+        {
+            glm::vec3 obstaclePosition  = this->position;
+            obstaclePosition[axisIndex] = -1;
+            float strength              = ::strength(this->position, p.distance, obstaclePosition) * p.strength;
+            this->applyForce(this->TurningDirection(axisIndex), strength);
+            // this->slowing(strength / 4);
+        }
     }
 }
 

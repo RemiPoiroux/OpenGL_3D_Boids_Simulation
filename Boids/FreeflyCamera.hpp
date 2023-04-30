@@ -26,11 +26,11 @@ private:
 public:
     FreeflyCamera();
 
-    void moveFront(float delta);
-    void moveLeft(float delta);
+    void moveFront(float delta, float deltaTime);
+    void moveLeft(float delta, float deltaTime);
 
-    void rotateLeft(float degrees);
-    void rotateUp(float degrees);
+    void rotateLeft(float degrees, float deltaTime);
+    void rotateUp(float degrees, float deltaTime);
 
     glm::mat4 getViewMatrix() const;
 };

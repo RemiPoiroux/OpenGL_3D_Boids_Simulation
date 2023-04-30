@@ -44,7 +44,7 @@ public:
 
     void acceleration(float a);
 
-    void displacement();
+    void displacement(float deltaTime);
 
     void neighborsAlignement(const Boid& boid, float strength);
 
