@@ -3,6 +3,7 @@
 #include "Vbos&Ibos.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/quaternion_common.hpp"
+#include "glm/matrix.hpp"
 #include "img/src/Image.h"
 
 void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuffers& textures)
@@ -58,7 +59,18 @@ void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuf
     img::Image backgroundImage = p6::load_image_buffer("assets/textures/Solarsystemscope_texture_8k_stars.jpg");
     initializeTexture(backgroundImage, textures.m_["background"]);
 
-    // Boid buffers Init
+    // Character's Buffers Init
+    initializeVbo(xwingVbo, vbos.m_["character"]);
+    initializeIbo(xwingIbo, ibos.m_["character"]);
+    initializeVao(vaos.m_["character"], vbos.m_["character"], ibos.m_["character"]);
+    img::Image characterImage = p6::load_image_buffer("assets/textures/xwingTexture.png");
+    initializeTexture(characterImage, textures.m_["character"]);
+
+    initializeVbo(xwingReactorsVbo, vbos.m_["characterReactors"]);
+    initializeIbo(xwingReactorsIbo, ibos.m_["characterReactors"]);
+    initializeVao(vaos.m_["characterReactors"], vbos.m_["characterReactors"], ibos.m_["characterReactors"]);
+
+    // Boid's buffers Init
     initializeVbo(tieHDVbo, vbos.m_["boid"]);
     initializeIbo(tieHDIbo, ibos.m_["boid"]);
     initializeVao(vaos.m_["boid"], vbos.m_["boid"], ibos.m_["boid"]);
@@ -99,6 +111,10 @@ void render(std::vector<Boid>& boids, MyBuffers& vaos, const glm::mat4& ViewMatr
     // Background Render
     glm::mat4 MVMatrix = glm::mat4(1);
     renderWithOneTexture(ViewMatrix, oneTextureProgram, MVMatrix, textures.m_["background"], ProjMatrix, vaos.m_["background"]);
+
+    // Character Render
+    MVMatrix = glm::translate(glm::mat4(1), {0, -0.02, -0.08});
+    renderWithOneTexture(glm::mat4{1}, oneTextureProgram, MVMatrix, textures.m_["character"], ProjMatrix, vaos.m_["character"]);
 
     // Boids Render
     for (Boid& boid : boids)

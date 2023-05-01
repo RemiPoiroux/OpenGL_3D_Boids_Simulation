@@ -11,13 +11,34 @@ std::vector<uint32_t> cubeIbo()
     return loadIboFromObj(cubeFile);
 }
 
+std::vector<glimac::ShapeVertex> xwingVbo()
+{
+    std::string xwingFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/Xwing.obj");
+    return loadVboFromObj(xwingFile);
+}
+std::vector<uint32_t> xwingIbo()
+{
+    std::string xwingFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/Xwing.obj");
+    return loadIboFromObj(xwingFile);
+}
+std::vector<glimac::ShapeVertex> xwingReactorsVbo()
+{
+    std::string xwingFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/XwingReactors.obj");
+    return loadVboFromObj(xwingFile);
+}
+std::vector<uint32_t> xwingReactorsIbo()
+{
+    std::string xwingFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/XwingReactors.obj");
+    return loadIboFromObj(xwingFile);
+}
+
 std::vector<glimac::ShapeVertex> tieHDVbo()
 {
-    std::string cubeFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/tieHD.obj");
-    return loadVboFromObj(cubeFile);
+    std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/tieHD.obj");
+    return loadVboFromObj(tieFile);
 }
 std::vector<uint32_t> tieHDIbo()
 {
-    std::string cubeFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/tieHD.obj");
-    return loadIboFromObj(cubeFile);
+    std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/tieHD.obj");
+    return loadIboFromObj(tieFile);
 }

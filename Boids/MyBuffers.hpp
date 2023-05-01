@@ -12,7 +12,7 @@ struct MyBuffers
     std::map<std::string, GLuint> m_{
         {"background", 0},
         {"character", 0},
-        {"character reactors", 0},
+        {"characterReactors", 0},
         {"boid", 0},
         {"obstacle", 0}};
 };
