@@ -80,6 +80,23 @@ void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuf
 
 void render(std::vector<Boid>& boids, MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix)
 {
+    auto renderWithoutTexture = [](const glm::mat4& ViewMatrix, const auto& program, glm::mat4& MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao) {
+        program.use();
+
+        MVMatrix               = ViewMatrix * MVMatrix;
+        glm::mat4 MVPMatrix    = ProjMatrix * MVMatrix;
+        glm::mat4 NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
+
+        glUniformMatrix4fv(program.uMVMatrix(), 1, GL_FALSE, glm::value_ptr(MVMatrix));
+        glUniformMatrix4fv(program.uMVPMatrix(), 1, GL_FALSE, glm::value_ptr(MVPMatrix));
+        glUniformMatrix4fv(program.uNormalMatrix(), 1, GL_FALSE, glm::value_ptr(NormalMatrix));
+
+        glBindVertexArray(vao);
+        GLint size{};
+        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+        glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
+    };
     auto renderWithOneTexture = [](const glm::mat4& ViewMatrix, const auto& program, glm::mat4& MVMatrix, const GLuint& texture, const glm::mat4& ProjMatrix, const GLuint& vao) {
         program.use();
         glUniform1i(program.uTexture(), 0);
@@ -115,6 +132,7 @@ void render(std::vector<Boid>& boids, MyBuffers& vaos, const glm::mat4& ViewMatr
     // Character Render
     MVMatrix = glm::translate(glm::mat4(1), {0, -0.02, -0.08});
     renderWithOneTexture(glm::mat4{1}, oneTextureProgram, MVMatrix, textures.m_["character"], ProjMatrix, vaos.m_["character"]);
+    renderWithoutTexture(glm::mat4{1}, HaloProgram(), MVMatrix, ProjMatrix, vaos.m_["characterReactors"]);
 
     // Boids Render
     for (Boid& boid : boids)
