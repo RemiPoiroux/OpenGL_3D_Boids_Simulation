@@ -1,6 +1,5 @@
 #pragma once
 
-#include "glm/fwd.hpp"
 #include "p6/p6.h"
 
 struct Parameters
@@ -36,8 +35,6 @@ private:
 
 public:
     Boid(glm::vec3 position, float maxSpeed, glm::vec3 direction);
-
-    float distance(Boid boid) const;
 
     glm::vec3 pos() const;
 

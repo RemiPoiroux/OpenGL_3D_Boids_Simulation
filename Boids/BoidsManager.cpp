@@ -1,6 +1,4 @@
 #include "BoidsManager.hpp"
-#include "glm/fwd.hpp"
-#include "p6/p6.h"
 
 /////////////////////////////////
 // PARAMETERS
@@ -10,30 +8,24 @@ const float MAX_SPEED_MAX = 0.2;
 
 /////////////////////////////////
 
-float RandomFloat(const float a, const float b)
-{
-    std::random_device                    rd;
-    std::mt19937                          mt(rd());
-    std::uniform_real_distribution<float> rand(a, b);
-    return rand(mt);
-}
-
-glm::vec3 RandomVec3()
-{
-    glm::vec3 vec(RandomFloat(-1, 1), RandomFloat(-1, 1), RandomFloat(-1, 1));
-    return vec;
-}
-
 glm::vec3 RandomDirection()
 {
-    glm::vec3 vec = RandomVec3();
+    glm::vec3 vec = RandomVec3(1);
     normaliseVector(vec);
     return vec;
 }
 
 Boid randomBoid()
 {
-    return {RandomVec3(), RandomFloat(MAX_SPEED_MIN, MAX_SPEED_MAX), RandomDirection()};
+    return {RandomVec3(1), RandomFloat(MAX_SPEED_MIN, MAX_SPEED_MAX), RandomDirection()};
+}
+
+template<typename T1, typename T2>
+float myDistance(const T1& entity1, const T2& entity2)
+{
+    const glm::vec3& pos1 = entity1->pos();
+    const glm::vec3& pos2 = entity2.pos();
+    return glm::length(pos2 - pos1);
 }
 
 std::vector<Boid> createBoids(const size_t nb)
@@ -53,7 +45,7 @@ void neighborsManager(std::vector<Boid>& boids, const NeighborsParameters parame
 
         auto applyToCloseBoids = [&](const auto& func) {
             auto isClose = [&](const Boid& other) {
-                return currentBoid->distance(other) < distance;
+                return myDistance(currentBoid, other) < distance;
             };
             auto closeBoidsBegin = std::find_if(std::begin(boids), std::end(boids), isClose);
             auto closeBoidsEnd   = std::find_if_not(closeBoidsBegin, std::end(boids), isClose);

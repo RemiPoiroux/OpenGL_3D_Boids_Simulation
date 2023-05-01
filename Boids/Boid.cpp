@@ -55,10 +55,6 @@ void Boid::applyForce(const glm::vec3 direction, const float strength)
     this->slowing();
 }
 
-float Boid::distance(const Boid boid) const
-{
-    return static_cast<float>(sqrt(pow(this->position.x - boid.position.x, 2) + pow(this->position.y - boid.position.y, 2) + pow(this->position.z - boid.position.z, 2)));
-}
 glm::vec3 Boid::pos() const
 {
     return position;
