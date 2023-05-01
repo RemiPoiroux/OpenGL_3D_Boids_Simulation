@@ -36,6 +36,12 @@ void FreeflyCamera::computeDirectionVectors()
     // clang-format on
 }
 
+bool checksTheta(const float theta)
+{
+    float modulo = glm::mod(theta, 2 * glm::pi<float>());
+    return modulo <= glm::half_pi<float>() || modulo >= 3 * glm::half_pi<float>();
+}
+
 void FreeflyCamera::moveFront(const float delta, const float deltaTime)
 {
     this->m_Position += delta * this->m_FrontVector * deltaTime;
@@ -49,7 +55,14 @@ void FreeflyCamera::moveLeft(const float delta, const float deltaTime)
 
 void FreeflyCamera::rotateLeft(const float degrees, const float deltaTime)
 {
-    this->m_fPhi += glm::radians(degrees * deltaTime);
+    if (checksTheta(this->m_fTheta))
+    {
+        this->m_fPhi += glm::radians(degrees * deltaTime);
+    }
+    else
+    {
+        this->m_fPhi -= glm::radians(degrees * deltaTime);
+    }
     this->computeDirectionVectors();
 }
 void FreeflyCamera::rotateUp(const float degrees, const float deltaTime)
