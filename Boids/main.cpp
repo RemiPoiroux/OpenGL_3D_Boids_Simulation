@@ -71,7 +71,7 @@ int main()
         boidsDisplacement(boids, ctx.delta_time());
 
         ViewMatrix = camera.getViewMatrix();
-        render(boids, vaos, ViewMatrix, textures, ProjMatrix);
+        render(ctx, boids, vaos, ViewMatrix, textures, ProjMatrix);
     };
 
     /////////////////////////////////

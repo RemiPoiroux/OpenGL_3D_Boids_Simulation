@@ -78,7 +78,7 @@ void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuf
     initializeTexture(boidImage, textures.m_["boid"]);
 }
 
-void render(std::vector<Boid>& boids, MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix)
+void render(p6::Context& ctx, std::vector<Boid>& boids, MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix)
 {
     auto renderWithoutTexture = [](const glm::mat4& ViewMatrix, const auto& program, glm::mat4& MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao) {
         program.use();
@@ -131,6 +131,14 @@ void render(std::vector<Boid>& boids, MyBuffers& vaos, const glm::mat4& ViewMatr
 
     // Character Render
     MVMatrix = glm::translate(glm::mat4(1), {0, -0.02, -0.08});
+    if (ctx.key_is_pressed(GLFW_KEY_Q) || ctx.key_is_pressed(GLFW_KEY_A) || ctx.key_is_pressed(GLFW_KEY_LEFT))
+    {
+        MVMatrix = glm::rotate(MVMatrix, -.3f, {0, 0, -1});
+    }
+    if (ctx.key_is_pressed(GLFW_KEY_E) || ctx.key_is_pressed(GLFW_KEY_D) || ctx.key_is_pressed(GLFW_KEY_RIGHT))
+    {
+        MVMatrix = glm::rotate(MVMatrix, .3f, {0, 0, -1});
+    }
     renderWithOneTexture(glm::mat4{1}, oneTextureProgram, MVMatrix, textures.m_["character"], ProjMatrix, vaos.m_["character"]);
     renderWithoutTexture(glm::mat4{1}, HaloProgram(), MVMatrix, ProjMatrix, vaos.m_["characterReactors"]);
 

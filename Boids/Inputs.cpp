@@ -51,12 +51,4 @@ void inputsEvents(const p6::Context& ctx, const CameraParameters& cameraParamete
     {
         camera.rotateUp(-cameraParameters.cameraRotationForce, ctx.delta_time());
     }
-    if (ctx.mouse_moved)
-    {
-        if (ctx.alt() || ctx.mouse_button_is_pressed(p6::Button::Right))
-        {
-            camera.rotateLeft(-ctx.mouse_delta().x * cameraParameters.mouseRotationForce, ctx.delta_time());
-            camera.rotateUp(ctx.mouse_delta().y * cameraParameters.mouseRotationForce, ctx.delta_time());
-        }
-    }
 }
