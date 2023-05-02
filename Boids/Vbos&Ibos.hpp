@@ -14,3 +14,6 @@ std::vector<uint32_t>            xwingReactorsIbo();
 
 std::vector<glimac::ShapeVertex> tieHDVbo();
 std::vector<uint32_t>            tieHDIbo();
+
+std::vector<glimac::ShapeVertex> asteroidVbo();
+std::vector<uint32_t>            asteroidIbo();

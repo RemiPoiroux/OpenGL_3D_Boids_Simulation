@@ -6,11 +6,13 @@ class Obstacle
 {
     glm::vec3 m_position;
     float     m_size;
+    glm::vec3 m_rotationAxis;
 
 public:
-    Obstacle(glm::vec3 position, float size);
+    Obstacle(glm::vec3 position, float size, glm::vec3 rotationAxis);
     glm::vec3 pos() const;
     float     size() const;
+    glm::vec3 rotationAxis() const;
 };
 
 struct ObstaclesParameters

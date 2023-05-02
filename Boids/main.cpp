@@ -30,7 +30,7 @@ int main()
          {0.1f, 0.5f}};
 
     ObstaclesParameters OBSTACLES_PARAMETERS =
-        {10, 0.05, 0.2, 0.2};
+        {40, 0.05, 0.4, 0.2};
 
     /////////////////////////////////
     /////////////////////////////////
@@ -76,7 +76,7 @@ int main()
         boidsDisplacement(boids, ctx.delta_time());
 
         ViewMatrix = camera.getViewMatrix();
-        render(ctx, boids, vaos, ViewMatrix, textures, ProjMatrix);
+        render(ctx, boids, obstacles, vaos, ViewMatrix, textures, ProjMatrix);
     };
 
     /////////////////////////////////

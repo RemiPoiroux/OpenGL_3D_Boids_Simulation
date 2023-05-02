@@ -42,3 +42,14 @@ std::vector<uint32_t> tieHDIbo()
     std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/tieHD.obj");
     return loadIboFromObj(tieFile);
 }
+
+std::vector<glimac::ShapeVertex> asteroidVbo()
+{
+    std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/asteroid.obj");
+    return loadVboFromObj(tieFile);
+}
+std::vector<uint32_t> asteroidIbo()
+{
+    std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/asteroid.obj");
+    return loadIboFromObj(tieFile);
+}

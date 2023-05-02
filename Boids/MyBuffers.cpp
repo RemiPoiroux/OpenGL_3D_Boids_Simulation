@@ -76,9 +76,16 @@ void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuf
     initializeVao(vaos.m_["boid"], vbos.m_["boid"], ibos.m_["boid"]);
     img::Image boidImage = p6::load_image_buffer("assets/textures/TF_diffuse.png");
     initializeTexture(boidImage, textures.m_["boid"]);
+
+    // Obstacle's buffers Init
+    initializeVbo(asteroidVbo, vbos.m_["obstacle"]);
+    initializeIbo(asteroidIbo, ibos.m_["obstacle"]);
+    initializeVao(vaos.m_["obstacle"], vbos.m_["obstacle"], ibos.m_["obstacle"]);
+    img::Image obstacleImage = p6::load_image_buffer("assets/textures/asteroidTexture.jpg");
+    initializeTexture(obstacleImage, textures.m_["obstacle"]);
 }
 
-void render(p6::Context& ctx, std::vector<Boid>& boids, MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix)
+void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& obstacles, MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix)
 {
     auto renderWithoutTexture = [](const glm::mat4& ViewMatrix, const auto& program, glm::mat4& MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao) {
         program.use();
@@ -149,6 +156,15 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, MyBuffers& vaos, const g
         glm::mat4 rotMatrix = boid.getRotationMatrix();
         MVMatrix            = MVMatrix * rotMatrix;
         renderWithOneTexture(ViewMatrix, oneTextureProgram, MVMatrix, textures.m_["boid"], ProjMatrix, vaos.m_["boid"]);
+    }
+
+    // Obstacles Render
+    for (Obstacle& obstacle : obstacles)
+    {
+        MVMatrix = glm::translate(glm::mat4(1.0f), obstacle.pos());
+        MVMatrix = glm::rotate(MVMatrix, ctx.time() / obstacle.size() / std::sqrt(obstacle.size()) / 50, obstacle.rotationAxis());
+        MVMatrix = glm::scale(MVMatrix, obstacle.size() * glm::vec3(1));
+        renderWithOneTexture(ViewMatrix, oneTextureProgram, MVMatrix, textures.m_["obstacle"], ProjMatrix, vaos.m_["obstacle"]);
     }
 }
 
