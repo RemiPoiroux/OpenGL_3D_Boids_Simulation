@@ -1,7 +1,6 @@
 #include "ImGuiInterface.hpp"
 #include "Inputs.hpp"
 #include "MyBuffers.hpp"
-#include "Obstacle.hpp"
 
 int main()
 {
@@ -30,7 +29,7 @@ int main()
          {0.1f, 0.2f}};
 
     ObstaclesParameters OBSTACLES_PARAMETERS =
-        {40, 0.05, 0.4, {0.1, 0.1}};
+        {100, 0.05, 0.8, {0.1, 0.1}};
 
     /////////////////////////////////
     /////////////////////////////////
@@ -52,7 +51,6 @@ int main()
 
     // Initialize Render Matrices
     glm::mat4 ProjMatrix = glm::perspective(glm::radians(viewField), static_cast<GLfloat>(width) / static_cast<GLfloat>(height), 0.01f, 3.f);
-    glm::mat4 ViewMatrix;
 
     // Initialize Maps of Buffers
     MyBuffers vbos{};
@@ -76,8 +74,7 @@ int main()
         borderManager(boids, BORDERS_PARAMETERS);
         boidsDisplacement(boids, ctx.delta_time());
 
-        ViewMatrix = camera.getViewMatrix();
-        render(ctx, boids, obstacles, BOIDS_LOW_QUALITY, vaos, ViewMatrix, textures, ProjMatrix);
+        render(ctx, boids, obstacles, BOIDS_LOW_QUALITY, vaos, camera, textures, ProjMatrix);
     };
 
     /////////////////////////////////

@@ -32,5 +32,14 @@ public:
     void rotateLeft(float degrees, float deltaTime);
     void rotateUp(float degrees, float deltaTime);
 
+    glm::vec3 getPosition() const;
+    float     getTheta() const;
+    float     getPhi() const;
+    glm::vec3 getFrontVector() const;
+    glm::vec3 getUpVector() const;
+    glm::vec3 getLeftVector() const;
+
     glm::mat4 getViewMatrix() const;
 };
+
+bool checksTheta(float theta);

@@ -18,7 +18,7 @@ void BordersCheck(glm::vec3& position)
 }
 
 FreeflyCamera::FreeflyCamera()
-    : m_Position(0), m_fPhi(glm::pi<float>()), m_fTheta(0), m_FrontVector(), m_LeftVector(), m_UpVector()
+    : m_Position({0, 0, 0.9}), m_fPhi(glm::pi<float>()), m_fTheta(0), m_FrontVector(), m_LeftVector(), m_UpVector()
 {
     this->computeDirectionVectors();
 }
@@ -74,4 +74,29 @@ void FreeflyCamera::rotateUp(const float degrees, const float deltaTime)
 glm::mat4 FreeflyCamera::getViewMatrix() const
 {
     return glm::lookAt(this->m_Position, this->m_Position + this->m_FrontVector, this->m_UpVector);
+}
+
+glm::vec3 FreeflyCamera::getPosition() const
+{
+    return this->m_Position;
+}
+float FreeflyCamera::getTheta() const
+{
+    return this->m_fTheta;
+}
+float FreeflyCamera::getPhi() const
+{
+    return this->m_fPhi;
+}
+glm::vec3 FreeflyCamera::getFrontVector() const
+{
+    return this->m_FrontVector;
+}
+glm::vec3 FreeflyCamera::getLeftVector() const
+{
+    return this->m_LeftVector;
+}
+glm::vec3 FreeflyCamera::getUpVector() const
+{
+    return this->m_UpVector;
 }

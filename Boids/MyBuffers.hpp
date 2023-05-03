@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include "Boid.hpp"
+#include "FreeflyCamera.hpp"
 #include "glimac/common.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "p6/p6.h"
@@ -21,6 +22,6 @@ struct MyBuffers
 
 void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuffers& textures);
 
-void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& obstacles, bool lowQuality, MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix);
+void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& obstacles, bool lowQuality, MyBuffers& vaos, const FreeflyCamera& camera, MyBuffers& textures, const glm::mat4& ProjMatrix);
 
 void releasesRessources(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuffers& textures);
