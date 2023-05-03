@@ -27,10 +27,10 @@ int main()
     NeighborsParameters NEIGHBORS_PARAMETERS =
         {{0.35f, 0.02f},
          {0.25f, 0.002f},
-         {0.1f, 0.5f}};
+         {0.1f, 0.2f}};
 
     ObstaclesParameters OBSTACLES_PARAMETERS =
-        {40, 0.05, 0.4, 0.2};
+        {40, 0.05, 0.4, {0.1, 0.1}};
 
     /////////////////////////////////
     /////////////////////////////////
@@ -66,12 +66,13 @@ int main()
 
     // Declare your infinite update loop.
     ctx.update = [&]() {
-        ImGuiInterface(BOIDS_LOW_QUALITY, NEIGHBORS_PARAMETERS, BORDERS_PARAMETERS);
+        ImGuiInterface(BOIDS_LOW_QUALITY, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_PARAMETERS);
 
         inputsEvents(ctx, CAM_PARAMETERS, camera);
 
         // Boids simulation
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
+        obstaclesManager(boids, obstacles, OBSTACLES_PARAMETERS.force);
         borderManager(boids, BORDERS_PARAMETERS);
         boidsDisplacement(boids, ctx.delta_time());
 

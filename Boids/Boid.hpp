@@ -2,12 +2,6 @@
 
 #include "Obstacle.hpp"
 
-struct Parameters
-{
-    float distance;
-    float strength;
-};
-
 enum AxisIndex {
     x = 0,
     y = 1,
@@ -49,6 +43,8 @@ public:
     void neighborsCohesion(const Boid& boid, float strength);
 
     void neighborsSeparation(const Boid& boid, float strength);
+
+    void obstacleAvoidance(const Obstacle& obstacle, float strength);
 
     void bordersAvoidance(Parameters parameters);
 };

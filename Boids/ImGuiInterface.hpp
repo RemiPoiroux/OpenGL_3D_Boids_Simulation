@@ -1,5 +1,6 @@
 #pragma once
 
 #include "BoidsManager.hpp"
+#include "Obstacle.hpp"
 
-void ImGuiInterface(bool& lowQuality, NeighborsParameters& neighborsParameters, Parameters& bordersParameters);
+void ImGuiInterface(bool& lowQuality, Parameters& obstaclesParameters, NeighborsParameters& neighborsParameters, Parameters& bordersParameters);

@@ -1,4 +1,6 @@
 #include "Boid.hpp"
+#include "Obstacle.hpp"
+#include "glm/fwd.hpp"
 #include "glm/gtx/rotate_vector.hpp"
 
 const float ACCELERATION = 0.01f;
@@ -152,7 +154,27 @@ void Boid::neighborsCohesion(const Boid& boid, const float strength)
 void Boid::neighborsSeparation(const Boid& boid, const float strength)
 {
     this->applyForce(boid.direction - this->direction, -strength);
-    this->applyForce(boid.position - this->position, -strength / 10);
+    this->applyForce(boid.position - this->position, -strength);
+}
+
+void Boid::obstacleAvoidance(const Obstacle& obstacle, const float strength)
+{
+    auto random_orthogonal_vector = [](glm::vec3 v) {
+        // Générer un vecteur aléatoire dans un cube centré sur l'origine
+        std::random_device               rd;
+        std::mt19937                     gen(rd());
+        std::uniform_real_distribution<> dis(-1.0, 1.0);
+        glm::vec3                        rand_vec(dis(gen), dis(gen), dis(gen));
+
+        // Projeter le vecteur aléatoire sur le plan orthogonal à v
+        glm::vec3 proj = rand_vec - v * (dot(rand_vec, v) / glm::length(v));
+
+        // Normaliser le vecteur orthogonal résultant
+        return glm::normalize(proj);
+    };
+    glm::vec3 direction = (obstacle.pos() - this->position);
+    direction += (random_orthogonal_vector(direction));
+    this->applyForce(direction, -strength);
 }
 
 void Boid::bordersAvoidance(const Parameters p)

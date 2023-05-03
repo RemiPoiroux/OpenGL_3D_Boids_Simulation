@@ -19,6 +19,8 @@ std::vector<Boid> createBoids(size_t nb);
 
 void neighborsManager(std::vector<Boid>& boids, NeighborsParameters parameters);
 
+void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obstacles, Parameters parameters);
+
 void borderManager(std::vector<Boid>& boids, Parameters parameters);
 
 void boidsDisplacement(std::vector<Boid>& boids, float deltaTime);

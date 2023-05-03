@@ -15,12 +15,18 @@ public:
     glm::vec3 rotationAxis() const;
 };
 
+struct Parameters
+{
+    float distance;
+    float strength;
+};
+
 struct ObstaclesParameters
 {
-    size_t number;
-    float  minSize;
-    float  maxSize;
-    float  strength;
+    size_t     number;
+    float      minSize;
+    float      maxSize;
+    Parameters force;
 };
 
 float RandomFloat(float a, float b);
