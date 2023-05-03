@@ -19,8 +19,8 @@ int main()
 
     // SIMULATION PARAMETERS
 
-    const int NB_BOIDS      = 200;
-    float     BOIDS_QUALITY = 1;
+    const int NB_BOIDS          = 200;
+    bool      BOIDS_LOW_QUALITY = false;
 
     Parameters BORDERS_PARAMETERS = {0.2, 0.02f};
 
@@ -66,7 +66,7 @@ int main()
 
     // Declare your infinite update loop.
     ctx.update = [&]() {
-        ImGuiInterface(BOIDS_QUALITY, NEIGHBORS_PARAMETERS, BORDERS_PARAMETERS);
+        ImGuiInterface(BOIDS_LOW_QUALITY, NEIGHBORS_PARAMETERS, BORDERS_PARAMETERS);
 
         inputsEvents(ctx, CAM_PARAMETERS, camera);
 
@@ -76,7 +76,7 @@ int main()
         boidsDisplacement(boids, ctx.delta_time());
 
         ViewMatrix = camera.getViewMatrix();
-        render(ctx, boids, obstacles, vaos, ViewMatrix, textures, ProjMatrix);
+        render(ctx, boids, obstacles, BOIDS_LOW_QUALITY, vaos, ViewMatrix, textures, ProjMatrix);
     };
 
     /////////////////////////////////

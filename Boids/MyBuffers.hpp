@@ -13,12 +13,14 @@ struct MyBuffers
         {"background", 0},
         {"character", 0},
         {"characterReactors", 0},
-        {"boid", 0},
-        {"obstacle", 0}};
+        {"boidHD", 0},
+        {"boidLD", 0},
+        {"obstacleHD", 0},
+        {"obstacleLD", 0}};
 };
 
 void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuffers& textures);
 
-void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& obstacles, MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix);
+void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& obstacles, bool lowQuality, MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix);
 
 void releasesRessources(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuffers& textures);

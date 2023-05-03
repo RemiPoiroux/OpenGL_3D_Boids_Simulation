@@ -42,14 +42,34 @@ std::vector<uint32_t> tieHDIbo()
     std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/tieHD.obj");
     return loadIboFromObj(tieFile);
 }
-
-std::vector<glimac::ShapeVertex> asteroidVbo()
+std::vector<glimac::ShapeVertex> tieLDVbo()
 {
-    std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/asteroid.obj");
+    std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/tieLD.obj");
     return loadVboFromObj(tieFile);
 }
-std::vector<uint32_t> asteroidIbo()
+std::vector<uint32_t> tieLDIbo()
 {
-    std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/asteroid.obj");
+    std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/tieLD.obj");
+    return loadIboFromObj(tieFile);
+}
+
+std::vector<glimac::ShapeVertex> asteroidHDVbo()
+{
+    std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/asteroidHD.obj");
+    return loadVboFromObj(tieFile);
+}
+std::vector<uint32_t> asteroidHDIbo()
+{
+    std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/asteroidHD.obj");
+    return loadIboFromObj(tieFile);
+}
+std::vector<glimac::ShapeVertex> asteroidLDVbo()
+{
+    std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/asteroidLD.obj");
+    return loadVboFromObj(tieFile);
+}
+std::vector<uint32_t> asteroidLDIbo()
+{
+    std::string tieFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/asteroidLD.obj");
     return loadIboFromObj(tieFile);
 }

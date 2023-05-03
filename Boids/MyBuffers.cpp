@@ -71,21 +71,31 @@ void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuf
     initializeVao(vaos.m_["characterReactors"], vbos.m_["characterReactors"], ibos.m_["characterReactors"]);
 
     // Boid's buffers Init
-    initializeVbo(tieHDVbo, vbos.m_["boid"]);
-    initializeIbo(tieHDIbo, ibos.m_["boid"]);
-    initializeVao(vaos.m_["boid"], vbos.m_["boid"], ibos.m_["boid"]);
+    initializeVbo(tieHDVbo, vbos.m_["boidHD"]);
+    initializeIbo(tieHDIbo, ibos.m_["boidHD"]);
+    initializeVao(vaos.m_["boidHD"], vbos.m_["boidHD"], ibos.m_["boidHD"]);
     img::Image boidImage = p6::load_image_buffer("assets/textures/TF_diffuse.png");
-    initializeTexture(boidImage, textures.m_["boid"]);
+    initializeTexture(boidImage, textures.m_["boidHD"]);
+
+    initializeVbo(tieLDVbo, vbos.m_["boidLD"]);
+    initializeIbo(tieLDIbo, ibos.m_["boidLD"]);
+    initializeVao(vaos.m_["boidLD"], vbos.m_["boidLD"], ibos.m_["boidLD"]);
+    initializeTexture(boidImage, textures.m_["boidLD"]);
 
     // Obstacle's buffers Init
-    initializeVbo(asteroidVbo, vbos.m_["obstacle"]);
-    initializeIbo(asteroidIbo, ibos.m_["obstacle"]);
-    initializeVao(vaos.m_["obstacle"], vbos.m_["obstacle"], ibos.m_["obstacle"]);
+    initializeVbo(asteroidHDVbo, vbos.m_["obstacleHD"]);
+    initializeIbo(asteroidHDIbo, ibos.m_["obstacleHD"]);
+    initializeVao(vaos.m_["obstacleHD"], vbos.m_["obstacleHD"], ibos.m_["obstacleHD"]);
     img::Image obstacleImage = p6::load_image_buffer("assets/textures/asteroidTexture.jpg");
-    initializeTexture(obstacleImage, textures.m_["obstacle"]);
+    initializeTexture(obstacleImage, textures.m_["obstacleHD"]);
+
+    initializeVbo(asteroidLDVbo, vbos.m_["obstacleLD"]);
+    initializeIbo(asteroidLDIbo, ibos.m_["obstacleLD"]);
+    initializeVao(vaos.m_["obstacleLD"], vbos.m_["obstacleLD"], ibos.m_["obstacleLD"]);
+    initializeTexture(obstacleImage, textures.m_["obstacleLD"]);
 }
 
-void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& obstacles, MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix)
+void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& obstacles, bool lowQuality, MyBuffers& vaos, const glm::mat4& ViewMatrix, MyBuffers& textures, const glm::mat4& ProjMatrix)
 {
     auto renderWithoutTexture = [](const glm::mat4& ViewMatrix, const auto& program, glm::mat4& MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao) {
         program.use();
@@ -155,7 +165,14 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
         MVMatrix            = glm::translate(glm::mat4(1.0f), boid.pos());
         glm::mat4 rotMatrix = boid.getRotationMatrix();
         MVMatrix            = MVMatrix * rotMatrix;
-        renderWithOneTexture(ViewMatrix, oneTextureProgram, MVMatrix, textures.m_["boid"], ProjMatrix, vaos.m_["boid"]);
+        if (lowQuality)
+        {
+            renderWithOneTexture(ViewMatrix, oneTextureProgram, MVMatrix, textures.m_["boidLD"], ProjMatrix, vaos.m_["boidLD"]);
+        }
+        else
+        {
+            renderWithOneTexture(ViewMatrix, oneTextureProgram, MVMatrix, textures.m_["boidHD"], ProjMatrix, vaos.m_["boidHD"]);
+        }
     }
 
     // Obstacles Render
@@ -164,7 +181,14 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
         MVMatrix = glm::translate(glm::mat4(1.0f), obstacle.pos());
         MVMatrix = glm::rotate(MVMatrix, ctx.time() / obstacle.size() / std::sqrt(obstacle.size()) / 50, obstacle.rotationAxis());
         MVMatrix = glm::scale(MVMatrix, obstacle.size() * glm::vec3(1));
-        renderWithOneTexture(ViewMatrix, oneTextureProgram, MVMatrix, textures.m_["obstacle"], ProjMatrix, vaos.m_["obstacle"]);
+        if (lowQuality)
+        {
+            renderWithOneTexture(ViewMatrix, oneTextureProgram, MVMatrix, textures.m_["obstacleLD"], ProjMatrix, vaos.m_["obstacleLD"]);
+        }
+        else
+        {
+            renderWithOneTexture(ViewMatrix, oneTextureProgram, MVMatrix, textures.m_["obstacleHD"], ProjMatrix, vaos.m_["obstacleHD"]);
+        }
     }
 }
 
