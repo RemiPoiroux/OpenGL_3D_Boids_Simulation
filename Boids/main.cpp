@@ -15,6 +15,7 @@ int main()
          2,
          50,
          10000};
+    bool SPOT_LIGHT = false;
 
     // SIMULATION PARAMETERS
 
@@ -74,7 +75,7 @@ int main()
         borderManager(boids, BORDERS_PARAMETERS);
         boidsDisplacement(boids, ctx.delta_time());
 
-        render(ctx, boids, obstacles, BOIDS_LOW_QUALITY, vaos, camera, textures, ProjMatrix);
+        render(ctx, boids, obstacles, BOIDS_LOW_QUALITY, vaos, camera, textures, ProjMatrix, SPOT_LIGHT);
     };
 
     /////////////////////////////////
