@@ -1,6 +1,6 @@
+#include "CameraInputs.hpp"
 #include "ImGuiInterface.hpp"
-#include "Inputs.hpp"
-#include "MyBuffers.hpp"
+#include "Render.hpp"
 
 int main()
 {
@@ -67,7 +67,7 @@ int main()
     ctx.update = [&]() {
         ImGuiInterface(BOIDS_LOW_QUALITY, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_PARAMETERS);
 
-        inputsEvents(ctx, CAM_PARAMETERS, camera);
+        cameraInputsEvents(ctx, CAM_PARAMETERS, camera);
 
         // Boids simulation
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
@@ -84,5 +84,5 @@ int main()
     // Should be done last. It starts the infinite loop.
     ctx.start();
 
-    releasesRessources(vbos, ibos, vaos, textures);
+    releasesBuffers(vbos, ibos, vaos, textures);
 }

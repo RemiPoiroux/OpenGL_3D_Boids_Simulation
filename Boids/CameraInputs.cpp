@@ -1,6 +1,6 @@
-#include "Inputs.hpp"
+#include "CameraInputs.hpp"
 
-void inputsEvents(const p6::Context& ctx, const CameraParameters& cameraParameters, FreeflyCamera& camera)
+void cameraInputsEvents(const p6::Context& ctx, const CameraParameters& cameraParameters, FreeflyCamera& camera)
 {
     // camera move
     float factor = 1;
