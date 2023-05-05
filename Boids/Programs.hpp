@@ -57,22 +57,18 @@ private:
     GLint m_uDirLightDir_vs;
     GLint m_uDirLightColor;
 
+    GLint m_uNumPointLights;
+    GLint m_uPointLightsPositions;
+    GLint m_uPointLightsColors;
+    GLint m_uPointLightsIntensities;
+
     GLint m_uPointLightP;
     GLint m_uPointLightC;
     GLint m_uPointLightI;
 
-    // GLint m_uNumPointLights;
-    // GLint m_uPointLightsPositions;
-    // GLint m_uPointLightsColors;
-    // GLint m_uPointLightsIntensities;
-
 public:
     OneTextureAndLightsProgram()
-        : m_Program{p6::load_shader("shaders/3D.vs.glsl", "shaders/tex3DLight.fs.glsl")}, m_uMVPMatrix(glGetUniformLocation(m_Program.id(), "uMVPMatrix")), m_uMVMatrix(glGetUniformLocation(m_Program.id(), "uMVMatrix")), m_uNormalMatrix(glGetUniformLocation(m_Program.id(), "uNormalMatrix")), m_Texture(glGetUniformLocation(m_Program.id(), "uTexture")), m_uKd(glGetUniformLocation(m_Program.id(), "uKd")), m_uKs(glGetUniformLocation(m_Program.id(), "uKs")), m_uShininess(glGetUniformLocation(m_Program.id(), "uShininess")), m_uDirLightDir_vs(glGetUniformLocation(m_Program.id(), "uDirLightDir_vs")), m_uDirLightColor(glGetUniformLocation(m_Program.id(), "uDirLightColor")),
-        /*m_uNumPointLights(glGetUniformLocation(m_Program.id(), "uNumPointLights")), m_uPointLightsPositions(glGetUniformLocation(m_Program.id(), "uPointLightsPositions")), m_uPointLightsColors(glGetUniformLocation(m_Program.id(), "uPointLightsColors")), m_uPointLightsIntensities(glGetUniformLocation(m_Program.id(), "uPointLightsIntensities"))*/
-        m_uPointLightP(glGetUniformLocation(m_Program.id(), "uPointLightP"))
-        , m_uPointLightC(glGetUniformLocation(m_Program.id(), "uPointLightC"))
-        , m_uPointLightI(glGetUniformLocation(m_Program.id(), "uPointLightI"))
+        : m_Program{p6::load_shader("shaders/3D.vs.glsl", "shaders/tex3DLight.fs.glsl")}, m_uMVPMatrix(glGetUniformLocation(m_Program.id(), "uMVPMatrix")), m_uMVMatrix(glGetUniformLocation(m_Program.id(), "uMVMatrix")), m_uNormalMatrix(glGetUniformLocation(m_Program.id(), "uNormalMatrix")), m_Texture(glGetUniformLocation(m_Program.id(), "uTexture")), m_uKd(glGetUniformLocation(m_Program.id(), "uKd")), m_uKs(glGetUniformLocation(m_Program.id(), "uKs")), m_uShininess(glGetUniformLocation(m_Program.id(), "uShininess")), m_uDirLightDir_vs(glGetUniformLocation(m_Program.id(), "uDirLightDir_vs")), m_uDirLightColor(glGetUniformLocation(m_Program.id(), "uDirLightColor")), m_uNumPointLights(glGetUniformLocation(m_Program.id(), "uNumPointLights")), m_uPointLightsPositions(glGetUniformLocation(m_Program.id(), "uPointLightsPositions")), m_uPointLightsColors(glGetUniformLocation(m_Program.id(), "uPointLightsColors")), m_uPointLightsIntensities(glGetUniformLocation(m_Program.id(), "uPointLightsIntensities")), m_uPointLightP(glGetUniformLocation(m_Program.id(), "uPointLightP")), m_uPointLightC(glGetUniformLocation(m_Program.id(), "uPointLightC")), m_uPointLightI(glGetUniformLocation(m_Program.id(), "uPointLightI"))
     {}
 
     void use() const
@@ -120,23 +116,23 @@ public:
         return m_uDirLightColor;
     }
 
-    // GLint uNumPointLights() const
-    // {
-    //     return m_uNumPointLights;
-    // }
+    GLint uNumPointLights() const
+    {
+        return m_uNumPointLights;
+    }
 
-    // GLint uPointLightsPositions() const
-    // {
-    //     return m_uPointLightsPositions;
-    // }
-    // GLint uPointLightsColors() const
-    // {
-    //     return m_uPointLightsPositions;
-    // }
-    // GLint uPointLightsIntensities() const
-    // {
-    //     return m_uPointLightsPositions;
-    // }
+    GLint uPointLightsPositions() const
+    {
+        return m_uPointLightsPositions;
+    }
+    GLint uPointLightsColors() const
+    {
+        return m_uPointLightsColors;
+    }
+    GLint uPointLightsIntensities() const
+    {
+        return m_uPointLightsIntensities;
+    }
     GLint uPointLightP() const
     {
         return m_uPointLightP;

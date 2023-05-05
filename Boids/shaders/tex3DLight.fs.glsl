@@ -11,11 +11,11 @@ uniform float uShininess;
 uniform vec3 uDirLightDir_vs;
 uniform vec3 uDirLightColor;
 
-// const int MAX_POINT_LIGHTS = 10;
-// uniform vec3 uPointLightsPositions[MAX_POINT_LIGHTS];
-// uniform vec3 uPointLightsColors[MAX_POINT_LIGHTS];
-// uniform float uPointLightsIntensities[MAX_POINT_LIGHTS];
-// uniform int uNumPointLights;
+const int MAX_POINT_LIGHTS = 20;
+uniform vec3 uPointLightsPositions[MAX_POINT_LIGHTS];
+uniform vec3 uPointLightsColors[MAX_POINT_LIGHTS];
+uniform float uPointLightsIntensities[MAX_POINT_LIGHTS];
+uniform int uNumPointLights;
 
 uniform vec3 uPointLightP;
 uniform vec3 uPointLightC;
@@ -58,10 +58,10 @@ void main()
     vec3 color = blinnPhongDir(vPosition_vs, normal, lightDir, uDirLightColor, uKd, uKs, uShininess);
     color += blinnPhongPoint(vPosition_vs, normal, uKd, uKs, uShininess, uPointLightI*uPointLightC, uPointLightP);       
 
-    // for (int i = 0; i < uNumPointLights; i++) 
-    // {
-    //     color += blinnPhongPoint(vPosition_vs, normal, uKd, uKs, uShininess, uPointLightsIntensities[i]*uPointLightsColors[i], uPointLightsPositions[i]);       
-    // }
+    for (int i = 0; i < uNumPointLights; i++) 
+    {
+        color += blinnPhongPoint(vPosition_vs, normal, uKd, uKs, uShininess, uPointLightsIntensities[i]*uPointLightsColors[i], uPointLightsPositions[i]);       
+    }
 
     fFragColor = vec4(color * diffuseColor, texture.w);
 }

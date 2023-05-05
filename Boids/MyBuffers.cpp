@@ -158,21 +158,22 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
         glUniform3fv(program.uDirLightDir_vs(), 1, glm::value_ptr(ViewMatrix * glm::vec4(dirLight.getDirection(), 0.f)));
         glUniform3fv(program.uDirLightColor(), 1, glm::value_ptr(dirLight.getColor()));
 
-        // glUniform1i(program.uNumPointLights(), static_cast<GLint>(pointLights.size()));
+        const auto pointLightsNumber = static_cast<GLint>(pointLights.size());
+        glUniform1i(program.uNumPointLights(), pointLightsNumber);
 
-        // glm::vec3 pointLightsPositions[5];
-        // glm::vec3 pointLightsColors[5];
-        // float     pointLightsIntensities[5];
-        // for (int i = 0; static_cast<int>(pointLights.size()); ++i)
-        // {
-        //     pointLightsPositions[i]   = ViewMatrix * glm::vec4(pointLights[i].getPosition(), 1);
-        //     pointLightsColors[i]      = pointLights[i].getColor();
-        //     pointLightsIntensities[i] = pointLights[i].getIntensity();
-        // }
+        std::vector<glm::vec3> pointLightsPositions(pointLightsNumber);
+        std::vector<glm::vec3> pointLightsColors(pointLightsNumber);
+        std::vector<GLfloat>   pointLightsIntensities(pointLightsNumber);
+        for (int i = 0; i < pointLightsNumber; ++i)
+        {
+            pointLightsPositions[i]   = ViewMatrix * glm::vec4(pointLights[i].getPosition(), 1);
+            pointLightsColors[i]      = pointLights[i].getColor();
+            pointLightsIntensities[i] = pointLights[i].getIntensity();
+        }
 
-        // glUniform3fv(program.uPointLightsPositions(), pointLightsPositions.size(), glm::value_ptr(pointLightsPositions[0]));
-        // glUniform3fv(program.uPointLightsColors(), pointLightsColors.size(), glm::value_ptr(pointLightsColors[0]));
-        // glUniform1fv(program.uPointLightsIntensities(), pointLightsIntensities.size(), &pointLightsIntensities[0]);
+        glUniform3fv(program.uPointLightsPositions(), pointLightsNumber, glm::value_ptr(pointLightsPositions[0]));
+        glUniform3fv(program.uPointLightsColors(), pointLightsNumber, glm::value_ptr(pointLightsColors[0]));
+        glUniform1fv(program.uPointLightsIntensities(), pointLightsNumber, pointLightsIntensities.data());
 
         glUniform3fv(program.uPointLightP(), 1, glm::value_ptr(glm::vec3(ViewMatrix * glm::vec4(pointLights[1].getPosition(), 1))));
         glUniform3fv(program.uPointLightC(), 1, glm::value_ptr(pointLights[1].getColor()));
@@ -202,7 +203,7 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
 
     // Lights creation
     DirectionalLight globalLight                = DirectionalLight({1, 1, 1}, {0.7, 0.7, 0.7});
-    float            characterLightOffset       = 0.2;
+    float            characterLightOffset       = 0.14;
     float            characterLightIntensity    = 0.2;
     glm::vec3        reactorsOffset             = {0.01, 0.004, -0.04};
     glm::vec3        topRightReactorPosition    = characterPosition - reactorsOffset.x * camera.getLeftVector() + reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
@@ -210,7 +211,7 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
     glm::vec3        bottomRightReactorPosition = characterPosition - reactorsOffset.x * camera.getLeftVector() - reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
     glm::vec3        bottomLeftReactorPosition  = characterPosition + reactorsOffset.x * camera.getLeftVector() - reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
     glm::vec3        reactorsColor              = {1, 0, 0.2};
-    float            reactorsIntensity          = 0.0002;
+    float            reactorsIntensity          = 0.00005;
 
     std::vector<PointLight> pointsLights = {
         PointLight(characterPosition + characterLightOffset * camera.getFrontVector(), 0, {1, 1, 1}),
