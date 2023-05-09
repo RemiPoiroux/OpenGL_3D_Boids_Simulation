@@ -79,10 +79,6 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
         glUniform3fv(program.uPointLightsColors(), pointLightsNumber, glm::value_ptr(pointLightsColors[0]));
         glUniform1fv(program.uPointLightsIntensities(), pointLightsNumber, pointLightsIntensities.data());
 
-        glUniform3fv(program.uPointLightP(), 1, glm::value_ptr(glm::vec3(ViewMatrix * glm::vec4(pointLights[1].getPosition(), 1))));
-        glUniform3fv(program.uPointLightC(), 1, glm::value_ptr(pointLights[1].getColor()));
-        glUniform1f(program.uPointLightI(), pointLights[1].getIntensity());
-
         glUniform3fv(program.uKd(), 1, glm::value_ptr(material.getKd()));
         glUniform3fv(program.uKs(), 1, glm::value_ptr(material.getKs()));
         glUniform1f(program.uShininess(), material.getShininess());

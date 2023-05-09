@@ -17,10 +17,6 @@ uniform vec3 uPointLightsColors[MAX_POINT_LIGHTS];
 uniform float uPointLightsIntensities[MAX_POINT_LIGHTS];
 uniform int uNumPointLights;
 
-uniform vec3 uPointLightP;
-uniform vec3 uPointLightC;
-uniform float uPointLightI;
-
 uniform sampler2D uTexture;
 
 out vec4 fFragColor;
@@ -56,7 +52,6 @@ void main()
     vec3 lightDir = normalize(uDirLightDir_vs);
 
     vec3 color = blinnPhongDir(vPosition_vs, normal, lightDir, uDirLightColor, uKd, uKs, uShininess);
-    color += blinnPhongPoint(vPosition_vs, normal, uKd, uKs, uShininess, uPointLightI*uPointLightC, uPointLightP);       
 
     for (int i = 0; i < uNumPointLights; i++) 
     {
