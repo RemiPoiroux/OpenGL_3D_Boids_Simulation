@@ -63,7 +63,7 @@ void main()
     vec3 projCoords = shadowCoord.xyz / shadowCoord.w;
     projCoords = projCoords * 0.5 + 0.5;
     float depth = texture(uShadowMap, projCoords.xy).x;
-    float shadowFactor = (projCoords.z > depth + 0.01) ? 0 : 1.0;
+    float shadowFactor = (projCoords.z > depth + 0.01) ? 0.2 : 1.0;
 
     color = blinnPhongDir(vPosition_vs, normal, lightDir, uDirLightColor, uKd, uKs, uShininess) * shadowFactor;
 
