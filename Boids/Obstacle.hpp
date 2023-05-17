@@ -10,9 +10,9 @@ class Obstacle
 
 public:
     Obstacle(glm::vec3 position, float size, glm::vec3 rotationAxis);
-    glm::vec3 pos() const;
-    float     size() const;
-    glm::vec3 rotationAxis() const;
+    glm::vec3 getPosition() const;
+    float     getSize() const;
+    glm::vec3 getRotationAxis() const;
 };
 
 struct Parameters

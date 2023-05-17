@@ -37,7 +37,7 @@ glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const Char
     auto renderBoids = [&]() {
         for (Boid& boid : boids)
         {
-            glm::mat4 MVMatrix  = glm::translate(glm::mat4(1.0f), boid.pos());
+            glm::mat4 MVMatrix  = glm::translate(glm::mat4(1.0f), boid.getPosition());
             glm::mat4 rotMatrix = boid.getRotationMatrix();
             MVMatrix            = MVMatrix * rotMatrix;
             if (lowQuality)
@@ -70,9 +70,9 @@ glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const Char
     auto renderObstacles = [&]() {
         for (const Obstacle& obstacle : obstacles)
         {
-            glm::mat4 MVMatrix = glm::translate(glm::mat4(1.0f), obstacle.pos());
-            MVMatrix           = glm::rotate(MVMatrix, ctx.time() / obstacle.size() / std::sqrt(obstacle.size()) / 50, obstacle.rotationAxis());
-            MVMatrix           = glm::scale(MVMatrix, obstacle.size() * glm::vec3(1));
+            glm::mat4 MVMatrix = glm::translate(glm::mat4(1.0f), obstacle.getPosition());
+            MVMatrix           = glm::rotate(MVMatrix, ctx.time() / obstacle.getSize() / std::sqrt(obstacle.getSize()) / 50, obstacle.getRotationAxis());
+            MVMatrix           = glm::scale(MVMatrix, obstacle.getSize() * glm::vec3(1));
 
             if (lowQuality)
             {
@@ -213,7 +213,8 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
 
     // Shadow pass
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    ShadowMapFBO shadowMapFBO(6 * ctx.main_canvas_width(), 6 * ctx.main_canvas_height());
+    GLsizei      shadowQuality = 6;
+    ShadowMapFBO shadowMapFBO(shadowQuality * ctx.main_canvas_width(), shadowQuality * ctx.main_canvas_height());
     shadowMapFBO.Init();
     shadowMapFBO.BindForWriting();
     glm::mat4 DepthMatrix = shadowPass(globalLight.getDirection(), ctx, camera, obstacles, boids, lowQuality, vaos);
@@ -256,7 +257,7 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
     auto renderBoids = [&]() {
         for (Boid& boid : boids)
         {
-            glm::mat4 MVMatrix  = glm::translate(glm::mat4(1.0f), boid.pos());
+            glm::mat4 MVMatrix  = glm::translate(glm::mat4(1.0f), boid.getPosition());
             glm::mat4 rotMatrix = boid.getRotationMatrix();
             MVMatrix            = MVMatrix * rotMatrix;
             if (lowQuality)
@@ -274,9 +275,9 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
     auto renderObstacles = [&]() {
         for (Obstacle& obstacle : obstacles)
         {
-            glm::mat4 MVMatrix = glm::translate(glm::mat4(1.0f), obstacle.pos());
-            MVMatrix           = glm::rotate(MVMatrix, ctx.time() / obstacle.size() / std::sqrt(obstacle.size()) / 50, obstacle.rotationAxis());
-            MVMatrix           = glm::scale(MVMatrix, obstacle.size() * glm::vec3(1));
+            glm::mat4 MVMatrix = glm::translate(glm::mat4(1.0f), obstacle.getPosition());
+            MVMatrix           = glm::rotate(MVMatrix, ctx.time() / obstacle.getSize() / std::sqrt(obstacle.getSize()) / 50, obstacle.getRotationAxis());
+            MVMatrix           = glm::scale(MVMatrix, obstacle.getSize() * glm::vec3(1));
 
             if (lowQuality)
             {

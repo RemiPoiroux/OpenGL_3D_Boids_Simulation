@@ -26,8 +26,8 @@ Boid randomBoid()
 template<typename T1, typename T2>
 float myDistance(const T1& entity1, const T2& entity2)
 {
-    const glm::vec3& pos1 = entity1.pos();
-    const glm::vec3& pos2 = entity2.pos();
+    const glm::vec3& pos1 = entity1.getPosition();
+    const glm::vec3& pos2 = entity2.getPosition();
     return glm::length(pos2 - pos1);
 }
 
@@ -80,7 +80,7 @@ void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obs
     {
         auto applyToCloseBoids = [&](const auto& func) {
             auto isClose = [&](Boid& other) {
-                return myDistance(currentObstacle, other) < parameters.distance + currentObstacle.size();
+                return myDistance(currentObstacle, other) < parameters.distance + currentObstacle.getSize();
             };
             auto closeBoidsBegin = std::find_if(std::begin(boids), std::end(boids), isClose);
             auto closeBoidsEnd   = std::find_if_not(closeBoidsBegin, std::end(boids), isClose);

@@ -3,15 +3,15 @@
 Obstacle::Obstacle(const glm::vec3 position, const float size, const glm::vec3 rotationAxis)
     : m_position(position), m_size(size), m_rotationAxis(rotationAxis) {}
 
-glm::vec3 Obstacle::pos() const
+glm::vec3 Obstacle::getPosition() const
 {
     return this->m_position;
 }
-float Obstacle::size() const
+float Obstacle::getSize() const
 {
     return this->m_size;
 }
-glm::vec3 Obstacle::rotationAxis() const
+glm::vec3 Obstacle::getRotationAxis() const
 {
     return this->m_rotationAxis;
 }
@@ -41,8 +41,8 @@ std::vector<Obstacle> createObstacles(ObstaclesParameters p)
 
     auto checkOverlap = [&obstacles](Obstacle obstacle) {
         return std::any_of(obstacles.begin(), obstacles.end(), [&](const Obstacle& o) {
-            double distance = sqrt(pow(obstacle.pos().x - o.pos().x, 2) + pow(obstacle.pos().y - o.pos().y, 2));
-            return distance < (obstacle.size() + o.size()) / 2;
+            double distance = sqrt(pow(obstacle.getPosition().x - o.getPosition().x, 2) + pow(obstacle.getPosition().y - o.getPosition().y, 2));
+            return distance < (obstacle.getSize() + o.getSize()) / 2;
         });
     };
 

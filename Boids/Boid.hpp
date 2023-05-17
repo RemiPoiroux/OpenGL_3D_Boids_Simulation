@@ -23,14 +23,14 @@ private:
 
     void slowing();
 
-    glm::vec3 HalfTurnDirection(AxisIndex axisIndex) const;
+    glm::vec3 halfTurnDirection(AxisIndex axisIndex) const;
 
-    void ChecksBordersOnAxis(AxisIndex axisIndex, Parameters parameters);
+    void checksBordersOnAxis(AxisIndex axisIndex, Parameters parameters);
 
 public:
     Boid(glm::vec3 position, float maxSpeed, glm::vec3 direction);
 
-    glm::vec3 pos() const;
+    glm::vec3 getPosition() const;
 
     glm::mat4 getRotationMatrix() const;
 

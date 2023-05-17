@@ -57,7 +57,7 @@ void Boid::applyForce(const glm::vec3 direction, const float strength)
     this->slowing();
 }
 
-glm::vec3 Boid::pos() const
+glm::vec3 Boid::getPosition() const
 {
     return position;
 }
@@ -99,7 +99,7 @@ void Boid::displacement(const float deltaTime)
     this->position += this->direction * this->speed * deltaTime;
 }
 
-glm::vec3 Boid::HalfTurnDirection(const AxisIndex axisIndex) const
+glm::vec3 Boid::halfTurnDirection(const AxisIndex axisIndex) const
 {
     switch (axisIndex)
     {
@@ -110,14 +110,14 @@ glm::vec3 Boid::HalfTurnDirection(const AxisIndex axisIndex) const
     return {};
 }
 
-void Boid::ChecksBordersOnAxis(const AxisIndex axisIndex, const Parameters p)
+void Boid::checksBordersOnAxis(const AxisIndex axisIndex, const Parameters p)
 {
     if ((this->position[axisIndex] > (1 - p.distance))
         && this->direction[axisIndex] > 0)
     {
         if (this->position[axisIndex] > 1)
         {
-            this->applyForce(this->HalfTurnDirection(axisIndex), 2);
+            this->applyForce(this->halfTurnDirection(axisIndex), 2);
         }
         else
         {
@@ -131,7 +131,7 @@ void Boid::ChecksBordersOnAxis(const AxisIndex axisIndex, const Parameters p)
     {
         if (this->position[axisIndex] < -1)
         {
-            this->applyForce(this->HalfTurnDirection(axisIndex), 2);
+            this->applyForce(this->halfTurnDirection(axisIndex), 2);
         }
         else
         {
@@ -172,14 +172,14 @@ void Boid::obstacleAvoidance(const Obstacle& obstacle, const float strength)
         // Normaliser le vecteur orthogonal résultant
         return glm::normalize(proj);
     };
-    glm::vec3 direction = (obstacle.pos() - this->position);
+    glm::vec3 direction = (obstacle.getPosition() - this->position);
     direction += (random_orthogonal_vector(direction));
     this->applyForce(direction, -strength);
 }
 
 void Boid::bordersAvoidance(const Parameters p)
 {
-    this->ChecksBordersOnAxis(AxisIndex::x, p);
-    this->ChecksBordersOnAxis(AxisIndex::y, p);
-    this->ChecksBordersOnAxis(AxisIndex::z, p);
+    this->checksBordersOnAxis(AxisIndex::x, p);
+    this->checksBordersOnAxis(AxisIndex::y, p);
+    this->checksBordersOnAxis(AxisIndex::z, p);
 }
