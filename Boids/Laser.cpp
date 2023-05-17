@@ -32,5 +32,5 @@ bool Laser::outOfBorders() const
 
 void Laser::displacement(const float deltaTime)
 {
-    this->m_position += this->m_direction * deltaTime * m_parameters.speed;
+    this->m_position += this->m_direction * m_parameters.speed * deltaTime;
 }

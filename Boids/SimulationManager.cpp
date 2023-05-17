@@ -118,7 +118,6 @@ void firingManager(std::vector<Laser>& lasers, const LaserParameters parameters,
     if (ctx.key_is_pressed(GLFW_KEY_SPACE))
     {
         lasers.emplace_back(camera.getPosition(), parameters, camera.getFrontVector());
-        std::cout << lasers.size() << std::endl;
     }
 }
 
@@ -139,7 +138,7 @@ void lasersManager(std::vector<Laser>& lasers, const std::vector<Obstacle>& obst
     lasers.erase(std::remove_if(lasers.begin(), lasers.end(), [&obstacles](const Laser& laser) {
                      return laser.outOfBorders()
                             || std::any_of(obstacles.begin(), obstacles.end(), [&laser](const Obstacle& obstacle) {
-                                   return myDistance(laser, obstacle) < obstacle.getSize();
+                                   return myDistance(laser, obstacle) < obstacle.getSize() / 2;
                                });
                  }),
                  lasers.end());
@@ -147,7 +146,7 @@ void lasersManager(std::vector<Laser>& lasers, const std::vector<Obstacle>& obst
 
 void lasersDisplacement(std::vector<Laser>& lasers, const float deltaTime)
 {
-    for (Laser laser : lasers)
+    for (Laser& laser : lasers)
     {
         laser.displacement(deltaTime);
     }
