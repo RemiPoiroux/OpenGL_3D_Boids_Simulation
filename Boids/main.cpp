@@ -35,7 +35,7 @@ int main()
     ObstaclesParameters OBSTACLES_PARAMETERS =
         {100, 0.05, 0.8, {0.1, 0.1}};
 
-    LaserParameters LASERS_PARAMETERS = {1, 0.01};
+    LaserParameters LASERS_PARAMETERS = {1, 0.1};
 
     /////////////////////////////////
     /////////////////////////////////
@@ -84,7 +84,7 @@ int main()
         boidsDisplacement(boids, ctx.delta_time());
         lasersDisplacement(lasers, ctx.delta_time());
 
-        render(ctx, boids, obstacles, BOIDS_LOW_QUALITY, vaos, camera, textures, ProjMatrix, SPOT_LIGHT);
+        render(ctx, boids, obstacles, lasers, BOIDS_LOW_QUALITY, vaos, camera, textures, ProjMatrix, SPOT_LIGHT);
     };
 
     /////////////////////////////////

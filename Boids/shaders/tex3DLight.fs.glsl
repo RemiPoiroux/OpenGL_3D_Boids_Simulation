@@ -12,7 +12,7 @@ uniform float uShininess;
 uniform vec3 uDirLightDir_vs;
 uniform vec3 uDirLightColor;
 
-const int MAX_POINT_LIGHTS = 5;
+const int MAX_POINT_LIGHTS = 100;
 uniform vec3 uPointLightsPositions[MAX_POINT_LIGHTS];
 uniform vec3 uPointLightsColors[MAX_POINT_LIGHTS];
 uniform float uPointLightsIntensities[MAX_POINT_LIGHTS];
