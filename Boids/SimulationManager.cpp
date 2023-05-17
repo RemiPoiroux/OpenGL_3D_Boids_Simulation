@@ -117,7 +117,7 @@ void firingManager(std::vector<Laser>& lasers, const LaserParameters parameters,
 {
     if (ctx.key_is_pressed(GLFW_KEY_SPACE))
     {
-        lasers.emplace_back(camera.getPosition(), parameters, camera.getFrontVector());
+        lasers.emplace_back(camera.getPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix());
     }
 }
 

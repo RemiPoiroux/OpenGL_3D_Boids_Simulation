@@ -23,13 +23,24 @@ std::vector<uint32_t> xwingIbo()
 }
 std::vector<glimac::ShapeVertex> xwingReactorsVbo()
 {
-    std::string xwingFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/XwingReactors.obj");
-    return loadVboFromObj(xwingFile);
+    std::string xwingReactorsFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/XwingReactors.obj");
+    return loadVboFromObj(xwingReactorsFile);
 }
 std::vector<uint32_t> xwingReactorsIbo()
 {
-    std::string xwingFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/XwingReactors.obj");
-    return loadIboFromObj(xwingFile);
+    std::string xwingReactorsFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/XwingReactors.obj");
+    return loadIboFromObj(xwingReactorsFile);
+}
+
+std::vector<glimac::ShapeVertex> laserVbo()
+{
+    std::string laserFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/laser.obj");
+    return loadVboFromObj(laserFile);
+}
+std::vector<uint32_t> laserIbo()
+{
+    std::string laserFile("/home/rempoir/Documents/IMAC/Annee2/Semestre 2/Synthèse d'image/OpenGL_3D_Boids_Simulation/assets/models/laser.obj");
+    return loadIboFromObj(laserFile);
 }
 
 std::vector<glimac::ShapeVertex> tieHDVbo()

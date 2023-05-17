@@ -65,6 +65,10 @@ void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuf
     initializeIbo(xwingReactorsIbo, ibos.m_["characterReactors"]);
     initializeVao(vaos.m_["characterReactors"], vbos.m_["characterReactors"], ibos.m_["characterReactors"]);
 
+    initializeVbo(laserVbo, vbos.m_["laser"]);
+    initializeIbo(laserIbo, ibos.m_["laser"]);
+    initializeVao(vaos.m_["laser"], vbos.m_["laser"], ibos.m_["laser"]);
+
     // Boid's buffers Init
     initializeVbo(tieHDVbo, vbos.m_["boidHD"]);
     initializeIbo(tieHDIbo, ibos.m_["boidHD"]);

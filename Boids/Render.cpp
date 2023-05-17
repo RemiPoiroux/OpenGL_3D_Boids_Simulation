@@ -1,13 +1,17 @@
-#include "Render.hpp"
-#include <vector>
+#include "Boid.hpp"
 #include "CharacterCamera.hpp"
+#include "Laser.hpp"
 #include "LightsAndMaterials.hpp"
+#include "MyBuffers.hpp"
 #include "Programs.hpp"
 #include "ShadowMapFBO.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/fwd.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
 glm::mat4 shadowPass(glm::vec3 lightPosition, p6::Context& ctx, const CharacterCamera& camera, std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, bool lowQuality, MyBuffers& vaos);
-void      renderWithoutTexture(const glm::mat4& ViewMatrix, const HaloProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao);
+void      renderHalo(const glm::mat4& ViewMatrix, const HaloProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao);
+void      renderLaser(const glm::mat4& ViewMatrix, const LaserProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao);
 void      renderWithOneTexture(const glm::mat4& ViewMatrix, const OneTextureProgram& program, glm::mat4 MVMatrix, const GLuint& texture, const glm::mat4& ProjMatrix, const GLuint& vao);
 void      renderWithOneTextureAndLighting(const glm::mat4& ViewMatrix, const OneTextureAndLightsProgram& program, glm::mat4 MVMatrix, const GLuint& texture, const glm::mat4& ProjMatrix, const GLuint& vao, const DirectionalLight& dirLight, const std::vector<PointLight>& pointLights, const Material& material, const glm::mat4& DepthMatrix, ShadowMapFBO& shadowMapFBO);
 
@@ -20,7 +24,7 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
         glm::vec3 reactorsColor           = {1, 0, 0.2};
         float     reactorsIntensity       = 0.00005;
         glm::vec3 lasersColor             = {1, 0, 0};
-        float     lasersIntensity         = 0.0005;
+        float     lasersIntensity         = 0.005;
 
         std::vector<PointLight> pointsLights = {
             PointLight(camera.getPosition() + characterLightOffset * camera.getFrontVector(), 0, {1, 1, 1}),
@@ -87,16 +91,25 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
         MVMatrix *= camera.getRotationMatrix();
 
         renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["character"], ProjMatrix, vaos.m_["character"], globalLight, pointsLights, material, DepthMatrix, shadowMapFBO);
-        renderWithoutTexture(ViewMatrix, HaloProgram(), MVMatrix, ProjMatrix, vaos.m_["characterReactors"]);
+        renderHalo(ViewMatrix, HaloProgram(), MVMatrix, ProjMatrix, vaos.m_["characterReactors"]);
     };
     renderCharacter();
+
+    auto renderLasers = [&]() {
+        for (Laser laser : lasers)
+        {
+            glm::mat4 MVMatrix = glm::translate(glm::mat4(1), laser.getPosition());
+            MVMatrix *= laser.getRotationMatrix();
+            renderLaser(ViewMatrix, LaserProgram(), MVMatrix, ProjMatrix, vaos.m_["laser"]);
+        }
+    };
+    renderLasers();
 
     auto renderBoids = [&]() {
         for (Boid& boid : boids)
         {
-            glm::mat4 MVMatrix  = glm::translate(glm::mat4(1.0f), boid.getPosition());
-            glm::mat4 rotMatrix = boid.getRotationMatrix();
-            MVMatrix            = MVMatrix * rotMatrix;
+            glm::mat4 MVMatrix = glm::translate(glm::mat4(1.0f), boid.getPosition());
+            MVMatrix *= boid.getRotationMatrix();
             if (lowQuality)
             {
                 renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["boidLD"], ProjMatrix, vaos.m_["boidLD"], globalLight, pointsLights, boidMaterial, DepthMatrix, shadowMapFBO);
@@ -129,7 +142,8 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
     renderObstacles();
 }
 
-glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const CharacterCamera& camera, std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, bool lowQuality, MyBuffers& vaos)
+glm::mat4
+    shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const CharacterCamera& camera, std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, bool lowQuality, MyBuffers& vaos)
 {
     auto renderShadowCaster = [](const glm::mat4& ViewMatrix, const ShadowMapProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao) {
         program.use();
@@ -212,7 +226,26 @@ glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const Char
     return DepthMatrix;
 }
 
-void renderWithoutTexture(const glm::mat4& ViewMatrix, const HaloProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao)
+void renderHalo(const glm::mat4& ViewMatrix, const HaloProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao)
+{
+    program.use();
+
+    MVMatrix               = ViewMatrix * MVMatrix;
+    glm::mat4 MVPMatrix    = ProjMatrix * MVMatrix;
+    glm::mat4 NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
+
+    glUniformMatrix4fv(program.uMVMatrix(), 1, GL_FALSE, glm::value_ptr(MVMatrix));
+    glUniformMatrix4fv(program.uMVPMatrix(), 1, GL_FALSE, glm::value_ptr(MVPMatrix));
+    glUniformMatrix4fv(program.uNormalMatrix(), 1, GL_FALSE, glm::value_ptr(NormalMatrix));
+
+    glBindVertexArray(vao);
+    GLint size{};
+    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+    glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
+}
+
+void renderLaser(const glm::mat4& ViewMatrix, const LaserProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao)
 {
     program.use();
 

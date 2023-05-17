@@ -10,6 +10,7 @@ struct MyBuffers
         {"background", 0},
         {"character", 0},
         {"characterReactors", 0},
+        {"laser", 0},
         {"boidHD", 0},
         {"boidLD", 0},
         {"obstacleHD", 0},

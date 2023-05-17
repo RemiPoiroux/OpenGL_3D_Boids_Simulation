@@ -12,6 +12,9 @@ std::vector<uint32_t>            xwingIbo();
 std::vector<glimac::ShapeVertex> xwingReactorsVbo();
 std::vector<uint32_t>            xwingReactorsIbo();
 
+std::vector<glimac::ShapeVertex> laserVbo();
+std::vector<uint32_t>            laserIbo();
+
 std::vector<glimac::ShapeVertex> tieHDVbo();
 std::vector<uint32_t>            tieHDIbo();
 std::vector<glimac::ShapeVertex> tieLDVbo();
