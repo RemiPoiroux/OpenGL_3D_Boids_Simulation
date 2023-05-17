@@ -1,5 +1,4 @@
 #include "MyBuffers.hpp"
-#include "FreeflyCamera.hpp"
 #include "Vbos&Ibos.hpp"
 
 void initializesBuffers(MyBuffers& vbos, MyBuffers& ibos, MyBuffers& vaos, MyBuffers& textures)

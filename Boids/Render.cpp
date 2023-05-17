@@ -1,12 +1,12 @@
 #include "Render.hpp"
 #include <vector>
-#include "FreeflyCamera.hpp"
+#include "CharacterCamera.hpp"
 #include "LightsAndMaterials.hpp"
 #include "Programs.hpp"
 #include "ShadowMapFBO.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const FreeflyCamera& camera, std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, bool lowQuality, MyBuffers& vaos)
+glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const CharacterCamera& camera, std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, bool lowQuality, MyBuffers& vaos)
 {
     auto renderShadowCaster = [](const glm::mat4& ViewMatrix, const ShadowMapProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao) {
         program.use();
@@ -53,8 +53,7 @@ glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const Free
     renderBoids();
 
     auto renderCharacter = [&]() {
-        glm::vec3 characterPosition = camera.getPosition() + 0.08f * camera.getFrontVector() - 0.02f * camera.getUpVector();
-        glm::mat4 MVMatrix          = glm::translate(glm::mat4(1), characterPosition);
+        glm::mat4 MVMatrix = glm::translate(glm::mat4(1), camera.pos());
         if (ctx.key_is_pressed(GLFW_KEY_Q) || ctx.key_is_pressed(GLFW_KEY_A) || ctx.key_is_pressed(GLFW_KEY_LEFT))
         {
             MVMatrix = glm::rotate(MVMatrix, -.3f, camera.getFrontVector());
@@ -63,13 +62,7 @@ glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const Free
         {
             MVMatrix = glm::rotate(MVMatrix, .3f, camera.getFrontVector());
         }
-        MVMatrix = glm::rotate(MVMatrix, atan2f(camera.getFrontVector().x, camera.getFrontVector().z), {0, 1, 0});
-        MVMatrix = glm::rotate(MVMatrix, -glm::asin(camera.getFrontVector().y), {1, 0, 0});
-        MVMatrix = glm::rotate(MVMatrix, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        if (!checksTheta(camera.getTheta()))
-        {
-            MVMatrix = glm::scale(MVMatrix, {-1, -1, 1});
-        }
+        MVMatrix *= camera.getRotationMatrix();
         renderShadowCaster(ViewMatrix, program, MVMatrix, ProjMatrix, vaos.m_["character"]);
     };
     renderCharacter();
@@ -96,7 +89,7 @@ glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const Free
     return DepthMatrix;
 }
 
-void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& obstacles, bool lowQuality, MyBuffers& vaos, const FreeflyCamera& camera, MyBuffers& textures, const glm::mat4& ProjMatrix, bool& spotLight)
+void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& obstacles, bool lowQuality, MyBuffers& vaos, const CharacterCamera& camera, MyBuffers& textures, const glm::mat4& ProjMatrix, bool& spotLight)
 {
     auto renderWithoutTexture = [](const glm::mat4& ViewMatrix, const HaloProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao) {
         program.use();
@@ -189,27 +182,20 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
         glBindTexture(GL_TEXTURE_2D, 0);
     };
 
-    glm::vec3 characterPosition = camera.getPosition() + 0.08f * camera.getFrontVector() - 0.02f * camera.getUpVector();
-
     // Lights creation
     DirectionalLight globalLight        = DirectionalLight({1, 1, 1}, {0.6, 0.6, 0.6});
     auto             createPointsLights = [&]() -> std::vector<PointLight> {
-        float     characterLightOffset       = 0.14;
-        float     characterLightIntensity    = 0.1;
-        glm::vec3 reactorsOffset             = {0.01, 0.004, -0.04};
-        glm::vec3 topRightReactorPosition    = characterPosition - reactorsOffset.x * camera.getLeftVector() + reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
-        glm::vec3 topLeftReactorPosition     = characterPosition + reactorsOffset.x * camera.getLeftVector() + reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
-        glm::vec3 bottomRightReactorPosition = characterPosition - reactorsOffset.x * camera.getLeftVector() - reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
-        glm::vec3 bottomLeftReactorPosition  = characterPosition + reactorsOffset.x * camera.getLeftVector() - reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
-        glm::vec3 reactorsColor              = {1, 0, 0.2};
-        float     reactorsIntensity          = 0.00005;
+        float     characterLightOffset    = 0.14;
+        float     characterLightIntensity = 0.1;
+        glm::vec3 reactorsColor           = {1, 0, 0.2};
+        float     reactorsIntensity       = 0.00005;
 
         std::vector<PointLight> pointsLights = {
-            PointLight(characterPosition + characterLightOffset * camera.getFrontVector(), 0, {1, 1, 1}),
-            PointLight(topRightReactorPosition, reactorsIntensity, reactorsColor),
-            PointLight(topLeftReactorPosition, reactorsIntensity, reactorsColor),
-            PointLight(bottomRightReactorPosition, reactorsIntensity, reactorsColor),
-            PointLight(bottomLeftReactorPosition, reactorsIntensity, reactorsColor)};
+            PointLight(camera.pos() + characterLightOffset * camera.getFrontVector(), 0, {1, 1, 1}),
+            PointLight(camera.getTopLReactorPosition(), reactorsIntensity, reactorsColor),
+            PointLight(camera.getTopRReactorPosition(), reactorsIntensity, reactorsColor),
+            PointLight(camera.getBotLReactorPosition(), reactorsIntensity, reactorsColor),
+            PointLight(camera.getBotRReactorPosition(), reactorsIntensity, reactorsColor)};
 
         // Character light Manager
         if (ctx.key_is_pressed(GLFW_KEY_L))
@@ -251,7 +237,7 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
     renderBackground();
 
     auto renderCharacter = [&]() {
-        glm::mat4 MVMatrix = glm::translate(glm::mat4(1), characterPosition);
+        glm::mat4 MVMatrix = glm::translate(glm::mat4(1), camera.pos());
         if (ctx.key_is_pressed(GLFW_KEY_Q) || ctx.key_is_pressed(GLFW_KEY_A) || ctx.key_is_pressed(GLFW_KEY_LEFT))
         {
             MVMatrix = glm::rotate(MVMatrix, -.3f, camera.getFrontVector());
@@ -260,13 +246,7 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
         {
             MVMatrix = glm::rotate(MVMatrix, .3f, camera.getFrontVector());
         }
-        MVMatrix = glm::rotate(MVMatrix, atan2f(camera.getFrontVector().x, camera.getFrontVector().z), {0, 1, 0});
-        MVMatrix = glm::rotate(MVMatrix, -glm::asin(camera.getFrontVector().y), {1, 0, 0});
-        MVMatrix = glm::rotate(MVMatrix, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        if (!checksTheta(camera.getTheta()))
-        {
-            MVMatrix = glm::scale(MVMatrix, {-1, -1, 1});
-        }
+        MVMatrix *= camera.getRotationMatrix();
 
         renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["character"], ProjMatrix, vaos.m_["character"], globalLight, pointsLights, material, DepthMatrix, shadowMapFBO);
         renderWithoutTexture(ViewMatrix, HaloProgram(), MVMatrix, ProjMatrix, vaos.m_["characterReactors"]);

@@ -1,4 +1,5 @@
 #include "CameraInputs.hpp"
+#include "CharacterCamera.hpp"
 #include "ImGuiInterface.hpp"
 #include "Render.hpp"
 
@@ -44,7 +45,7 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     // Initialize camera
-    FreeflyCamera camera;
+    CharacterCamera camera;
 
     // Initialize Boids and obstacles
     std::vector<Boid>     boids     = createBoids(NB_BOIDS);
