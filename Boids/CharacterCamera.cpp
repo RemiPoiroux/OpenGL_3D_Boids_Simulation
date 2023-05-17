@@ -76,7 +76,7 @@ glm::mat4 CharacterCamera::getViewMatrix() const
     return glm::lookAt(this->m_Position, this->m_Position + this->m_FrontVector, this->m_UpVector);
 }
 
-glm::vec3 CharacterCamera::pos() const
+glm::vec3 CharacterCamera::getPosition() const
 {
     return this->m_Position + 0.08f * this->m_FrontVector - 0.02f * this->m_UpVector;
 }
@@ -102,19 +102,17 @@ glm::vec3 reactorsOffset()
 }
 glm::vec3 CharacterCamera::getTopLReactorPosition() const
 {
-    return this->pos() + reactorsOffset().x * this->m_LeftVector + reactorsOffset().y * this->m_UpVector + reactorsOffset().z * this->m_FrontVector;
+    return this->getPosition() + reactorsOffset().x * this->m_LeftVector + reactorsOffset().y * this->m_UpVector + reactorsOffset().z * this->m_FrontVector;
 }
 glm::vec3 CharacterCamera::getTopRReactorPosition() const
 {
-    return this->pos() - reactorsOffset().x * this->m_LeftVector + reactorsOffset().y * this->m_UpVector + reactorsOffset().z * this->m_FrontVector;
+    return this->getPosition() - reactorsOffset().x * this->m_LeftVector + reactorsOffset().y * this->m_UpVector + reactorsOffset().z * this->m_FrontVector;
 }
 glm::vec3 CharacterCamera::getBotLReactorPosition() const
 {
-    return this->pos() + reactorsOffset().x * this->m_LeftVector - reactorsOffset().y * this->m_UpVector + reactorsOffset().z * this->m_FrontVector;
+    return this->getPosition() + reactorsOffset().x * this->m_LeftVector - reactorsOffset().y * this->m_UpVector + reactorsOffset().z * this->m_FrontVector;
 }
 glm::vec3 CharacterCamera::getBotRReactorPosition() const
 {
-    return this->pos() - reactorsOffset().x * this->m_LeftVector - reactorsOffset().y * this->m_UpVector + reactorsOffset().z * this->m_FrontVector;
+    return this->getPosition() - reactorsOffset().x * this->m_LeftVector - reactorsOffset().y * this->m_UpVector + reactorsOffset().z * this->m_FrontVector;
 }
-
-// bool CharacterCamera::isFiring() const;

@@ -1,7 +1,7 @@
-#include "BoidsManager.hpp"
+#include "SimulationManager.hpp"
+#include <cstddef>
 #include <vector>
-#include "Boid.hpp"
-#include "Obstacle.hpp"
+#include "GLFW/glfw3.h"
 
 /////////////////////////////////
 // PARAMETERS
@@ -110,5 +110,45 @@ void boidsDisplacement(std::vector<Boid>& boids, const float deltaTime)
     {
         boid.acceleration();
         boid.displacement(deltaTime);
+    }
+}
+
+void firingManager(std::vector<Laser>& lasers, const LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera)
+{
+    if (ctx.key_is_pressed(GLFW_KEY_SPACE))
+    {
+        lasers.emplace_back(camera.getPosition(), parameters, camera.getFrontVector());
+        std::cout << lasers.size() << std::endl;
+    }
+}
+
+void lasersManager(std::vector<Laser>& lasers, const std::vector<Obstacle>& obstacles, std::vector<Boid>& boids)
+{
+    // Boids erased if in the field of a laser
+    for (const Laser& laser : lasers)
+    {
+        const float laserField = laser.getRange();
+        boids.erase(std::remove_if(boids.begin(), boids.end(), [&laser, laserField](const Boid& boid) {
+                        const float distance = myDistance(laser, boid);
+                        return distance < laserField;
+                    }),
+                    boids.end());
+    }
+
+    // Lasers erased if out of border or inside an obstacle
+    lasers.erase(std::remove_if(lasers.begin(), lasers.end(), [&obstacles](const Laser& laser) {
+                     return laser.outOfBorders()
+                            || std::any_of(obstacles.begin(), obstacles.end(), [&laser](const Obstacle& obstacle) {
+                                   return myDistance(laser, obstacle) < obstacle.getSize();
+                               });
+                 }),
+                 lasers.end());
+}
+
+void lasersDisplacement(std::vector<Laser>& lasers, const float deltaTime)
+{
+    for (Laser laser : lasers)
+    {
+        laser.displacement(deltaTime);
     }
 }

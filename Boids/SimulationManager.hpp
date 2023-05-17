@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Boid.hpp"
+#include "CharacterCamera.hpp"
+#include "Laser.hpp"
 #include "Obstacle.hpp"
 
 struct NeighborsParameters
@@ -21,6 +23,11 @@ void neighborsManager(std::vector<Boid>& boids, NeighborsParameters parameters);
 
 void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obstacles, Parameters parameters);
 
+void firingManager(std::vector<Laser>& lasers, LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera);
+void lasersManager(std::vector<Laser>& lasers, const std::vector<Obstacle>& obstacles, std::vector<Boid>& boids);
+
 void borderManager(std::vector<Boid>& boids, Parameters parameters);
 
 void boidsDisplacement(std::vector<Boid>& boids, float deltaTime);
+
+void lasersDisplacement(std::vector<Laser>& lasers, float deltaTime);

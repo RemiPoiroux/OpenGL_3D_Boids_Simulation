@@ -37,15 +37,13 @@ public:
     void rotateLeft(float degrees, float deltaTime);
     void rotateUp(float degrees, float deltaTime);
 
-    glm::vec3 pos() const;
+    glm::vec3 getPosition() const;
     glm::vec3 getFrontVector() const;
     glm::mat4 getRotationMatrix() const;
     glm::vec3 getTopLReactorPosition() const;
     glm::vec3 getTopRReactorPosition() const;
     glm::vec3 getBotLReactorPosition() const;
     glm::vec3 getBotRReactorPosition() const;
-
-    bool isFiring() const;
 
     glm::mat4 getViewMatrix() const;
 };

@@ -1,7 +1,9 @@
 #include "CameraInputs.hpp"
 #include "CharacterCamera.hpp"
 #include "ImGuiInterface.hpp"
+#include "Laser.hpp"
 #include "Render.hpp"
+#include "SimulationManager.hpp"
 
 int main()
 {
@@ -33,6 +35,8 @@ int main()
     ObstaclesParameters OBSTACLES_PARAMETERS =
         {100, 0.05, 0.8, {0.1, 0.1}};
 
+    LaserParameters LASERS_PARAMETERS = {1, 0.01};
+
     /////////////////////////////////
     /////////////////////////////////
 
@@ -47,9 +51,10 @@ int main()
     // Initialize camera
     CharacterCamera camera;
 
-    // Initialize Boids and obstacles
+    // Initialize Boids, obstacles and lasers
     std::vector<Boid>     boids     = createBoids(NB_BOIDS);
     std::vector<Obstacle> obstacles = createObstacles(OBSTACLES_PARAMETERS);
+    std::vector<Laser>    lasers{};
 
     // Initialize Render Matrices
     glm::mat4 ProjMatrix = glm::perspective(glm::radians(viewField), static_cast<GLfloat>(width) / static_cast<GLfloat>(height), 0.01f, 3.f);
@@ -66,15 +71,18 @@ int main()
 
     // Declare your infinite update loop.
     ctx.update = [&]() {
-        ImGuiInterface(BOIDS_LOW_QUALITY, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_PARAMETERS);
+        ImGuiInterface(BOIDS_LOW_QUALITY, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_PARAMETERS, LASERS_PARAMETERS);
 
         cameraInputsEvents(ctx, CAM_PARAMETERS, camera);
 
         // Boids simulation
+        firingManager(lasers, LASERS_PARAMETERS, ctx, camera);
+        lasersManager(lasers, obstacles, boids);
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
         obstaclesManager(boids, obstacles, OBSTACLES_PARAMETERS.force);
         borderManager(boids, BORDERS_PARAMETERS);
         boidsDisplacement(boids, ctx.delta_time());
+        lasersDisplacement(lasers, ctx.delta_time());
 
         render(ctx, boids, obstacles, BOIDS_LOW_QUALITY, vaos, camera, textures, ProjMatrix, SPOT_LIGHT);
     };

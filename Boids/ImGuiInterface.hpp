@@ -1,6 +1,5 @@
 #pragma once
 
-#include "BoidsManager.hpp"
-#include "Obstacle.hpp"
+#include "SimulationManager.hpp"
 
-void ImGuiInterface(bool& lowQuality, Parameters& obstaclesParameters, NeighborsParameters& neighborsParameters, Parameters& bordersParameters);
+void ImGuiInterface(bool& lowQuality, Parameters& obstaclesParameters, NeighborsParameters& neighborsParameters, Parameters& bordersParameters, LaserParameters& lasersParameters);
