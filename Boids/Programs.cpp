@@ -123,3 +123,23 @@ GLint HaloProgram::uNormalMatrix() const
 {
     return m_uNormalMatrix;
 }
+
+LaserProgram::LaserProgram()
+    : m_Program{p6::load_shader("shaders/3D.vs.glsl", "shaders/laser3D.fs.glsl")}, m_uMVPMatrix(glGetUniformLocation(m_Program.id(), "uMVPMatrix")), m_uMVMatrix(glGetUniformLocation(m_Program.id(), "uMVMatrix")), m_uNormalMatrix(glGetUniformLocation(m_Program.id(), "uNormalMatrix"))
+{}
+void LaserProgram::use() const
+{
+    m_Program.use();
+}
+GLint LaserProgram::uMVPMatrix() const
+{
+    return m_uMVPMatrix;
+}
+GLint LaserProgram::uMVMatrix() const
+{
+    return m_uMVMatrix;
+}
+GLint LaserProgram::uNormalMatrix() const
+{
+    return m_uNormalMatrix;
+}

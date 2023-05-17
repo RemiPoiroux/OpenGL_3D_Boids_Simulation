@@ -102,3 +102,20 @@ public:
     GLint uMVMatrix() const;
     GLint uNormalMatrix() const;
 };
+
+class LaserProgram
+{
+private:
+    p6::Shader m_Program;
+
+    GLint m_uMVPMatrix;
+    GLint m_uMVMatrix;
+    GLint m_uNormalMatrix;
+
+public:
+    LaserProgram();
+    void  use() const;
+    GLint uMVPMatrix() const;
+    GLint uMVMatrix() const;
+    GLint uNormalMatrix() const;
+};
