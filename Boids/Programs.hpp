@@ -62,9 +62,12 @@ private:
     GLint m_uPointLightsColors;
     GLint m_uPointLightsIntensities;
 
+    GLint m_uDepthMVP;
+    GLint m_uShadowMap;
+
 public:
     OneTextureAndLightsProgram()
-        : m_Program{p6::load_shader("shaders/3D.vs.glsl", "shaders/tex3DLight.fs.glsl")}, m_uMVPMatrix(glGetUniformLocation(m_Program.id(), "uMVPMatrix")), m_uMVMatrix(glGetUniformLocation(m_Program.id(), "uMVMatrix")), m_uNormalMatrix(glGetUniformLocation(m_Program.id(), "uNormalMatrix")), m_Texture(glGetUniformLocation(m_Program.id(), "uTexture")), m_uKd(glGetUniformLocation(m_Program.id(), "uKd")), m_uKs(glGetUniformLocation(m_Program.id(), "uKs")), m_uShininess(glGetUniformLocation(m_Program.id(), "uShininess")), m_uDirLightDir_vs(glGetUniformLocation(m_Program.id(), "uDirLightDir_vs")), m_uDirLightColor(glGetUniformLocation(m_Program.id(), "uDirLightColor")), m_uNumPointLights(glGetUniformLocation(m_Program.id(), "uNumPointLights")), m_uPointLightsPositions(glGetUniformLocation(m_Program.id(), "uPointLightsPositions")), m_uPointLightsColors(glGetUniformLocation(m_Program.id(), "uPointLightsColors")), m_uPointLightsIntensities(glGetUniformLocation(m_Program.id(), "uPointLightsIntensities"))
+        : m_Program{p6::load_shader("shaders/3D.vs.glsl", "shaders/tex3DLight.fs.glsl")}, m_uMVPMatrix(glGetUniformLocation(m_Program.id(), "uMVPMatrix")), m_uMVMatrix(glGetUniformLocation(m_Program.id(), "uMVMatrix")), m_uNormalMatrix(glGetUniformLocation(m_Program.id(), "uNormalMatrix")), m_Texture(glGetUniformLocation(m_Program.id(), "uTexture")), m_uKd(glGetUniformLocation(m_Program.id(), "uKd")), m_uKs(glGetUniformLocation(m_Program.id(), "uKs")), m_uShininess(glGetUniformLocation(m_Program.id(), "uShininess")), m_uDirLightDir_vs(glGetUniformLocation(m_Program.id(), "uDirLightDir_vs")), m_uDirLightColor(glGetUniformLocation(m_Program.id(), "uDirLightColor")), m_uNumPointLights(glGetUniformLocation(m_Program.id(), "uNumPointLights")), m_uPointLightsPositions(glGetUniformLocation(m_Program.id(), "uPointLightsPositions")), m_uPointLightsColors(glGetUniformLocation(m_Program.id(), "uPointLightsColors")), m_uPointLightsIntensities(glGetUniformLocation(m_Program.id(), "uPointLightsIntensities")), m_uDepthMVP(glGetUniformLocation(m_Program.id(), "uDepthMVP")), m_uShadowMap(glGetUniformLocation(m_Program.id(), "uShadowMap"))
     {}
 
     void use() const
@@ -128,6 +131,35 @@ public:
     GLint uPointLightsIntensities() const
     {
         return m_uPointLightsIntensities;
+    }
+    GLint uDepthMVP() const
+    {
+        return m_uDepthMVP;
+    }
+    GLint uShadowMap() const
+    {
+        return m_uShadowMap;
+    }
+};
+
+class ShadowMapProgram
+{
+private:
+    p6::Shader m_Program;
+
+    GLint m_uMVPMatrix;
+
+public:
+    ShadowMapProgram()
+        : m_Program{p6::load_shader("shaders/shadowMap.vs.glsl", "shaders/shadowMap.fs.glsl")}, m_uMVPMatrix(glGetUniformLocation(m_Program.id(), "uMVPMatrix"))
+    {}
+    void use() const
+    {
+        m_Program.use();
+    }
+    GLint uMVPMatrix() const
+    {
+        return m_uMVPMatrix;
     }
 };
 

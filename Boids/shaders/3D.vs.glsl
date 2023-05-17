@@ -11,16 +11,19 @@ uniform mat4 uMVMatrix;
 uniform mat4 uNormalMatrix;
 
 // Sorties du shader
+out vec3 vPosition_o;  // Position du sommet relative sur l'object
 out vec3 vPosition_vs; // Position du sommet transformé dans l'espace View
-out vec3 vNormal_vs; // Normale du sommet transformé dans l'espace View
-out vec2 vTexCoords; // Coordonnées de texture du sommet
+out vec3 vNormal_vs;   // Normale du sommet transformé dans l'espace View
+out vec2 vTexCoords;   // Coordonnées de texture du sommet
 
-void main() {
+void main() 
+{
     // Passage en coordonnées homogènes
     vec4 vertexPosition = vec4(aVertexPosition, 1);
     vec4 vertexNormal = vec4(aVertexNormal, 0);
 
     // Calcul des valeurs de sortie
+    vPosition_o = aVertexPosition;
     vPosition_vs = vec3(uMVMatrix * vertexPosition);
     vNormal_vs = vec3(uNormalMatrix * vertexNormal);
     vTexCoords = aVertexTexCoords;

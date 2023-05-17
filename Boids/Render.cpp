@@ -1,7 +1,100 @@
 #include "Render.hpp"
+#include <vector>
+#include "FreeflyCamera.hpp"
 #include "LightsAndMaterials.hpp"
 #include "Programs.hpp"
+#include "ShadowMapFBO.hpp"
 #include "glm/gtc/type_ptr.hpp"
+
+glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const FreeflyCamera& camera, std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, bool lowQuality, MyBuffers& vaos)
+{
+    auto renderShadowCaster = [](const glm::mat4& ViewMatrix, const ShadowMapProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao) {
+        program.use();
+
+        glm::mat4 MVPMatrix = ProjMatrix * ViewMatrix * MVMatrix;
+
+        glUniformMatrix4fv(program.uMVPMatrix(), 1, GL_FALSE, glm::value_ptr(MVPMatrix));
+
+        glBindVertexArray(vao);
+        GLint size{};
+        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+        glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
+    };
+
+    float     farFactor   = 1.f;
+    glm::mat4 ProjMatrix  = glm::ortho<float>(-(farFactor + 2), (farFactor + 2), -(farFactor + 2), (farFactor + 2), 0, 2 * (farFactor + 2));
+    glm::mat4 ViewMatrix  = glm::lookAt(farFactor * lightPosition, glm::vec3(0), {0, 1, 0});
+    glm::mat4 DepthMatrix = ProjMatrix * ViewMatrix;
+
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glCullFace(GL_BACK);
+
+    ShadowMapProgram program{};
+
+    program.use();
+
+    auto renderBoids = [&]() {
+        for (Boid& boid : boids)
+        {
+            glm::mat4 MVMatrix  = glm::translate(glm::mat4(1.0f), boid.pos());
+            glm::mat4 rotMatrix = boid.getRotationMatrix();
+            MVMatrix            = MVMatrix * rotMatrix;
+            if (lowQuality)
+            {
+                renderShadowCaster(ViewMatrix, program, MVMatrix, ProjMatrix, vaos.m_["boidLD"]);
+            }
+            else
+            {
+                renderShadowCaster(ViewMatrix, program, MVMatrix, ProjMatrix, vaos.m_["boidHD"]);
+            }
+        }
+    };
+    renderBoids();
+
+    auto renderCharacter = [&]() {
+        glm::vec3 characterPosition = camera.getPosition() + 0.08f * camera.getFrontVector() - 0.02f * camera.getUpVector();
+        glm::mat4 MVMatrix          = glm::translate(glm::mat4(1), characterPosition);
+        if (ctx.key_is_pressed(GLFW_KEY_Q) || ctx.key_is_pressed(GLFW_KEY_A) || ctx.key_is_pressed(GLFW_KEY_LEFT))
+        {
+            MVMatrix = glm::rotate(MVMatrix, -.3f, camera.getFrontVector());
+        }
+        if (ctx.key_is_pressed(GLFW_KEY_E) || ctx.key_is_pressed(GLFW_KEY_D) || ctx.key_is_pressed(GLFW_KEY_RIGHT))
+        {
+            MVMatrix = glm::rotate(MVMatrix, .3f, camera.getFrontVector());
+        }
+        MVMatrix = glm::rotate(MVMatrix, atan2f(camera.getFrontVector().x, camera.getFrontVector().z), {0, 1, 0});
+        MVMatrix = glm::rotate(MVMatrix, -glm::asin(camera.getFrontVector().y), {1, 0, 0});
+        MVMatrix = glm::rotate(MVMatrix, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        if (!checksTheta(camera.getTheta()))
+        {
+            MVMatrix = glm::scale(MVMatrix, {-1, -1, 1});
+        }
+        renderShadowCaster(ViewMatrix, program, MVMatrix, ProjMatrix, vaos.m_["character"]);
+    };
+    renderCharacter();
+
+    auto renderObstacles = [&]() {
+        for (const Obstacle& obstacle : obstacles)
+        {
+            glm::mat4 MVMatrix = glm::translate(glm::mat4(1.0f), obstacle.pos());
+            MVMatrix           = glm::rotate(MVMatrix, ctx.time() / obstacle.size() / std::sqrt(obstacle.size()) / 50, obstacle.rotationAxis());
+            MVMatrix           = glm::scale(MVMatrix, obstacle.size() * glm::vec3(1));
+
+            if (lowQuality)
+            {
+                renderShadowCaster(ViewMatrix, program, MVMatrix, ProjMatrix, vaos.m_["obstacleLD"]);
+            }
+            else
+            {
+                renderShadowCaster(ViewMatrix, program, MVMatrix, ProjMatrix, vaos.m_["obstacleHD"]);
+            }
+        }
+    };
+    renderObstacles();
+
+    return DepthMatrix;
+}
 
 void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& obstacles, bool lowQuality, MyBuffers& vaos, const FreeflyCamera& camera, MyBuffers& textures, const glm::mat4& ProjMatrix, bool& spotLight)
 {
@@ -45,8 +138,12 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
 
         glBindTexture(GL_TEXTURE_2D, 0);
     };
-    auto renderWithOneTextureAndLighting = [](const glm::mat4& ViewMatrix, const OneTextureAndLightsProgram& program, glm::mat4 MVMatrix, const GLuint& texture, const glm::mat4& ProjMatrix, const GLuint& vao, const DirectionalLight& dirLight, const std::vector<PointLight>& pointLights, const Material& material) {
+    auto renderWithOneTextureAndLighting = [](const glm::mat4& ViewMatrix, const OneTextureAndLightsProgram& program, glm::mat4 MVMatrix, const GLuint& texture, const glm::mat4& ProjMatrix, const GLuint& vao, const DirectionalLight& dirLight, const std::vector<PointLight>& pointLights, const Material& material, const glm::mat4& DepthMatrix, ShadowMapFBO& shadowMapFBO) {
         program.use();
+
+        shadowMapFBO.BindForReading(GL_TEXTURE1);
+        glUniform1i(program.uShadowMap(), 1);
+        glUniformMatrix4fv(program.uDepthMVP(), 1, GL_FALSE, glm::value_ptr(DepthMatrix * MVMatrix));
 
         MVMatrix               = ViewMatrix * MVMatrix;
         glm::mat4 MVPMatrix    = ProjMatrix * MVMatrix;
@@ -92,99 +189,124 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
         glBindTexture(GL_TEXTURE_2D, 0);
     };
 
+    glm::vec3 characterPosition = camera.getPosition() + 0.08f * camera.getFrontVector() - 0.02f * camera.getUpVector();
+
+    // Lights creation
+    DirectionalLight globalLight        = DirectionalLight({1, 1, 1}, {0.6, 0.6, 0.6});
+    auto             createPointsLights = [&]() -> std::vector<PointLight> {
+        float     characterLightOffset       = 0.14;
+        float     characterLightIntensity    = 0.1;
+        glm::vec3 reactorsOffset             = {0.01, 0.004, -0.04};
+        glm::vec3 topRightReactorPosition    = characterPosition - reactorsOffset.x * camera.getLeftVector() + reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
+        glm::vec3 topLeftReactorPosition     = characterPosition + reactorsOffset.x * camera.getLeftVector() + reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
+        glm::vec3 bottomRightReactorPosition = characterPosition - reactorsOffset.x * camera.getLeftVector() - reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
+        glm::vec3 bottomLeftReactorPosition  = characterPosition + reactorsOffset.x * camera.getLeftVector() - reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
+        glm::vec3 reactorsColor              = {1, 0, 0.2};
+        float     reactorsIntensity          = 0.00005;
+
+        std::vector<PointLight> pointsLights = {
+            PointLight(characterPosition + characterLightOffset * camera.getFrontVector(), 0, {1, 1, 1}),
+            PointLight(topRightReactorPosition, reactorsIntensity, reactorsColor),
+            PointLight(topLeftReactorPosition, reactorsIntensity, reactorsColor),
+            PointLight(bottomRightReactorPosition, reactorsIntensity, reactorsColor),
+            PointLight(bottomLeftReactorPosition, reactorsIntensity, reactorsColor)};
+
+        // Character light Manager
+        if (ctx.key_is_pressed(GLFW_KEY_L))
+        {
+            spotLight = !spotLight;
+        }
+        if (spotLight)
+        {
+            pointsLights[0].setIntensity(characterLightIntensity);
+        }
+
+        return pointsLights;
+    };
+    std::vector<PointLight> pointsLights = createPointsLights();
+
+    // Shadow pass
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    ShadowMapFBO shadowMapFBO(6 * ctx.main_canvas_width(), 6 * ctx.main_canvas_height());
+    shadowMapFBO.Init();
+    shadowMapFBO.BindForWriting();
+    glm::mat4 DepthMatrix = shadowPass(globalLight.getDirection(), ctx, camera, obstacles, boids, lowQuality, vaos);
+
+    // Render pass
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, ctx.main_canvas_width(), ctx.main_canvas_height());
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glCullFace(GL_FRONT);
 
     glm::mat4 ViewMatrix = camera.getViewMatrix();
-
-    glm::vec3 characterPosition = camera.getPosition() + 0.08f * camera.getFrontVector() - 0.02f * camera.getUpVector();
 
     OneTextureAndLightsProgram oneTextureAndLightsProgram = OneTextureAndLightsProgram();
     Material                   material                   = Material({1, 1, 1}, {0, 0, 0}, 1);
     Material                   boidMaterial               = Material({1, 1, 1}, {0.4, 0.4, 0.4}, 1);
 
-    // Lights creation
-    DirectionalLight globalLight                = DirectionalLight({1, 1, 1}, {0.7, 0.7, 0.7});
-    float            characterLightOffset       = 0.14;
-    float            characterLightIntensity    = 0.2;
-    glm::vec3        reactorsOffset             = {0.01, 0.004, -0.04};
-    glm::vec3        topRightReactorPosition    = characterPosition - reactorsOffset.x * camera.getLeftVector() + reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
-    glm::vec3        topLeftReactorPosition     = characterPosition + reactorsOffset.x * camera.getLeftVector() + reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
-    glm::vec3        bottomRightReactorPosition = characterPosition - reactorsOffset.x * camera.getLeftVector() - reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
-    glm::vec3        bottomLeftReactorPosition  = characterPosition + reactorsOffset.x * camera.getLeftVector() - reactorsOffset.y * camera.getUpVector() + reactorsOffset.z * camera.getFrontVector();
-    glm::vec3        reactorsColor              = {1, 0, 0.2};
-    float            reactorsIntensity          = 0.00005;
+    auto renderBackground = [&]() {
+        glm::mat4 MVMatrix = glm::mat4(1);
+        renderWithOneTexture(ViewMatrix, OneTextureProgram(), MVMatrix, textures.m_["background"], ProjMatrix, vaos.m_["background"]);
+    };
+    renderBackground();
 
-    std::vector<PointLight> pointsLights = {
-        PointLight(characterPosition + characterLightOffset * camera.getFrontVector(), 0, {1, 1, 1}),
-        PointLight(topRightReactorPosition, reactorsIntensity, reactorsColor),
-        PointLight(topLeftReactorPosition, reactorsIntensity, reactorsColor),
-        PointLight(bottomRightReactorPosition, reactorsIntensity, reactorsColor),
-        PointLight(bottomLeftReactorPosition, reactorsIntensity, reactorsColor)};
-
-    // Character light Manager
-    if (ctx.key_is_pressed(GLFW_KEY_L))
-    {
-        spotLight = !spotLight;
-    }
-    if (spotLight)
-    {
-        pointsLights[0].setIntensity(characterLightIntensity);
-    }
-
-    // Background Render
-    glm::mat4 MVMatrix = glm::mat4(1);
-    renderWithOneTexture(ViewMatrix, OneTextureProgram(), MVMatrix, textures.m_["background"], ProjMatrix, vaos.m_["background"]);
-
-    // Character Render
-    MVMatrix = glm::translate(glm::mat4(1), characterPosition);
-    if (ctx.key_is_pressed(GLFW_KEY_Q) || ctx.key_is_pressed(GLFW_KEY_A) || ctx.key_is_pressed(GLFW_KEY_LEFT))
-    {
-        MVMatrix = glm::rotate(MVMatrix, -.3f, camera.getFrontVector());
-    }
-    if (ctx.key_is_pressed(GLFW_KEY_E) || ctx.key_is_pressed(GLFW_KEY_D) || ctx.key_is_pressed(GLFW_KEY_RIGHT))
-    {
-        MVMatrix = glm::rotate(MVMatrix, .3f, camera.getFrontVector());
-    }
-    MVMatrix = glm::rotate(MVMatrix, atan2f(camera.getFrontVector().x, camera.getFrontVector().z), {0, 1, 0});
-    MVMatrix = glm::rotate(MVMatrix, -glm::asin(camera.getFrontVector().y), {1, 0, 0});
-    MVMatrix = glm::rotate(MVMatrix, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    if (!checksTheta(camera.getTheta()))
-    {
-        MVMatrix = glm::scale(MVMatrix, {-1, -1, 1});
-    }
-    renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["character"], ProjMatrix, vaos.m_["character"], globalLight, pointsLights, material);
-    renderWithoutTexture(ViewMatrix, HaloProgram(), MVMatrix, ProjMatrix, vaos.m_["characterReactors"]);
-
-    // Boids Render
-    for (Boid& boid : boids)
-    {
-        MVMatrix            = glm::translate(glm::mat4(1.0f), boid.pos());
-        glm::mat4 rotMatrix = boid.getRotationMatrix();
-        MVMatrix            = MVMatrix * rotMatrix;
-        if (lowQuality)
+    auto renderCharacter = [&]() {
+        glm::mat4 MVMatrix = glm::translate(glm::mat4(1), characterPosition);
+        if (ctx.key_is_pressed(GLFW_KEY_Q) || ctx.key_is_pressed(GLFW_KEY_A) || ctx.key_is_pressed(GLFW_KEY_LEFT))
         {
-            renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["boidLD"], ProjMatrix, vaos.m_["boidLD"], globalLight, pointsLights, boidMaterial);
+            MVMatrix = glm::rotate(MVMatrix, -.3f, camera.getFrontVector());
         }
-        else
+        if (ctx.key_is_pressed(GLFW_KEY_E) || ctx.key_is_pressed(GLFW_KEY_D) || ctx.key_is_pressed(GLFW_KEY_RIGHT))
         {
-            renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["boidHD"], ProjMatrix, vaos.m_["boidHD"], globalLight, pointsLights, boidMaterial);
+            MVMatrix = glm::rotate(MVMatrix, .3f, camera.getFrontVector());
         }
-    }
+        MVMatrix = glm::rotate(MVMatrix, atan2f(camera.getFrontVector().x, camera.getFrontVector().z), {0, 1, 0});
+        MVMatrix = glm::rotate(MVMatrix, -glm::asin(camera.getFrontVector().y), {1, 0, 0});
+        MVMatrix = glm::rotate(MVMatrix, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        if (!checksTheta(camera.getTheta()))
+        {
+            MVMatrix = glm::scale(MVMatrix, {-1, -1, 1});
+        }
 
-    // Obstacles Render
-    for (Obstacle& obstacle : obstacles)
-    {
-        MVMatrix = glm::translate(glm::mat4(1.0f), obstacle.pos());
-        MVMatrix = glm::rotate(MVMatrix, ctx.time() / obstacle.size() / std::sqrt(obstacle.size()) / 50, obstacle.rotationAxis());
-        MVMatrix = glm::scale(MVMatrix, obstacle.size() * glm::vec3(1));
+        renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["character"], ProjMatrix, vaos.m_["character"], globalLight, pointsLights, material, DepthMatrix, shadowMapFBO);
+        renderWithoutTexture(ViewMatrix, HaloProgram(), MVMatrix, ProjMatrix, vaos.m_["characterReactors"]);
+    };
+    renderCharacter();
 
-        if (lowQuality)
+    auto renderBoids = [&]() {
+        for (Boid& boid : boids)
         {
-            renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["obstacleLD"], ProjMatrix, vaos.m_["obstacleLD"], globalLight, pointsLights, material);
+            glm::mat4 MVMatrix  = glm::translate(glm::mat4(1.0f), boid.pos());
+            glm::mat4 rotMatrix = boid.getRotationMatrix();
+            MVMatrix            = MVMatrix * rotMatrix;
+            if (lowQuality)
+            {
+                renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["boidLD"], ProjMatrix, vaos.m_["boidLD"], globalLight, pointsLights, boidMaterial, DepthMatrix, shadowMapFBO);
+            }
+            else
+            {
+                renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["boidHD"], ProjMatrix, vaos.m_["boidHD"], globalLight, pointsLights, boidMaterial, DepthMatrix, shadowMapFBO);
+            }
         }
-        else
+    };
+    renderBoids();
+
+    auto renderObstacles = [&]() {
+        for (Obstacle& obstacle : obstacles)
         {
-            renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["obstacleHD"], ProjMatrix, vaos.m_["obstacleHD"], globalLight, pointsLights, material);
+            glm::mat4 MVMatrix = glm::translate(glm::mat4(1.0f), obstacle.pos());
+            MVMatrix           = glm::rotate(MVMatrix, ctx.time() / obstacle.size() / std::sqrt(obstacle.size()) / 50, obstacle.rotationAxis());
+            MVMatrix           = glm::scale(MVMatrix, obstacle.size() * glm::vec3(1));
+
+            if (lowQuality)
+            {
+                renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["obstacleLD"], ProjMatrix, vaos.m_["obstacleLD"], globalLight, pointsLights, material, DepthMatrix, shadowMapFBO);
+            }
+            else
+            {
+                renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["obstacleHD"], ProjMatrix, vaos.m_["obstacleHD"], globalLight, pointsLights, material, DepthMatrix, shadowMapFBO);
+            }
         }
-    }
+    };
+    renderObstacles();
 }
