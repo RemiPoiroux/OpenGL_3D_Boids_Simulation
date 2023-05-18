@@ -1,127 +1,161 @@
 #include "RandomVariables.hpp"
 #include <cmath>
 #include <cstdlib>
+#include <random>
+#include <stdexcept>
 
-UniformRandomVariable::UniformRandomVariable(const float parameter)
+float randomFloatBtw0and1()
+{
+    std::random_device                    rd;
+    std::mt19937                          mt(rd());
+    std::uniform_real_distribution<float> rand(0, 1);
+    return rand(mt);
+}
+
+UniformRandomVariable::UniformRandomVariable(const float limits)
     : RandomVariable()
 {
-    m_parameter = parameter;
-    m_expectation = parameter / 2;
-    m_variance = (parameter * parameter) / 12;
+    m_parameter   = limits;
+    m_expectation = limits / 2;
+    m_variance    = (limits * limits) / 12;
 }
 float UniformRandomVariable::generate() const
 {
-    return static_cast<float>(std::rand()) / RAND_MAX * m_parameter;
+    return randomFloatBtw0and1() * m_parameter;
 }
 
-ExponentialRandomVariable::ExponentialRandomVariable(const float parameter)
+ExponentialRandomVariable::ExponentialRandomVariable(const float expectation)
     : RandomVariable()
 {
-    m_parameter = parameter;
-    m_expectation = 1 / parameter;
-    m_variance = 1 / (parameter * parameter);
+    m_parameter   = 1 / expectation;
+    m_expectation = expectation;
+    m_variance    = expectation * expectation;
 }
 float ExponentialRandomVariable::generate() const
 {
-    return -m_parameter * std::log(1 - static_cast<float>(std::rand()) / RAND_MAX);
+    return -m_parameter * std::log(1 - randomFloatBtw0and1());
 }
 
-NormalRandomVariable::NormalRandomVariable(const float parameter)
+PoissonRandomVariable::PoissonRandomVariable(const float expectation)
     : RandomVariable()
 {
-    m_parameter = parameter;
-    m_expectation = parameter;
-    m_variance = parameter * parameter;
-}
-float NormalRandomVariable::generate() const
-{
-    float u1 = static_cast<float>(std::rand()) / RAND_MAX;
-    float u2 = static_cast<float>(std::rand()) / RAND_MAX;
-    float z1 = std::sqrt(-2 * std::log(u1)) * std::cos(2 * M_PI * u2);
-    return m_parameter + z1;
-}
-
-PoissonRandomVariable::PoissonRandomVariable(const float parameter)
-    : RandomVariable()
-{
-    m_parameter = parameter;
-    m_expectation = parameter;
-    m_variance = parameter;
+    m_parameter   = expectation;
+    m_expectation = expectation;
+    m_variance    = expectation;
 }
 float PoissonRandomVariable::generate() const
 {
     float L = std::exp(-m_parameter);
     float k = 0;
     float p = 1;
-    do {
+    while (p > L)
+    {
         k++;
-        p *= static_cast<float>(std::rand()) / RAND_MAX;
-    } while (p > L);
+        p *= randomFloatBtw0and1();
+    }
     return k - 1;
 }
 
-DiscreteRandomVariable::DiscreteRandomVariable(const float parameter)
+BernoulliRandomVariable::BernoulliRandomVariable(float successProbability)
     : RandomVariable()
 {
-    m_parameter = parameter;
-    m_expectation = parameter;
-    m_variance = parameter * (1 - parameter);
+    m_parameter   = successProbability;
+    m_expectation = successProbability;
+    m_variance    = successProbability * (1 - successProbability);
 }
-float DiscreteRandomVariable::generate() const
+float BernoulliRandomVariable::generate() const
 {
-    if (static_cast<float>(std::rand()) / RAND_MAX < m_parameter) {
-        return true;
-    } else {
-        return false;
-    }
+    return randomFloatBtw0and1() < m_parameter ? 1 : 0;
 }
 
-GammaRandomVariable::GammaRandomVariable(const float parameter)
-    : RandomVariable()
+DiscreteRandomVariable::DiscreteRandomVariable(const std::vector<float>& probabilities, const std::vector<std::string>& names)
+    : m_probabilities(probabilities), m_names(names)
 {
-    m_parameter = parameter;
-    m_expectation = parameter;
-    m_variance = parameter;
-}
-float GammaRandomVariable::generate() const
-{
-    float sum = 0;
-    int n = static_cast<int>(m_parameter);
-    for (int i = 0; i < n; i++) {
-        sum += -std::log(static_cast<float>(std::rand()) / RAND_MAX);
-    }
-    return sum;
-}
-
-LogNormalRandomVariable::LogNormalRandomVariable(const float parameter)
-    : RandomVariable()
-{
-    m_parameter = parameter;
-    m_expectation = std::exp(parameter + 0.5 * parameter * parameter);
-    m_variance = (std::exp(parameter * parameter) - 1) * std::exp(2 * parameter + parameter * parameter);
-}
-float LogNormalRandomVariable::generate() const
-{
-    float z = (std::log(1 / (static_cast<float>(std::rand()) / RAND_MAX)) - m_parameter) / m_parameter;
-    return std::exp(z);
-}
-
-NegativeBinomialRandomVariable::NegativeBinomialRandomVariable(const float parameter)
-    : RandomVariable()
-{
-    m_parameter = parameter;
-    m_expectation = (1 - parameter) / parameter;
-    m_variance = (1 - parameter) / (parameter * parameter);
-}
-float NegativeBinomialRandomVariable::generate() const
-{
-    float r = m_parameter;
-    float p = 0.5;
-    float x = 0;
-    while (static_cast<float>(std::rand()) / RAND_MAX > p) 
+    if (m_probabilities.size() != m_names.size())
     {
-        x++;   
-        p = r / (r + x);
+        throw std::invalid_argument("The number of probabilities must match the number of names.");
+    }
+
+    float sum = 0.0;
+    for (float probability : m_probabilities)
+    {
+        if (probability < 0.0)
+        {
+            throw std::invalid_argument("Probabilities must be non-negative.");
+        }
+        sum += probability;
+    }
+    if (std::abs(sum - 1.0) > 0.0001)
+    {
+        throw std::invalid_argument("Probabilities must sum to 1.");
+    }
+}
+
+std::string DiscreteRandomVariable::generate() const
+{
+    float randomValue           = randomFloatBtw0and1();
+    float cumulativeProbability = 0.0;
+
+    for (size_t i = 0; i < m_probabilities.size(); ++i)
+    {
+        cumulativeProbability += m_probabilities[i];
+        if (randomValue <= cumulativeProbability)
+        {
+            return m_names[i];
+        }
+    }
+
+    return "";
+}
+
+BinomialRandomVariable::BinomialRandomVariable(const float successProbability, const int trialsNb)
+    : RandomVariable(), m_trialsNb(trialsNb)
+{
+    m_parameter   = successProbability;
+    m_expectation = successProbability * static_cast<float>(trialsNb);
+    m_variance    = successProbability * (1 - successProbability) * static_cast<float>(trialsNb);
+}
+float BinomialRandomVariable::generate() const
+{
+    float result = 0;
+    for (int i = 0; i < m_trialsNb; ++i)
+    {
+        if (randomFloatBtw0and1() < m_parameter)
+            ++result;
+    }
+    return result;
+}
+
+NormalRandomVariable::NormalRandomVariable(const float expectation)
+    : RandomVariable()
+{
+    m_parameter   = expectation;
+    m_expectation = expectation;
+    m_variance    = expectation * expectation;
+}
+float NormalRandomVariable::generate() const
+{
+    float u1 = randomFloatBtw0and1();
+    float u2 = randomFloatBtw0and1();
+    auto  z1 = static_cast<float>(std::sqrt(-2 * std::log(u1)) * std::cos(2 * M_PI * u2));
+    return m_parameter + z1;
+}
+
+GeometricRandomVariable::GeometricRandomVariable(float successProbability)
+    : RandomVariable()
+{
+    m_parameter   = successProbability;
+    m_expectation = 1 / successProbability;
+    m_variance    = (1 - successProbability) / (successProbability * successProbability);
+}
+float GeometricRandomVariable::generate() const
+{
+    float p = 1.0f;
+    float x = 0.0f;
+    while (p > m_parameter)
+    {
+        p *= randomFloatBtw0and1();
+        ++x;
     }
     return x;
 }
