@@ -142,8 +142,7 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
     renderObstacles();
 }
 
-glm::mat4
-    shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const CharacterCamera& camera, std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, bool lowQuality, MyBuffers& vaos)
+glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const CharacterCamera& camera, std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, bool lowQuality, MyBuffers& vaos)
 {
     auto renderShadowCaster = [](const glm::mat4& ViewMatrix, const ShadowMapProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao) {
         program.use();
