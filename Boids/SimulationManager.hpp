@@ -14,10 +14,16 @@ struct NeighborsParameters
     Parameters separation;
 };
 
+struct BoidsParameters
+{
+    int   number;
+    float livesExpectation;
+};
+
 template<typename T1, typename T2>
 float distance(const T1& entity1, const T2& entity2);
 
-std::vector<Boid> createBoids(size_t nb);
+std::vector<Boid> createBoids(BoidsParameters boidsParameters);
 
 void neighborsManager(std::vector<Boid>& boids, NeighborsParameters parameters);
 

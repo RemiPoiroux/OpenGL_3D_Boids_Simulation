@@ -17,6 +17,7 @@ private:
     float     maxSpeed;
     float     speed;
     glm::vec3 direction;
+    int       lives;
 
 private:
     void applyForce(glm::vec3 direction, float strength);
@@ -28,7 +29,7 @@ private:
     void checksBordersOnAxis(AxisIndex axisIndex, Parameters parameters);
 
 public:
-    Boid(glm::vec3 position, float maxSpeed, glm::vec3 direction);
+    Boid(glm::vec3 position, float maxSpeed, glm::vec3 direction, int lives);
 
     glm::vec3 getPosition() const;
 
@@ -47,4 +48,7 @@ public:
     void obstacleAvoidance(const Obstacle& obstacle, float strength);
 
     void bordersAvoidance(Parameters parameters);
+
+    int  getLives() const;
+    void hit();
 };

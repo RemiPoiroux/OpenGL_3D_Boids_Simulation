@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <vector>
 #include "GLFW/glfw3.h"
+#include "RandomVariables.hpp"
 
 /////////////////////////////////
 // PARAMETERS
@@ -18,9 +19,11 @@ glm::vec3 RandomDirection()
     return vec;
 }
 
-Boid randomBoid()
+Boid randomBoid(float livesExpectation)
 {
-    return {RandomVec3(1), RandomFloat(MAX_SPEED_MIN, MAX_SPEED_MAX), RandomDirection()};
+    PoissonRandomVariable poissonVar = PoissonRandomVariable(livesExpectation);
+    int                   lives      = static_cast<int>(poissonVar.generate());
+    return {RandomVec3(1), RandomFloat(MAX_SPEED_MIN, MAX_SPEED_MAX), RandomDirection(), lives};
 }
 
 template<typename T1, typename T2>
@@ -31,11 +34,11 @@ float myDistance(const T1& entity1, const T2& entity2)
     return glm::length(pos2 - pos1);
 }
 
-std::vector<Boid> createBoids(const size_t nb)
+std::vector<Boid> createBoids(const BoidsParameters boidsParameters)
 {
     std::vector<Boid> boids;
-    boids.reserve(nb);
-    std::generate_n(std::back_inserter(boids), nb, [] { return randomBoid(); });
+    boids.reserve(boidsParameters.number);
+    std::generate_n(std::back_inserter(boids), boidsParameters.number, [&] { return randomBoid(boidsParameters.livesExpectation); });
     return boids;
 }
 
@@ -123,13 +126,20 @@ void firingManager(std::vector<Laser>& lasers, const LaserParameters parameters,
 
 void lasersManager(std::vector<Laser>& lasers, const std::vector<Obstacle>& obstacles, std::vector<Boid>& boids)
 {
-    // Boids erased if in the field of a laser
+    // Boids lose a life if in the field of a laser
     for (const Laser& laser : lasers)
     {
-        const float laserField = laser.getRange();
-        boids.erase(std::remove_if(boids.begin(), boids.end(), [&laser, laserField](const Boid& boid) {
-                        const float distance = myDistance(laser, boid);
-                        return distance < laserField;
+        const float laserField  = laser.getRange();
+        auto        partitionIt = std::partition(boids.begin(), boids.end(), [&laser, laserField](const Boid& boid) {
+            const float distance = myDistance(laser, boid);
+            return distance >= laserField;
+        });
+        for (auto it = partitionIt; it != boids.end(); ++it)
+        {
+            it->hit();
+        }
+        boids.erase(std::remove_if(partitionIt, boids.end(), [](const Boid& boid) {
+                        return boid.getLives() < 1;
                     }),
                     boids.end());
     }

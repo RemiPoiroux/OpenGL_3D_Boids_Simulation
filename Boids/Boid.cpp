@@ -79,8 +79,8 @@ glm::mat4 Boid::getRotationMatrix() const
     return rotMatrix;
 }
 
-Boid::Boid(const glm::vec3 pos, const float maxSpeed, const glm::vec3 dir)
-    : position(pos), maxSpeed(maxSpeed), speed(), direction(dir)
+Boid::Boid(const glm::vec3 pos, const float maxSpeed, const glm::vec3 dir, int lives)
+    : position(pos), maxSpeed(maxSpeed), speed(), direction(dir), lives(lives)
 {}
 
 void Boid::slowing()
@@ -182,4 +182,13 @@ void Boid::bordersAvoidance(const Parameters p)
     this->checksBordersOnAxis(AxisIndex::x, p);
     this->checksBordersOnAxis(AxisIndex::y, p);
     this->checksBordersOnAxis(AxisIndex::z, p);
+}
+
+int Boid::getLives() const
+{
+    return lives;
+}
+void Boid::hit()
+{
+    --lives;
 }

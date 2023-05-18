@@ -22,8 +22,8 @@ int main()
 
     // SIMULATION PARAMETERS
 
-    const int NB_BOIDS          = 200;
-    bool      BOIDS_LOW_QUALITY = false;
+    BoidsParameters BOIDS_PARAMETERS  = {200, 5};
+    bool            BOIDS_LOW_QUALITY = false;
 
     Parameters BORDERS_PARAMETERS = {0.2, 0.02f};
 
@@ -52,7 +52,7 @@ int main()
     CharacterCamera camera;
 
     // Initialize Boids, obstacles and lasers
-    std::vector<Boid>     boids     = createBoids(NB_BOIDS);
+    std::vector<Boid>     boids     = createBoids(BOIDS_PARAMETERS);
     std::vector<Obstacle> obstacles = createObstacles(OBSTACLES_PARAMETERS);
     std::vector<Laser>    lasers{};
 
