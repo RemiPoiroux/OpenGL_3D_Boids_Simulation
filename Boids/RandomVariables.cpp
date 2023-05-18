@@ -12,12 +12,12 @@ float randomFloatBtw0and1()
     return rand(mt);
 }
 
-UniformRandomVariable::UniformRandomVariable(const float limits)
+UniformRandomVariable::UniformRandomVariable(const float size)
     : RandomVariable()
 {
-    m_parameter   = limits;
-    m_expectation = limits / 2;
-    m_variance    = (limits * limits) / 12;
+    m_parameter   = size;
+    m_expectation = size / 2;
+    m_variance    = (size * size) / 12;
 }
 float UniformRandomVariable::generate() const
 {

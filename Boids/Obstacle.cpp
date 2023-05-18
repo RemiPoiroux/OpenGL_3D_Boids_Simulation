@@ -1,4 +1,6 @@
 #include "Obstacle.hpp"
+#include "RandomManager.hpp"
+#include "RandomVariables.hpp"
 
 Obstacle::Obstacle(const glm::vec3 position, const float size, const glm::vec3 rotationAxis)
     : m_position(position), m_size(size), m_rotationAxis(rotationAxis) {}
@@ -18,10 +20,9 @@ glm::vec3 Obstacle::getRotationAxis() const
 
 float RandomFloat(const float a, const float b)
 {
-    std::random_device                    rd;
-    std::mt19937                          mt(rd());
-    std::uniform_real_distribution<float> rand(a, b);
-    return rand(mt);
+    float                 size       = b - a;
+    UniformRandomVariable uniformVar = UniformRandomVariable(size);
+    return a + uniformVar.generate();
 }
 glm::vec3 RandomVec3(float maxCoord)
 {

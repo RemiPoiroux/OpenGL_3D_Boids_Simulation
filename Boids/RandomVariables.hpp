@@ -21,7 +21,7 @@ public:
 class UniformRandomVariable : public RandomVariable
 {
 public:
-    explicit UniformRandomVariable(float limits);
+    explicit UniformRandomVariable(float size);
     float generate() const override;
 };
 class ExponentialRandomVariable : public RandomVariable
