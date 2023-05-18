@@ -33,7 +33,7 @@ int main()
          {0.1f, 0.2f}};
 
     ObstaclesParameters OBSTACLES_PARAMETERS =
-        {100, 0.05, 0.8, {0.1, 0.1}};
+        {100, 0.05, 0.5, {0.1, 0.1}};
 
     LaserParameters LASERS_PARAMETERS = {2, 0.04};
 

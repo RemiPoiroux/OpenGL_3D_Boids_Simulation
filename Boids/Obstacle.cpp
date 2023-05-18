@@ -32,7 +32,17 @@ glm::vec3 RandomVec3(float maxCoord)
 
 Obstacle randomObstacle(ObstaclesParameters p)
 {
-    float size = RandomFloat(p.minSize, p.maxSize);
+    float                     expectation = (p.minSize + p.maxSize) / 2;
+    ExponentialRandomVariable expVar      = ExponentialRandomVariable(expectation);
+    float                     size        = expVar.generate();
+    if (size > p.maxSize)
+    {
+        size = p.maxSize;
+    }
+    if (size < p.minSize)
+    {
+        size = p.minSize;
+    }
     return {RandomVec3(1 - size), size, RandomVec3(1)};
 }
 
