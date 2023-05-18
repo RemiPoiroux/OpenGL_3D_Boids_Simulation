@@ -2,31 +2,31 @@
 #include <cmath>
 #include <cstdlib>
 
-UniformRandomVariable::UniformRandomVariable(float parameter)
+UniformRandomVariable::UniformRandomVariable(const float parameter)
     : RandomVariable()
 {
     m_parameter = parameter;
-    m_expectation = m_parameter / 2;
-    m_variance = (m_parameter * m_parameter) / 12;
+    m_expectation = parameter / 2;
+    m_variance = (parameter * parameter) / 12;
 }
 float UniformRandomVariable::generate() const
 {
     return static_cast<float>(std::rand()) / RAND_MAX * m_parameter;
 }
 
-ExponentialRandomVariable::ExponentialRandomVariable(float parameter)
+ExponentialRandomVariable::ExponentialRandomVariable(const float parameter)
     : RandomVariable()
 {
     m_parameter = parameter;
-    m_expectation = 1 / m_parameter;
-    m_variance = 1 / (m_parameter * m_parameter);
+    m_expectation = 1 / parameter;
+    m_variance = 1 / (parameter * parameter);
 }
 float ExponentialRandomVariable::generate() const
 {
     return -m_parameter * std::log(1 - static_cast<float>(std::rand()) / RAND_MAX);
 }
 
-NormalRandomVariable::NormalRandomVariable(float parameter)
+NormalRandomVariable::NormalRandomVariable(const float parameter)
     : RandomVariable()
 {
     m_parameter = parameter;
@@ -41,7 +41,7 @@ float NormalRandomVariable::generate() const
     return m_parameter + z1;
 }
 
-PoissonRandomVariable::PoissonRandomVariable(float parameter)
+PoissonRandomVariable::PoissonRandomVariable(const float parameter)
     : RandomVariable()
 {
     m_parameter = parameter;
@@ -60,12 +60,12 @@ float PoissonRandomVariable::generate() const
     return k - 1;
 }
 
-DiscreteRandomVariable::DiscreteRandomVariable(float parameter)
+DiscreteRandomVariable::DiscreteRandomVariable(const float parameter)
     : RandomVariable()
 {
     m_parameter = parameter;
-    m_expectation = m_parameter;
-    m_variance = m_parameter * (1 - m_parameter);
+    m_expectation = parameter;
+    m_variance = parameter * (1 - parameter);
 }
 float DiscreteRandomVariable::generate() const
 {
@@ -76,7 +76,7 @@ float DiscreteRandomVariable::generate() const
     }
 }
 
-GammaRandomVariable::GammaRandomVariable(float parameter)
+GammaRandomVariable::GammaRandomVariable(const float parameter)
     : RandomVariable()
 {
     m_parameter = parameter;
@@ -93,7 +93,7 @@ float GammaRandomVariable::generate() const
     return sum;
 }
 
-LogNormalRandomVariable::LogNormalRandomVariable(float parameter)
+LogNormalRandomVariable::LogNormalRandomVariable(const float parameter)
     : RandomVariable()
 {
     m_parameter = parameter;
@@ -106,12 +106,12 @@ float LogNormalRandomVariable::generate() const
     return std::exp(z);
 }
 
-NegativeBinomialRandomVariable::NegativeBinomialRandomVariable(float parameter)
+NegativeBinomialRandomVariable::NegativeBinomialRandomVariable(const float parameter)
     : RandomVariable()
 {
     m_parameter = parameter;
-    m_expectation = (1 - m_parameter) / m_parameter;
-    m_variance = (1 - m_parameter) / (m_parameter * m_parameter);
+    m_expectation = (1 - parameter) / parameter;
+    m_variance = (1 - parameter) / (parameter * parameter);
 }
 float NegativeBinomialRandomVariable::generate() const
 {
