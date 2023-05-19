@@ -213,21 +213,32 @@ void characterFiringManager(std::vector<Laser>& lasers, const LaserParameters pa
 void lasersManager(std::vector<Laser>& lasers, const std::vector<Obstacle>& obstacles, std::vector<Boid>& boids)
 {
     // Boids lose a life if in the field of a laser
-    for (Laser& laser : lasers)
+    for (auto it = lasers.begin(); it != lasers.end();)
     {
-        const float laserField  = laser.getRange();
-        auto        partitionIt = std::partition(boids.begin(), boids.end(), [&laser, laserField](const Boid& boid) {
-            const float distance = myDistance(laser, boid);
+        const float laserField  = it->getRange();
+        auto        partitionIt = std::partition(boids.begin(), boids.end(), [&it, laserField](const Boid& boid) {
+            const float distance = myDistance(*it, boid);
             return distance >= laserField;
         });
-        for (auto it = partitionIt; it != boids.end(); ++it)
+
+        for (auto partitionIt2 = partitionIt; partitionIt2 != boids.end(); ++partitionIt2)
         {
-            it->hit();
+            partitionIt2->hit();
         }
+
         boids.erase(std::remove_if(partitionIt, boids.end(), [](const Boid& boid) {
                         return boid.getLives() < 1;
                     }),
                     boids.end());
+
+        if (partitionIt != boids.end())
+        {
+            it = lasers.erase(it); // Supprimer le laser s'il a touché des boids
+        }
+        else
+        {
+            ++it;
+        }
     }
 
     // Lasers erased if out of border or inside an obstacle
