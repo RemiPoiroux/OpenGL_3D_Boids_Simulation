@@ -1,5 +1,7 @@
 #include "CharacterCamera.hpp"
 #include <cmath>
+#include "glm/detail/qualifier.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
 #include "glm/gtc/constants.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -18,7 +20,7 @@ void BordersCheck(glm::vec3& position)
 }
 
 CharacterCamera::CharacterCamera()
-    : m_Position({0, 0, 0.9}), m_fPhi(glm::pi<float>()), m_fTheta(0), m_FrontVector(), m_LeftVector(), m_UpVector(), m_firing(false), m_turningLeft(false), m_turningRight(false)
+    : m_Position({0, 0, 0.9}), m_fPhi(glm::pi<float>()), m_fTheta(0), m_FrontVector(), m_LeftVector(), m_UpVector(), m_turningLeft(false), m_turningRight(false)
 {
     this->computeDirectionVectors();
 }
@@ -71,6 +73,20 @@ void CharacterCamera::rotateUp(const float degrees, const float deltaTime)
     this->computeDirectionVectors();
 }
 
+void CharacterCamera::characterRotatingLeft()
+{
+    m_turningLeft = true;
+}
+void CharacterCamera::characterRotatingRight()
+{
+    m_turningRight = true;
+}
+void CharacterCamera::characterNotRotating()
+{
+    m_turningLeft  = false;
+    m_turningRight = false;
+}
+
 glm::mat4 CharacterCamera::getViewMatrix() const
 {
     return glm::lookAt(this->m_Position, this->m_Position + this->m_FrontVector, this->m_UpVector);
@@ -86,14 +102,23 @@ glm::vec3 CharacterCamera::getFrontVector() const
 }
 glm::mat4 CharacterCamera::getRotationMatrix() const
 {
-    glm::mat4 MVMatrix = glm::rotate(glm::mat4(1), atan2f(this->m_FrontVector.x, this->m_FrontVector.z), {0, 1, 0});
-    MVMatrix           = glm::rotate(MVMatrix, -glm::asin(this->m_FrontVector.y), {1, 0, 0});
-    MVMatrix           = glm::rotate(MVMatrix, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 rotationMatrix = glm::mat4(1);
+    if (this->m_turningLeft)
+    {
+        rotationMatrix = glm::rotate(rotationMatrix, -.3f, this->m_FrontVector);
+    }
+    if (this->m_turningRight)
+    {
+        rotationMatrix = glm::rotate(rotationMatrix, .3f, this->m_FrontVector);
+    }
+    rotationMatrix = glm::rotate(rotationMatrix, atan2f(this->m_FrontVector.x, this->m_FrontVector.z), {0, 1, 0});
+    rotationMatrix = glm::rotate(rotationMatrix, -glm::asin(this->m_FrontVector.y), {1, 0, 0});
+    rotationMatrix = glm::rotate(rotationMatrix, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     if (!checksTheta(this->m_fTheta))
     {
-        MVMatrix = glm::scale(MVMatrix, {-1, -1, 1});
+        rotationMatrix = glm::scale(rotationMatrix, {-1, -1, 1});
     }
-    return MVMatrix;
+    return rotationMatrix;
 }
 
 glm::vec3 reactorsOffset()
@@ -115,4 +140,81 @@ glm::vec3 CharacterCamera::getBotLReactorPosition() const
 glm::vec3 CharacterCamera::getBotRReactorPosition() const
 {
     return this->getPosition() - reactorsOffset().x * this->m_LeftVector - reactorsOffset().y * this->m_UpVector + reactorsOffset().z * this->m_FrontVector;
+}
+
+glm::vec3 canonsOffset()
+{
+    return {0.043f, 0.006f, 0.07f};
+}
+
+glm::mat4 canonRotationMatrix(bool turningLeft, bool turningRight, glm::vec3 frontVector)
+{
+    glm::mat4 rotationMatrix = glm::mat4(1.0f);
+
+    if (turningLeft)
+    {
+        rotationMatrix = glm::rotate(rotationMatrix, -0.3f, frontVector);
+    }
+    if (turningRight)
+    {
+        rotationMatrix = glm::rotate(rotationMatrix, 0.3f, frontVector);
+    }
+
+    return rotationMatrix;
+}
+
+glm::vec3 rotatedLeftVector(const glm::mat4& rotationMatrix, const glm::vec3& leftVector)
+{
+    glm::vec3 rotatedLeftVector = glm::vec3(rotationMatrix * glm::vec4(leftVector, 0.0f));
+    return rotatedLeftVector;
+}
+
+glm::vec3 rotatedUpVector(const glm::mat4& rotationMatrix, const glm::vec3& upVector)
+{
+    glm::vec3 rotatedUpVector = glm::vec3(rotationMatrix * glm::vec4(upVector, 0.0f));
+    return rotatedUpVector;
+}
+
+glm::vec3 CharacterCamera::getTopLCanonPosition() const
+{
+    glm::vec3 offset         = canonsOffset();
+    glm::mat4 rotationMatrix = canonRotationMatrix(m_turningLeft, m_turningRight, this->m_FrontVector);
+    glm::vec3 rotatedLeft    = rotatedLeftVector(rotationMatrix, m_LeftVector);
+    glm::vec3 rotatedUp      = rotatedUpVector(rotationMatrix, m_UpVector);
+
+    glm::vec3 rotatedPosition = getPosition() + offset.x * rotatedLeft + offset.y * rotatedUp + offset.z * this->m_FrontVector;
+    return rotatedPosition;
+}
+
+glm::vec3 CharacterCamera::getTopRCanonPosition() const
+{
+    glm::vec3 offset         = canonsOffset();
+    glm::mat4 rotationMatrix = canonRotationMatrix(m_turningLeft, m_turningRight, this->m_FrontVector);
+    glm::vec3 rotatedLeft    = rotatedLeftVector(rotationMatrix, m_LeftVector);
+    glm::vec3 rotatedUp      = rotatedUpVector(rotationMatrix, m_UpVector);
+
+    glm::vec3 rotatedPosition = getPosition() - offset.x * rotatedLeft + offset.y * rotatedUp + offset.z * this->m_FrontVector;
+    return rotatedPosition;
+}
+
+glm::vec3 CharacterCamera::getBotLCanonPosition() const
+{
+    glm::vec3 offset         = canonsOffset();
+    glm::mat4 rotationMatrix = canonRotationMatrix(m_turningLeft, m_turningRight, this->m_FrontVector);
+    glm::vec3 rotatedLeft    = rotatedLeftVector(rotationMatrix, m_LeftVector);
+    glm::vec3 rotatedUp      = rotatedUpVector(rotationMatrix, m_UpVector);
+
+    glm::vec3 rotatedPosition = getPosition() + offset.x * rotatedLeft - offset.y * rotatedUp + offset.z * this->m_FrontVector;
+    return rotatedPosition;
+}
+
+glm::vec3 CharacterCamera::getBotRCanonPosition() const
+{
+    glm::vec3 offset         = canonsOffset();
+    glm::mat4 rotationMatrix = canonRotationMatrix(m_turningLeft, m_turningRight, this->m_FrontVector);
+    glm::vec3 rotatedLeft    = rotatedLeftVector(rotationMatrix, m_LeftVector);
+    glm::vec3 rotatedUp      = rotatedUpVector(rotationMatrix, m_UpVector);
+
+    glm::vec3 rotatedPosition = getPosition() - offset.x * rotatedLeft - offset.y * rotatedUp + offset.z * this->m_FrontVector;
+    return rotatedPosition;
 }

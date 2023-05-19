@@ -81,15 +81,15 @@ int main()
         ImGuiInterface(BOIDS_LOW_QUALITY, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_PARAMETERS, LASERS_PARAMETERS);
 
         cameraInputsEvents(ctx, CAM_PARAMETERS, camera);
-        characterFiringManager(lasers, LASERS_PARAMETERS, ctx, camera);
 
         // Boids simulation
+        lasersDisplacement(lasers, ctx.delta_time());
+        characterFiringManager(lasers, LASERS_PARAMETERS, ctx, camera);
         lasersManager(lasers, obstacles, boids);
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
         obstaclesManager(boids, obstacles, OBSTACLES_PARAMETERS.force, randomVariables.collisionWithObstaclesVar);
         borderManager(boids, BORDERS_PARAMETERS);
         boidsDisplacement(boids, ctx.delta_time());
-        lasersDisplacement(lasers, ctx.delta_time());
 
         render(ctx, boids, obstacles, lasers, BOIDS_LOW_QUALITY, vaos, camera, textures, ProjMatrix, SPOT_LIGHT);
     };

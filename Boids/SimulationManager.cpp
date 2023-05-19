@@ -147,7 +147,10 @@ void characterFiringManager(std::vector<Laser>& lasers, const LaserParameters pa
 {
     if (ctx.key_is_pressed(GLFW_KEY_SPACE))
     {
-        lasers.emplace_back(camera.getPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0));
+        lasers.emplace_back(camera.getTopLCanonPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0));
+        lasers.emplace_back(camera.getTopRCanonPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0));
+        lasers.emplace_back(camera.getBotLCanonPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0));
+        lasers.emplace_back(camera.getBotRCanonPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0));
     }
 }
 

@@ -23,7 +23,7 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
         float     characterLightIntensity = 0.1;
         glm::vec3 reactorsColor           = {1, 0, 0.2};
         float     reactorsIntensity       = 0.00005;
-        float     lasersIntensity         = 0.005;
+        float     lasersIntensity         = 0.003;
 
         std::vector<PointLight> pointsLights = {
             PointLight(camera.getPosition() + characterLightOffset * camera.getFrontVector(), 0, {1, 1, 1}),
@@ -79,14 +79,6 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
 
     auto renderCharacter = [&]() {
         glm::mat4 MVMatrix = glm::translate(glm::mat4(1), camera.getPosition());
-        if (ctx.key_is_pressed(GLFW_KEY_Q) || ctx.key_is_pressed(GLFW_KEY_A) || ctx.key_is_pressed(GLFW_KEY_LEFT))
-        {
-            MVMatrix = glm::rotate(MVMatrix, -.3f, camera.getFrontVector());
-        }
-        if (ctx.key_is_pressed(GLFW_KEY_E) || ctx.key_is_pressed(GLFW_KEY_D) || ctx.key_is_pressed(GLFW_KEY_RIGHT))
-        {
-            MVMatrix = glm::rotate(MVMatrix, .3f, camera.getFrontVector());
-        }
         MVMatrix *= camera.getRotationMatrix();
 
         renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["character"], ProjMatrix, vaos.m_["character"], globalLight, pointsLights, material, DepthMatrix, shadowMapFBO);
@@ -189,14 +181,6 @@ glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const Char
 
     auto renderCharacter = [&]() {
         glm::mat4 MVMatrix = glm::translate(glm::mat4(1), camera.getPosition());
-        if (ctx.key_is_pressed(GLFW_KEY_Q) || ctx.key_is_pressed(GLFW_KEY_A) || ctx.key_is_pressed(GLFW_KEY_LEFT))
-        {
-            MVMatrix = glm::rotate(MVMatrix, -.3f, camera.getFrontVector());
-        }
-        if (ctx.key_is_pressed(GLFW_KEY_E) || ctx.key_is_pressed(GLFW_KEY_D) || ctx.key_is_pressed(GLFW_KEY_RIGHT))
-        {
-            MVMatrix = glm::rotate(MVMatrix, .3f, camera.getFrontVector());
-        }
         MVMatrix *= camera.getRotationMatrix();
         renderShadowCaster(ViewMatrix, program, MVMatrix, ProjMatrix, vaos.m_["character"]);
     };

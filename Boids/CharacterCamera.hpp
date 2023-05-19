@@ -21,7 +21,6 @@ private:
     glm::vec3 m_LeftVector;
     glm::vec3 m_UpVector;
 
-    bool m_firing;
     bool m_turningLeft;
     bool m_turningRight;
 
@@ -33,6 +32,9 @@ public:
 
     void moveFront(float delta, float deltaTime);
     void moveLeft(float delta, float deltaTime);
+    void characterRotatingLeft();
+    void characterRotatingRight();
+    void characterNotRotating();
 
     void rotateLeft(float degrees, float deltaTime);
     void rotateUp(float degrees, float deltaTime);
@@ -44,6 +46,11 @@ public:
     glm::vec3 getTopRReactorPosition() const;
     glm::vec3 getBotLReactorPosition() const;
     glm::vec3 getBotRReactorPosition() const;
+
+    glm::vec3 getTopLCanonPosition() const;
+    glm::vec3 getTopRCanonPosition() const;
+    glm::vec3 getBotLCanonPosition() const;
+    glm::vec3 getBotRCanonPosition() const;
 
     glm::mat4 getViewMatrix() const;
 };
