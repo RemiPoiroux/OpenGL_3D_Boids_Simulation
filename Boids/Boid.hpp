@@ -27,7 +27,6 @@ private:
     int       lives;
 
     uint         timeNearCharacter;
-    uint         timeBeforeFiring;
     BoidBehavior behavior;
 
 private:
@@ -65,8 +64,6 @@ public:
     int  getLives() const;
     void hit();
 
-    uint getTimeBeforeFiring() const;
-    void setTimeBeforeFiring(uint time);
     uint getTimeNearCharacter() const;
     void increaseTimeNearCharacter();
     void resetTimeNearCharacter();

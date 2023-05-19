@@ -201,7 +201,7 @@ void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, con
             if (fireVar.generate() > 0.0)
             {
                 glm::vec3 direction = glm::normalize(charaterPosition - boid.getPosition());
-                lasers.emplace_back(boid.getPosition() + direction * (2 * parameters.range), parameters, direction, getRotationMatrix(direction), glm::vec3(0, 1, 0));
+                lasers.emplace_back(boid.getPosition() + direction * (1.1f * parameters.range), parameters, direction, getRotationMatrix(direction), glm::vec3(0, 1, 0));
             }
             boid.setBehavior(BoidBehavior::Flees);
         }

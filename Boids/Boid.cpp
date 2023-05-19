@@ -80,7 +80,7 @@ glm::mat4 Boid::getRotationMatrix() const
 }
 
 Boid::Boid(const glm::vec3 pos, const float maxSpeed, const glm::vec3 dir, int lives)
-    : position(pos), maxSpeed(maxSpeed), speed(), direction(dir), lives(lives), timeNearCharacter(), timeBeforeFiring(), behavior(BoidBehavior::Neutral)
+    : position(pos), maxSpeed(maxSpeed), speed(), direction(dir), lives(lives), timeNearCharacter(), behavior(BoidBehavior::Neutral)
 {}
 
 void Boid::slowing()
@@ -198,14 +198,6 @@ void Boid::hit()
     --lives;
 }
 
-uint Boid::getTimeBeforeFiring() const
-{
-    return timeBeforeFiring;
-}
-void Boid::setTimeBeforeFiring(const uint time)
-{
-    timeBeforeFiring = time;
-}
 uint Boid::getTimeNearCharacter() const
 {
     return timeNearCharacter;
