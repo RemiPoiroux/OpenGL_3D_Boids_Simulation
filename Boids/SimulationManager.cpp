@@ -143,11 +143,11 @@ void boidsDisplacement(std::vector<Boid>& boids, const float deltaTime)
     }
 }
 
-void firingManager(std::vector<Laser>& lasers, const LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera)
+void characterFiringManager(std::vector<Laser>& lasers, const LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera)
 {
     if (ctx.key_is_pressed(GLFW_KEY_SPACE))
     {
-        lasers.emplace_back(camera.getPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix());
+        lasers.emplace_back(camera.getPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0));
     }
 }
 

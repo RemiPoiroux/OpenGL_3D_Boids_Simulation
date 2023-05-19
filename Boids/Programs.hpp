@@ -111,6 +111,7 @@ private:
     GLint m_uMVPMatrix;
     GLint m_uMVMatrix;
     GLint m_uNormalMatrix;
+    GLint m_uColor;
 
 public:
     LaserProgram();
@@ -118,4 +119,5 @@ public:
     GLint uMVPMatrix() const;
     GLint uMVMatrix() const;
     GLint uNormalMatrix() const;
+    GLint uColor() const;
 };

@@ -11,7 +11,7 @@
 
 glm::mat4 shadowPass(glm::vec3 lightPosition, p6::Context& ctx, const CharacterCamera& camera, std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, bool lowQuality, MyBuffers& vaos);
 void      renderHalo(const glm::mat4& ViewMatrix, const HaloProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao);
-void      renderLaser(const glm::mat4& ViewMatrix, const LaserProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao);
+void      renderLaser(const glm::mat4& ViewMatrix, const LaserProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao, glm::vec3 color);
 void      renderWithOneTexture(const glm::mat4& ViewMatrix, const OneTextureProgram& program, glm::mat4 MVMatrix, const GLuint& texture, const glm::mat4& ProjMatrix, const GLuint& vao);
 void      renderWithOneTextureAndLighting(const glm::mat4& ViewMatrix, const OneTextureAndLightsProgram& program, glm::mat4 MVMatrix, const GLuint& texture, const glm::mat4& ProjMatrix, const GLuint& vao, const DirectionalLight& dirLight, const std::vector<PointLight>& pointLights, const Material& material, const glm::mat4& DepthMatrix, ShadowMapFBO& shadowMapFBO);
 
@@ -23,7 +23,6 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
         float     characterLightIntensity = 0.1;
         glm::vec3 reactorsColor           = {1, 0, 0.2};
         float     reactorsIntensity       = 0.00005;
-        glm::vec3 lasersColor             = {1, 0, 0};
         float     lasersIntensity         = 0.005;
 
         std::vector<PointLight> pointsLights = {
@@ -45,7 +44,7 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
 
         for (Laser laser : lasers)
         {
-            pointsLights.emplace_back(laser.getPosition(), lasersIntensity, lasersColor);
+            pointsLights.emplace_back(laser.getPosition(), lasersIntensity, laser.getColor());
         }
 
         return pointsLights;
@@ -100,7 +99,7 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
         {
             glm::mat4 MVMatrix = glm::translate(glm::mat4(1), laser.getPosition());
             MVMatrix *= laser.getRotationMatrix();
-            renderLaser(ViewMatrix, LaserProgram(), MVMatrix, ProjMatrix, vaos.m_["laser"]);
+            renderLaser(ViewMatrix, LaserProgram(), MVMatrix, ProjMatrix, vaos.m_["laser"], laser.getColor());
         }
     };
     renderLasers();
@@ -244,13 +243,15 @@ void renderHalo(const glm::mat4& ViewMatrix, const HaloProgram& program, glm::ma
     glBindVertexArray(0);
 }
 
-void renderLaser(const glm::mat4& ViewMatrix, const LaserProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao)
+void renderLaser(const glm::mat4& ViewMatrix, const LaserProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao, const glm::vec3 color)
 {
     program.use();
 
     MVMatrix               = ViewMatrix * MVMatrix;
     glm::mat4 MVPMatrix    = ProjMatrix * MVMatrix;
     glm::mat4 NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
+
+    glUniform3fv(program.uColor(), 1, glm::value_ptr(color));
 
     glUniformMatrix4fv(program.uMVMatrix(), 1, GL_FALSE, glm::value_ptr(MVMatrix));
     glUniformMatrix4fv(program.uMVPMatrix(), 1, GL_FALSE, glm::value_ptr(MVPMatrix));

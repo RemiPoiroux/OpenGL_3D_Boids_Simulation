@@ -1,7 +1,8 @@
 #include "Laser.hpp"
+#include "Boid.hpp"
 
-Laser::Laser(glm::vec3 position, LaserParameters parameters, glm::vec3 direction, glm::mat4 rotationMatrix)
-    : m_position(position), m_parameters(parameters), m_direction(direction), m_rotationMatrix(rotationMatrix)
+Laser::Laser(const glm::vec3 position, const LaserParameters parameters, const glm::vec3 direction, const glm::mat4 rotationMatrix, const glm::vec3 color)
+    : m_position(position), m_parameters(parameters), m_direction(direction), m_rotationMatrix(rotationMatrix), m_color(color)
 {}
 
 glm::vec3 Laser::getPosition() const
@@ -17,6 +18,11 @@ float Laser::getRange() const
 glm::mat4 Laser::getRotationMatrix() const
 {
     return this->m_rotationMatrix;
+}
+
+glm::vec3 Laser::getColor() const
+{
+    return this->m_color;
 }
 
 bool Laser::outOfBorders() const

@@ -81,9 +81,9 @@ int main()
         ImGuiInterface(BOIDS_LOW_QUALITY, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_PARAMETERS, LASERS_PARAMETERS);
 
         cameraInputsEvents(ctx, CAM_PARAMETERS, camera);
+        characterFiringManager(lasers, LASERS_PARAMETERS, ctx, camera);
 
         // Boids simulation
-        firingManager(lasers, LASERS_PARAMETERS, ctx, camera);
         lasersManager(lasers, obstacles, boids);
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
         obstaclesManager(boids, obstacles, OBSTACLES_PARAMETERS.force, randomVariables.collisionWithObstaclesVar);

@@ -125,7 +125,7 @@ GLint HaloProgram::uNormalMatrix() const
 }
 
 LaserProgram::LaserProgram()
-    : m_Program{p6::load_shader("shaders/3D.vs.glsl", "shaders/laser3D.fs.glsl")}, m_uMVPMatrix(glGetUniformLocation(m_Program.id(), "uMVPMatrix")), m_uMVMatrix(glGetUniformLocation(m_Program.id(), "uMVMatrix")), m_uNormalMatrix(glGetUniformLocation(m_Program.id(), "uNormalMatrix"))
+    : m_Program{p6::load_shader("shaders/3D.vs.glsl", "shaders/laser3D.fs.glsl")}, m_uMVPMatrix(glGetUniformLocation(m_Program.id(), "uMVPMatrix")), m_uMVMatrix(glGetUniformLocation(m_Program.id(), "uMVMatrix")), m_uNormalMatrix(glGetUniformLocation(m_Program.id(), "uNormalMatrix")), m_uColor(glGetUniformLocation(m_Program.id(), "uColor"))
 {}
 void LaserProgram::use() const
 {
@@ -142,4 +142,8 @@ GLint LaserProgram::uMVMatrix() const
 GLint LaserProgram::uNormalMatrix() const
 {
     return m_uNormalMatrix;
+}
+GLint LaserProgram::uColor() const
+{
+    return m_uColor;
 }
