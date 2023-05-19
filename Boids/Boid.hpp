@@ -1,11 +1,18 @@
 #pragma once
 
+#include "CharacterCamera.hpp"
 #include "Obstacle.hpp"
 
 enum AxisIndex {
     x = 0,
     y = 1,
     z = 2
+};
+
+enum class BoidBehavior {
+    Attacks,
+    Neutral,
+    Flees
 };
 
 void normaliseVector(glm::vec3& v);
@@ -18,6 +25,10 @@ private:
     float     speed;
     glm::vec3 direction;
     int       lives;
+
+    uint         timeNearCharacter;
+    uint         timeBeforeFiring;
+    BoidBehavior behavior;
 
 private:
     void applyForce(glm::vec3 direction, float strength);
@@ -39,6 +50,8 @@ public:
 
     void displacement(float deltaTime);
 
+    void characterCohesion(glm::vec3 position, float strength);
+
     void neighborsAlignement(const Boid& boid, float strength);
 
     void neighborsCohesion(const Boid& boid, float strength);
@@ -51,4 +64,13 @@ public:
 
     int  getLives() const;
     void hit();
+
+    uint getTimeBeforeFiring() const;
+    void setTimeBeforeFiring(uint time);
+    uint getTimeNearCharacter() const;
+    void increaseTimeNearCharacter();
+    void resetTimeNearCharacter();
+
+    BoidBehavior getBehavior() const;
+    void         setBehavior(BoidBehavior newBehavior);
 };

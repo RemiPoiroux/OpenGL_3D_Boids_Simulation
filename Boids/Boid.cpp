@@ -80,7 +80,7 @@ glm::mat4 Boid::getRotationMatrix() const
 }
 
 Boid::Boid(const glm::vec3 pos, const float maxSpeed, const glm::vec3 dir, int lives)
-    : position(pos), maxSpeed(maxSpeed), speed(), direction(dir), lives(lives)
+    : position(pos), maxSpeed(maxSpeed), speed(), direction(dir), lives(lives), timeNearCharacter(), timeBeforeFiring(), behavior(BoidBehavior::Neutral)
 {}
 
 void Boid::slowing()
@@ -143,6 +143,11 @@ void Boid::checksBordersOnAxis(const AxisIndex axisIndex, const Parameters p)
     }
 }
 
+void Boid::characterCohesion(glm::vec3 characterPosition, float strength)
+{
+    this->applyForce(characterPosition - this->position, strength);
+}
+
 void Boid::neighborsAlignement(const Boid& boid, const float strength)
 {
     this->applyForce(boid.direction - this->direction, strength);
@@ -191,4 +196,34 @@ int Boid::getLives() const
 void Boid::hit()
 {
     --lives;
+}
+
+uint Boid::getTimeBeforeFiring() const
+{
+    return timeBeforeFiring;
+}
+void Boid::setTimeBeforeFiring(const uint time)
+{
+    timeBeforeFiring = time;
+}
+uint Boid::getTimeNearCharacter() const
+{
+    return timeNearCharacter;
+}
+void Boid::increaseTimeNearCharacter()
+{
+    ++timeNearCharacter;
+}
+void Boid::resetTimeNearCharacter()
+{
+    timeNearCharacter = 0;
+}
+
+BoidBehavior Boid::getBehavior() const
+{
+    return behavior;
+}
+void Boid::setBehavior(BoidBehavior newBehavior)
+{
+    behavior = newBehavior;
 }

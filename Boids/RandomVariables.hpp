@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include "Boid.hpp"
 
 class RandomVariable
 {
@@ -43,18 +44,19 @@ public:
     explicit BernoulliRandomVariable(float successProbability);
     float generate() const override;
 };
-
+template<typename T>
 class DiscreteRandomVariable
 {
 private:
-    std::vector<float>       m_probabilities;
-    std::vector<std::string> m_names;
+    std::vector<float> m_probabilities;
+    std::vector<T>     m_values;
 
 public:
-    explicit DiscreteRandomVariable(const std::vector<float>& probabilities, const std::vector<std::string>& names);
-    std::string              generate() const;
-    std::vector<float>       getProbabilities() const { return m_probabilities; }
-    std::vector<std::string> getNames() const { return m_names; }
+    explicit DiscreteRandomVariable(const std::vector<float>& probabilities, const std::vector<T>& values);
+
+    T                  generate() const;
+    std::vector<float> getProbabilities() const { return m_probabilities; }
+    std::vector<T>     getValues() const { return m_values; }
 };
 
 class BinomialRandomVariable : public RandomVariable
@@ -81,3 +83,5 @@ public:
     explicit GeometricRandomVariable(float successProbability);
     float generate() const override;
 };
+
+template class DiscreteRandomVariable<BoidBehavior>;

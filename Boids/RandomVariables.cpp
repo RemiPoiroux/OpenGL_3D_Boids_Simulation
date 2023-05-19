@@ -68,12 +68,13 @@ float BernoulliRandomVariable::generate() const
     return randomFloatBtw0and1() < m_parameter ? 1 : 0;
 }
 
-DiscreteRandomVariable::DiscreteRandomVariable(const std::vector<float>& probabilities, const std::vector<std::string>& names)
-    : m_probabilities(probabilities), m_names(names)
+template<typename T>
+DiscreteRandomVariable<T>::DiscreteRandomVariable(const std::vector<float>& probabilities, const std::vector<T>& values)
+    : m_probabilities(probabilities), m_values(values)
 {
-    if (m_probabilities.size() != m_names.size())
+    if (m_probabilities.size() != m_values.size())
     {
-        throw std::invalid_argument("The number of probabilities must match the number of names.");
+        throw std::invalid_argument("The number of probabilities must match the number of values.");
     }
 
     float sum = 0.0;
@@ -90,8 +91,8 @@ DiscreteRandomVariable::DiscreteRandomVariable(const std::vector<float>& probabi
         throw std::invalid_argument("Probabilities must sum to 1.");
     }
 }
-
-std::string DiscreteRandomVariable::generate() const
+template<typename T>
+T DiscreteRandomVariable<T>::generate() const
 {
     float randomValue           = randomFloatBtw0and1();
     float cumulativeProbability = 0.0;
@@ -101,11 +102,10 @@ std::string DiscreteRandomVariable::generate() const
         cumulativeProbability += m_probabilities[i];
         if (randomValue <= cumulativeProbability)
         {
-            return m_names[i];
+            return m_values[i];
         }
     }
-
-    return "";
+    return T();
 }
 
 BinomialRandomVariable::BinomialRandomVariable(const float successProbability, const int trialsNb)

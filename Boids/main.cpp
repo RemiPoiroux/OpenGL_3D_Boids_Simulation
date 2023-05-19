@@ -1,7 +1,9 @@
+#include "Boid.hpp"
 #include "CameraInputs.hpp"
 #include "CharacterCamera.hpp"
 #include "ImGuiInterface.hpp"
 #include "Laser.hpp"
+#include "Obstacle.hpp"
 #include "Render.hpp"
 #include "SimulationManager.hpp"
 
@@ -22,10 +24,12 @@ int main()
 
     // SIMULATION PARAMETERS
 
-    BoidsParameters BOIDS_PARAMETERS  = {200, 5};
+    BoidsParameters BOIDS_PARAMETERS  = {200, 10};
     bool            BOIDS_LOW_QUALITY = false;
 
-    Parameters BORDERS_PARAMETERS = {0.2, 0.02f};
+    Parameters BORDERS_FORCE = {0.2, 0.02f};
+
+    Parameters CHARACTER_FORCE{0.2f, 0.2f};
 
     NeighborsParameters NEIGHBORS_PARAMETERS =
         {{0.35f, 0.02f},
@@ -40,7 +44,7 @@ int main()
 
     RandomVariablesParameters RANDOM_VARIABLES_PARAMETERS =
         {{0.3},
-         {{"Attacks", "Neutral", "Flees"},
+         {{BoidBehavior::Attacks, BoidBehavior::Neutral, BoidBehavior::Flees},
           {0.3, 0.5, 0.2}},
          {0.1, 0.5},
          {1},
@@ -79,17 +83,19 @@ int main()
 
     // Declare your infinite update loop.
     ctx.update = [&]() {
-        ImGuiInterface(BOIDS_LOW_QUALITY, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_PARAMETERS, LASERS_PARAMETERS);
+        ImGuiInterface(BOIDS_LOW_QUALITY, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_FORCE, LASERS_PARAMETERS, CHARACTER_FORCE);
 
         cameraInputsEvents(ctx, CAM_PARAMETERS, camera);
 
         // Boids simulation
         lasersDisplacement(lasers, ctx.delta_time());
         characterFiringManager(lasers, LASERS_PARAMETERS, ctx, camera, randomVariables.characterFiringVar, laserDelays);
+        boidsBehaviorManager(camera, boids, CHARACTER_FORCE, randomVariables.boidsAttitudeVar);
+
         lasersManager(lasers, obstacles, boids);
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
         obstaclesManager(boids, obstacles, OBSTACLES_PARAMETERS.force, randomVariables.collisionWithObstaclesVar);
-        borderManager(boids, BORDERS_PARAMETERS);
+        borderManager(boids, BORDERS_FORCE);
         boidsDisplacement(boids, ctx.delta_time());
 
         render(ctx, boids, obstacles, lasers, BOIDS_LOW_QUALITY, vaos, camera, textures, ProjMatrix, SPOT_LIGHT);

@@ -1,16 +1,18 @@
 #pragma once
 
+#include "Boid.hpp"
 #include "RandomVariables.hpp"
+#include "SimulationManager.hpp"
 
 struct RandomVariablesParameters;
 
 struct RandomVariables
 {
-    BernoulliRandomVariable collisionWithObstaclesVar;
-    DiscreteRandomVariable  boidsAttitudeVar;
-    BinomialRandomVariable  boidsFiringVar;
-    NormalRandomVariable    boidsPrecisionVar;
-    GeometricRandomVariable characterFiringVar;
+    BernoulliRandomVariable              collisionWithObstaclesVar;
+    DiscreteRandomVariable<BoidBehavior> boidsAttitudeVar;
+    BinomialRandomVariable               boidsFiringVar;
+    NormalRandomVariable                 boidsPrecisionVar;
+    GeometricRandomVariable              characterFiringVar;
 };
 
 RandomVariables initializeRandomVariables(const RandomVariablesParameters& parameters);
@@ -21,8 +23,8 @@ struct BernoulliRandomParameters
 };
 struct DiscreteRandomParameters
 {
-    std::vector<std::string> stateNames;
-    std::vector<float>       stateProbs;
+    std::vector<BoidBehavior> stateNames;
+    std::vector<float>        stateProbs;
 };
 struct BinomialRandomParameters
 {

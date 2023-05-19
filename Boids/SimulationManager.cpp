@@ -1,6 +1,7 @@
 #include "SimulationManager.hpp"
 #include <cstddef>
 #include <vector>
+#include "Boid.hpp"
 #include "GLFW/glfw3.h"
 #include "RandomVariables.hpp"
 
@@ -142,6 +143,42 @@ void boidsDisplacement(std::vector<Boid>& boids, const float deltaTime)
         boid.displacement(deltaTime);
     }
 }
+
+void boidsBehaviorManager(const CharacterCamera& camera, std::vector<Boid>& boids, Parameters characterForce, const DiscreteRandomVariable<BoidBehavior>& behaviorVar)
+{
+    for (Boid& boid : boids)
+    {
+        float distance = myDistance(camera, boid);
+        if (distance < characterForce.distance)
+        {
+            if (boid.getTimeNearCharacter() == 0)
+            {
+                boid.setBehavior(behaviorVar.generate());
+            }
+            boid.increaseTimeNearCharacter();
+        }
+        else
+        {
+            if (boid.getTimeNearCharacter() != 0)
+            {
+                boid.resetTimeNearCharacter();
+                boid.setBehavior(BoidBehavior::Neutral);
+            }
+        }
+        if (boid.getBehavior() == BoidBehavior::Attacks)
+        {
+            boid.characterCohesion(camera.getPosition(), characterForce.strength);
+        }
+        else if (boid.getBehavior() == BoidBehavior::Flees)
+        {
+            boid.characterCohesion(camera.getPosition(), -characterForce.strength);
+        }
+    }
+}
+
+// void boidsFiringManager(std::vector<Laser>& lasers, const LaserParameters parameters, const glm::vec3 charaterPosition, const BinomialRandomVariable& fireVar, const NormalRandomVariable& accuracyVar)
+// {
+// }
 
 void characterFiringManager(std::vector<Laser>& lasers, const LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera, const GeometricRandomVariable& var, LaserDelays& delays)
 {

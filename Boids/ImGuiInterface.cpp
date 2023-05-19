@@ -1,8 +1,9 @@
 #include <imgui.h>
 #include "Laser.hpp"
+#include "Obstacle.hpp"
 #include "SimulationManager.hpp"
 
-void ImGuiInterface(bool& lowQuality, Parameters& obstaclesParameters, NeighborsParameters& neighborsParameters, Parameters& bordersParameters, LaserParameters& lasersParameters)
+void ImGuiInterface(bool& lowQuality, Parameters& obstaclesParameters, NeighborsParameters& neighborsParameters, Parameters& bordersParameters, LaserParameters& lasersParameters, Parameters& characterForce)
 {
     ImGui::Begin("Simulation control");
     ImGui::SliderFloat("Alignment distance", &neighborsParameters.alignment.distance, 0.f, 2.f);
@@ -11,6 +12,8 @@ void ImGuiInterface(bool& lowQuality, Parameters& obstaclesParameters, Neighbors
     ImGui::SliderFloat("Cohesion strength", &neighborsParameters.cohesion.strength, 0.f, 1.f);
     ImGui::SliderFloat("Separation distance", &neighborsParameters.separation.distance, 0.f, 2.f);
     ImGui::SliderFloat("Separation strength", &neighborsParameters.separation.strength, 0.f, 1.f);
+    ImGui::SliderFloat("Character distance", &characterForce.distance, 0.f, 2.f);
+    ImGui::SliderFloat("Character strength", &characterForce.strength, 0.f, 1.f);
     ImGui::SliderFloat("Obstacles distance", &obstaclesParameters.distance, 0.f, 0.2f);
     ImGui::SliderFloat("Obstacles strength", &obstaclesParameters.strength, 0.f, 1.f);
     ImGui::SliderFloat("Borders distance", &bordersParameters.distance, 0.f, 1.f);
