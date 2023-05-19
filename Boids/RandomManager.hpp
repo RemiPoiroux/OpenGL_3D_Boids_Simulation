@@ -2,7 +2,6 @@
 
 #include "Boid.hpp"
 #include "RandomVariables.hpp"
-#include "SimulationManager.hpp"
 
 struct RandomVariablesParameters;
 

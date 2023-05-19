@@ -3,7 +3,9 @@
 #include <vector>
 #include "Boid.hpp"
 #include "GLFW/glfw3.h"
+#include "RandomManager.hpp"
 #include "RandomVariables.hpp"
+#include "glm/ext/quaternion_geometric.hpp"
 
 /////////////////////////////////
 // PARAMETERS
@@ -175,10 +177,36 @@ void boidsBehaviorManager(const CharacterCamera& camera, std::vector<Boid>& boid
         }
     }
 }
+glm::mat4 getRotationMatrix(glm::vec3 targetVec)
+{
+    glm::vec3 originalVec = {0, 0, -1};
 
-// void boidsFiringManager(std::vector<Laser>& lasers, const LaserParameters parameters, const glm::vec3 charaterPosition, const BinomialRandomVariable& fireVar, const NormalRandomVariable& accuracyVar)
-// {
-// }
+    glm::vec3 axis  = glm::cross(originalVec, targetVec);
+    float     angle = glm::acos(glm::dot(originalVec, targetVec) / (glm::length(originalVec) * glm::length(targetVec)));
+
+    glm::mat4 rotMatrix = glm::mat4(1.0f);
+    if (angle != 0 && !glm::isnan(angle))
+    {
+        rotMatrix = glm::rotate(rotMatrix, angle, glm::normalize(axis));
+    }
+
+    return rotMatrix;
+}
+void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, const LaserParameters parameters, const glm::vec3 charaterPosition, const BinomialRandomVariable& fireVar, const BinomialRandomParameters& fireParam, const NormalRandomVariable& accuracyVar)
+{
+    for (Boid& boid : boids)
+    {
+        if (static_cast<uint>(fireParam.secondsToShoot * 60) < boid.getTimeNearCharacter() && boid.getBehavior() == BoidBehavior::Attacks)
+        {
+            if (fireVar.generate() > 0.0)
+            {
+                glm::vec3 direction = glm::normalize(charaterPosition - boid.getPosition());
+                lasers.emplace_back(boid.getPosition() + direction * (2 * parameters.range), parameters, direction, getRotationMatrix(direction), glm::vec3(0, 1, 0));
+            }
+            boid.setBehavior(BoidBehavior::Flees);
+        }
+    }
+}
 
 void characterFiringManager(std::vector<Laser>& lasers, const LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera, const GeometricRandomVariable& var, LaserDelays& delays)
 {

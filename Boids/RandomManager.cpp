@@ -6,7 +6,7 @@ RandomVariables initializeRandomVariables(const RandomVariablesParameters& param
     RandomVariables variables = {
         BernoulliRandomVariable(parameters.collisionWithObstacles.collisionProb),
         DiscreteRandomVariable(parameters.boidsAttitude.stateProbs, parameters.boidsAttitude.stateNames),
-        BinomialRandomVariable(parameters.boidsFiring.shootProbPerFrame, static_cast<int>(parameters.boidsFiring.secondsToShoot * 60)),
+        BinomialRandomVariable(parameters.boidsFiring.shootProbPerFrame, static_cast<uint>(parameters.boidsFiring.secondsToShoot * 60)),
         NormalRandomVariable(parameters.boidsAccuracy.accuracyExpectation),
         GeometricRandomVariable(parameters.characterFiring.shootProbPerFrame)};
 

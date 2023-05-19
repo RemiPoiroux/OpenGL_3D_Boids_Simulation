@@ -62,12 +62,12 @@ public:
 class BinomialRandomVariable : public RandomVariable
 {
 private:
-    int m_trialsNb;
+    uint m_trialsNb;
 
 public:
-    explicit BinomialRandomVariable(float successProbability, int trialsNb);
+    explicit BinomialRandomVariable(float successProbability, uint trialsNb);
     float generate() const override;
-    int   getTrialsNb() const { return m_trialsNb; };
+    uint  getTrialsNb() const { return m_trialsNb; };
 };
 
 class NormalRandomVariable : public RandomVariable

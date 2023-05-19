@@ -108,7 +108,7 @@ T DiscreteRandomVariable<T>::generate() const
     return T();
 }
 
-BinomialRandomVariable::BinomialRandomVariable(const float successProbability, const int trialsNb)
+BinomialRandomVariable::BinomialRandomVariable(const float successProbability, const uint trialsNb)
     : RandomVariable(), m_trialsNb(trialsNb)
 {
     m_parameter   = successProbability;
@@ -118,7 +118,7 @@ BinomialRandomVariable::BinomialRandomVariable(const float successProbability, c
 float BinomialRandomVariable::generate() const
 {
     float result = 0;
-    for (int i = 0; i < m_trialsNb; ++i)
+    for (uint i = 0; i < m_trialsNb; ++i)
     {
         if (randomFloatBtw0and1() < m_parameter)
             ++result;

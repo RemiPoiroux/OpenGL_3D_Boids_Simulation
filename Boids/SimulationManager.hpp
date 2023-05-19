@@ -5,8 +5,6 @@
 #include "Laser.hpp"
 #include "Obstacle.hpp"
 #include "RandomManager.hpp"
-#include "RandomVariables.hpp"
-
 struct NeighborsParameters
 {
     Parameters alignment;
@@ -40,6 +38,8 @@ void neighborsManager(std::vector<Boid>& boids, NeighborsParameters parameters);
 void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obstacles, Parameters parameters, const BernoulliRandomVariable& var);
 
 void boidsBehaviorManager(const CharacterCamera& camera, std::vector<Boid>& boids, Parameters characterForce, const DiscreteRandomVariable<BoidBehavior>& behaviorVar);
+
+void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, LaserParameters parameters, glm::vec3 charaterPosition, const BinomialRandomVariable& fireVar, const BinomialRandomParameters& fireParam, const NormalRandomVariable& accuracyVar);
 
 void characterFiringManager(std::vector<Laser>& lasers, LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera, const GeometricRandomVariable& var, LaserDelays& delays);
 

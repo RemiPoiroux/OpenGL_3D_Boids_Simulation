@@ -29,7 +29,7 @@ int main()
 
     Parameters BORDERS_FORCE = {0.2, 0.02f};
 
-    Parameters CHARACTER_FORCE{0.2f, 0.2f};
+    Parameters CHARACTER_FORCE{0.3f, 0.2f};
 
     NeighborsParameters NEIGHBORS_PARAMETERS =
         {{0.35f, 0.02f},
@@ -46,7 +46,7 @@ int main()
         {{0.3},
          {{BoidBehavior::Attacks, BoidBehavior::Neutral, BoidBehavior::Flees},
           {0.3, 0.5, 0.2}},
-         {0.1, 0.5},
+         {0.3, 0.5},
          {1},
          {0.03}};
 
@@ -87,12 +87,14 @@ int main()
 
         cameraInputsEvents(ctx, CAM_PARAMETERS, camera);
 
-        // Boids simulation
+        // Shooting simulation
         lasersDisplacement(lasers, ctx.delta_time());
         characterFiringManager(lasers, LASERS_PARAMETERS, ctx, camera, randomVariables.characterFiringVar, laserDelays);
         boidsBehaviorManager(camera, boids, CHARACTER_FORCE, randomVariables.boidsAttitudeVar);
-
+        boidsFiringManager(lasers, boids, LASERS_PARAMETERS, camera.getPosition(), randomVariables.boidsFiringVar, RANDOM_VARIABLES_PARAMETERS.boidsFiring, randomVariables.boidsPrecisionVar);
         lasersManager(lasers, obstacles, boids);
+
+        // Boids simulation
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
         obstaclesManager(boids, obstacles, OBSTACLES_PARAMETERS.force, randomVariables.collisionWithObstaclesVar);
         borderManager(boids, BORDERS_FORCE);
