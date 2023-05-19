@@ -37,6 +37,14 @@ int main()
 
     LaserParameters LASERS_PARAMETERS = {2, 0.04};
 
+    RandomVariablesParameters RANDOM_VARIABLES_PARAMETERS =
+        {{0.3},
+         {{"Attacks", "Neutral", "Flees"},
+          {0.3, 0.5, 0.2}},
+         {0.1, 0.5},
+         {1},
+         {0.3}};
+
     /////////////////////////////////
     /////////////////////////////////
 
@@ -44,14 +52,13 @@ int main()
     int  height = 720;
     auto ctx    = p6::Context{{width, height, "Remi's Boids"}};
     ctx.maximize_window();
-
-    // Initialize depth test
     glEnable(GL_DEPTH_TEST);
 
-    // Initialize camera
-    CharacterCamera camera;
+    // Initialize probabilities
+    RandomVariables randomVariables = initializeRandomVariables(RANDOM_VARIABLES_PARAMETERS);
 
-    // Initialize Boids, obstacles and lasers
+    // Initialize camera, boids, obstacles and lasers
+    CharacterCamera       camera;
     std::vector<Boid>     boids     = createBoids(BOIDS_PARAMETERS);
     std::vector<Obstacle> obstacles = createObstacles(OBSTACLES_PARAMETERS);
     std::vector<Laser>    lasers{};
@@ -79,7 +86,7 @@ int main()
         firingManager(lasers, LASERS_PARAMETERS, ctx, camera);
         lasersManager(lasers, obstacles, boids);
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
-        obstaclesManager(boids, obstacles, OBSTACLES_PARAMETERS.force);
+        obstaclesManager(boids, obstacles, OBSTACLES_PARAMETERS.force, randomVariables.collisionWithObstaclesVar);
         borderManager(boids, BORDERS_PARAMETERS);
         boidsDisplacement(boids, ctx.delta_time());
         lasersDisplacement(lasers, ctx.delta_time());

@@ -4,6 +4,7 @@
 #include "CharacterCamera.hpp"
 #include "Laser.hpp"
 #include "Obstacle.hpp"
+#include "RandomManager.hpp"
 
 struct NeighborsParameters
 {
@@ -27,7 +28,7 @@ std::vector<Boid> createBoids(BoidsParameters boidsParameters);
 
 void neighborsManager(std::vector<Boid>& boids, NeighborsParameters parameters);
 
-void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obstacles, Parameters parameters);
+void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obstacles, Parameters parameters, const BernoulliRandomVariable& var);
 
 void firingManager(std::vector<Laser>& lasers, LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera);
 void lasersManager(std::vector<Laser>& lasers, const std::vector<Obstacle>& obstacles, std::vector<Boid>& boids);

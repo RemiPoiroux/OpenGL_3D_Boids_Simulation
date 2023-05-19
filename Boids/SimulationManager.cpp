@@ -77,10 +77,35 @@ void neighborsManager(std::vector<Boid>& boids, const NeighborsParameters parame
     }
 }
 
-void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obstacles, const Parameters parameters)
+void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obstacles, const Parameters parameters, const BernoulliRandomVariable& var)
 {
     for (Obstacle currentObstacle : obstacles)
     {
+        auto removeBoidIfNecessary = [&](Boid& boid) {
+            if (static_cast<bool>(var.generate()))
+            {
+                auto it = std::find_if(std::begin(boids), std::end(boids), [&](const Boid& other) { return &other == &boid; });
+                if (it != std::end(boids))
+                {
+                    boids.erase(it);
+                }
+            }
+            else
+            {
+                boid.obstacleAvoidance(currentObstacle, 2);
+            }
+        };
+        auto applyToBoidsInside = [&](const auto& func) {
+            auto isClose = [&](Boid& other) {
+                return myDistance(currentObstacle, other) < currentObstacle.getSize() / 2;
+            };
+            auto closeBoidsBegin = std::find_if(std::begin(boids), std::end(boids), isClose);
+            auto closeBoidsEnd   = std::find_if_not(closeBoidsBegin, std::end(boids), isClose);
+            for (auto boid = closeBoidsBegin; boid != closeBoidsEnd; ++boid)
+            {
+                func(*boid);
+            }
+        };
         auto applyToCloseBoids = [&](const auto& func) {
             auto isClose = [&](Boid& other) {
                 return myDistance(currentObstacle, other) < parameters.distance + currentObstacle.getSize();
@@ -92,7 +117,9 @@ void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obs
                 func(*boid);
             }
         };
-
+        applyToBoidsInside([&](Boid& other) {
+            removeBoidIfNecessary(other);
+        });
         applyToCloseBoids([&](Boid& other) {
             other.obstacleAvoidance(currentObstacle, parameters.strength);
         });
