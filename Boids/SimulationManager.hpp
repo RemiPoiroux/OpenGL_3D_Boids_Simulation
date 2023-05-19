@@ -21,6 +21,14 @@ struct BoidsParameters
     float livesExpectation;
 };
 
+struct LaserDelays
+{
+    std::vector<int> topLeft;
+    std::vector<int> topRight;
+    std::vector<int> botLeft;
+    std::vector<int> botRight;
+};
+
 template<typename T1, typename T2>
 float distance(const T1& entity1, const T2& entity2);
 
@@ -30,7 +38,7 @@ void neighborsManager(std::vector<Boid>& boids, NeighborsParameters parameters);
 
 void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obstacles, Parameters parameters, const BernoulliRandomVariable& var);
 
-void characterFiringManager(std::vector<Laser>& lasers, LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera, const GeometricRandomVariable& var);
+void characterFiringManager(std::vector<Laser>& lasers, LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera, const GeometricRandomVariable& var, LaserDelays& delays);
 void lasersManager(std::vector<Laser>& lasers, const std::vector<Obstacle>& obstacles, std::vector<Boid>& boids);
 
 void borderManager(std::vector<Boid>& boids, Parameters parameters);

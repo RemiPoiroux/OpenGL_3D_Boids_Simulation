@@ -143,14 +143,70 @@ void boidsDisplacement(std::vector<Boid>& boids, const float deltaTime)
     }
 }
 
-void characterFiringManager(std::vector<Laser>& lasers, const LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera, const GeometricRandomVariable& var)
+void characterFiringManager(std::vector<Laser>& lasers, const LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera, const GeometricRandomVariable& var, LaserDelays& delays)
 {
     if (ctx.key_is_pressed(GLFW_KEY_SPACE))
     {
-        lasers.emplace_back(camera.getTopLCanonPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0), static_cast<int>(var.generate()) + 1);
-        lasers.emplace_back(camera.getTopRCanonPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0), static_cast<int>(var.generate()) + 1);
-        lasers.emplace_back(camera.getBotLCanonPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0), static_cast<int>(var.generate()) + 1);
-        lasers.emplace_back(camera.getBotRCanonPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0), static_cast<int>(var.generate()) + 1);
+        delays.topLeft.emplace_back(static_cast<int>(var.generate()));
+        delays.topRight.emplace_back(static_cast<int>(var.generate()));
+        delays.botLeft.emplace_back(static_cast<int>(var.generate()));
+        delays.botRight.emplace_back(static_cast<int>(var.generate()));
+    }
+
+    for (auto it = delays.topLeft.begin(); it != delays.topLeft.end();)
+    {
+        if (*it < 1)
+        {
+            lasers.emplace_back(camera.getTopLCanonPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0));
+            it = delays.topLeft.erase(it);
+        }
+        else
+        {
+            --(*it);
+            ++it;
+        }
+    }
+
+    for (auto it = delays.topRight.begin(); it != delays.topRight.end();)
+    {
+        if (*it < 1)
+        {
+            lasers.emplace_back(camera.getTopRCanonPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0));
+            it = delays.topRight.erase(it); // Supprimer le délai
+        }
+        else
+        {
+            --(*it);
+            ++it;
+        }
+    }
+
+    for (auto it = delays.botLeft.begin(); it != delays.botLeft.end();)
+    {
+        if (*it < 1)
+        {
+            lasers.emplace_back(camera.getBotLCanonPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0));
+            it = delays.botLeft.erase(it); // Supprimer le délai
+        }
+        else
+        {
+            --(*it);
+            ++it;
+        }
+    }
+
+    for (auto it = delays.botRight.begin(); it != delays.botRight.end();)
+    {
+        if (*it < 1)
+        {
+            lasers.emplace_back(camera.getBotRCanonPosition(), parameters, camera.getFrontVector(), camera.getRotationMatrix(), glm::vec3(1, 0, 0));
+            it = delays.botRight.erase(it); // Supprimer le délai
+        }
+        else
+        {
+            --(*it);
+            ++it;
+        }
     }
 }
 
@@ -159,23 +215,19 @@ void lasersManager(std::vector<Laser>& lasers, const std::vector<Obstacle>& obst
     // Boids lose a life if in the field of a laser
     for (Laser& laser : lasers)
     {
-        laser.reduceDelay();
-        if (laser.getDelay() < 1)
+        const float laserField  = laser.getRange();
+        auto        partitionIt = std::partition(boids.begin(), boids.end(), [&laser, laserField](const Boid& boid) {
+            const float distance = myDistance(laser, boid);
+            return distance >= laserField;
+        });
+        for (auto it = partitionIt; it != boids.end(); ++it)
         {
-            const float laserField  = laser.getRange();
-            auto        partitionIt = std::partition(boids.begin(), boids.end(), [&laser, laserField](const Boid& boid) {
-                const float distance = myDistance(laser, boid);
-                return distance >= laserField;
-            });
-            for (auto it = partitionIt; it != boids.end(); ++it)
-            {
-                it->hit();
-            }
-            boids.erase(std::remove_if(partitionIt, boids.end(), [](const Boid& boid) {
-                            return boid.getLives() < 1;
-                        }),
-                        boids.end());
+            it->hit();
         }
+        boids.erase(std::remove_if(partitionIt, boids.end(), [](const Boid& boid) {
+                        return boid.getLives() < 1;
+                    }),
+                    boids.end());
     }
 
     // Lasers erased if out of border or inside an obstacle

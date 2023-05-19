@@ -36,6 +36,7 @@ int main()
         {100, 0.05, 0.5, {0.1, 0.1}};
 
     LaserParameters LASERS_PARAMETERS = {2, 0.04};
+    LaserDelays     laserDelays{};
 
     RandomVariablesParameters RANDOM_VARIABLES_PARAMETERS =
         {{0.3},
@@ -43,7 +44,7 @@ int main()
           {0.3, 0.5, 0.2}},
          {0.1, 0.5},
          {1},
-         {0.03}};
+         {0.02}};
 
     /////////////////////////////////
     /////////////////////////////////
@@ -84,7 +85,7 @@ int main()
 
         // Boids simulation
         lasersDisplacement(lasers, ctx.delta_time());
-        characterFiringManager(lasers, LASERS_PARAMETERS, ctx, camera, randomVariables.characterFiringVar);
+        characterFiringManager(lasers, LASERS_PARAMETERS, ctx, camera, randomVariables.characterFiringVar, laserDelays);
         lasersManager(lasers, obstacles, boids);
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
         obstaclesManager(boids, obstacles, OBSTACLES_PARAMETERS.force, randomVariables.collisionWithObstaclesVar);
