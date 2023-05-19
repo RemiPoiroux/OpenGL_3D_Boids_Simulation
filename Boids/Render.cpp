@@ -44,7 +44,10 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
 
         for (Laser laser : lasers)
         {
-            pointsLights.emplace_back(laser.getPosition(), lasersIntensity, laser.getColor());
+            if (laser.getDelay() < 1)
+            {
+                pointsLights.emplace_back(laser.getPosition(), lasersIntensity, laser.getColor());
+            }
         }
 
         return pointsLights;
@@ -89,9 +92,12 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
     auto renderLasers = [&]() {
         for (Laser laser : lasers)
         {
-            glm::mat4 MVMatrix = glm::translate(glm::mat4(1), laser.getPosition());
-            MVMatrix *= laser.getRotationMatrix();
-            renderLaser(ViewMatrix, LaserProgram(), MVMatrix, ProjMatrix, vaos.m_["laser"], laser.getColor());
+            if (laser.getDelay() < 1)
+            {
+                glm::mat4 MVMatrix = glm::translate(glm::mat4(1), laser.getPosition());
+                MVMatrix *= laser.getRotationMatrix();
+                renderLaser(ViewMatrix, LaserProgram(), MVMatrix, ProjMatrix, vaos.m_["laser"], laser.getColor());
+            }
         }
     };
     renderLasers();

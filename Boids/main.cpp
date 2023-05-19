@@ -43,7 +43,7 @@ int main()
           {0.3, 0.5, 0.2}},
          {0.1, 0.5},
          {1},
-         {0.3}};
+         {0.03}};
 
     /////////////////////////////////
     /////////////////////////////////
@@ -84,7 +84,7 @@ int main()
 
         // Boids simulation
         lasersDisplacement(lasers, ctx.delta_time());
-        characterFiringManager(lasers, LASERS_PARAMETERS, ctx, camera);
+        characterFiringManager(lasers, LASERS_PARAMETERS, ctx, camera, randomVariables.characterFiringVar);
         lasersManager(lasers, obstacles, boids);
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
         obstaclesManager(boids, obstacles, OBSTACLES_PARAMETERS.force, randomVariables.collisionWithObstaclesVar);
