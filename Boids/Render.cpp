@@ -1,21 +1,17 @@
-#include "Boid.hpp"
-#include "CharacterCamera.hpp"
-#include "Laser.hpp"
+#include "Render.hpp"
 #include "LightsAndMaterials.hpp"
-#include "MyBuffers.hpp"
 #include "Programs.hpp"
 #include "ShadowMapFBO.hpp"
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/fwd.hpp"
+#include "glm/geometric.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-glm::mat4 shadowPass(glm::vec3 lightPosition, p6::Context& ctx, const CharacterCamera& camera, std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, bool lowQuality, MyBuffers& vaos);
+glm::mat4 shadowPass(glm::vec3 lightPosition, p6::Context& ctx, const CharacterCamera& camera, std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, LodsParameters lodsParameters, MyBuffers& vaos);
 void      renderHalo(const glm::mat4& ViewMatrix, const HaloProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao);
 void      renderLaser(const glm::mat4& ViewMatrix, const LaserProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao, glm::vec3 color);
 void      renderWithOneTexture(const glm::mat4& ViewMatrix, const OneTextureProgram& program, glm::mat4 MVMatrix, const GLuint& texture, const glm::mat4& ProjMatrix, const GLuint& vao);
 void      renderWithOneTextureAndLighting(const glm::mat4& ViewMatrix, const OneTextureAndLightsProgram& program, glm::mat4 MVMatrix, const GLuint& texture, const glm::mat4& ProjMatrix, const GLuint& vao, const DirectionalLight& dirLight, const std::vector<PointLight>& pointLights, const Material& material, const glm::mat4& DepthMatrix, ShadowMapFBO& shadowMapFBO);
 
-void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& obstacles, std::vector<Laser>& lasers, bool lowQuality, MyBuffers& vaos, const CharacterCamera& camera, MyBuffers& textures, const glm::mat4& ProjMatrix, bool& spotLight)
+void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& obstacles, std::vector<Laser>& lasers, const LodsParameters lodsParameters, MyBuffers& vaos, const CharacterCamera& camera, MyBuffers& textures, const glm::mat4& ProjMatrix, bool& spotLight)
 {
     DirectionalLight globalLight        = DirectionalLight({1, 1, 1}, {0.8, 0.8, 0.8});
     auto             createPointsLights = [&]() -> std::vector<PointLight> {
@@ -57,7 +53,7 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
     ShadowMapFBO shadowMapFBO(shadowQuality * ctx.main_canvas_width(), shadowQuality * ctx.main_canvas_height());
     shadowMapFBO.Init();
     shadowMapFBO.BindForWriting();
-    glm::mat4 DepthMatrix = shadowPass(globalLight.getDirection(), ctx, camera, obstacles, boids, lowQuality, vaos);
+    glm::mat4 DepthMatrix = shadowPass(globalLight.getDirection(), ctx, camera, obstacles, boids, lodsParameters, vaos);
 
     // Render pass
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -101,13 +97,20 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
         {
             glm::mat4 MVMatrix = glm::translate(glm::mat4(1.0f), boid.getPosition());
             MVMatrix *= boid.getRotationMatrix();
-            if (lowQuality)
+            if (lodsParameters.lowQuality)
             {
                 renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["boidLD"], ProjMatrix, vaos.m_["boidLD"], globalLight, pointsLights, boidMaterial, DepthMatrix, shadowMapFBO);
             }
             else
             {
-                renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["boidHD"], ProjMatrix, vaos.m_["boidHD"], globalLight, pointsLights, boidMaterial, DepthMatrix, shadowMapFBO);
+                if (glm::length(boid.getPosition() - camera.getPosition()) < lodsParameters.HDDistance)
+                {
+                    renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["boidHD"], ProjMatrix, vaos.m_["boidHD"], globalLight, pointsLights, boidMaterial, DepthMatrix, shadowMapFBO);
+                }
+                else
+                {
+                    renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["boidLD"], ProjMatrix, vaos.m_["boidLD"], globalLight, pointsLights, boidMaterial, DepthMatrix, shadowMapFBO);
+                }
             }
         }
     };
@@ -120,7 +123,7 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
             MVMatrix           = glm::rotate(MVMatrix, ctx.time() / obstacle.getSize() / std::sqrt(obstacle.getSize()) / 50, obstacle.getRotationAxis());
             MVMatrix           = glm::scale(MVMatrix, obstacle.getSize() * glm::vec3(1));
 
-            if (lowQuality)
+            if (lodsParameters.lowQuality)
             {
                 renderWithOneTextureAndLighting(ViewMatrix, oneTextureAndLightsProgram, MVMatrix, textures.m_["obstacleLD"], ProjMatrix, vaos.m_["obstacleLD"], globalLight, pointsLights, material, DepthMatrix, shadowMapFBO);
             }
@@ -133,7 +136,7 @@ void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& o
     renderObstacles();
 }
 
-glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const CharacterCamera& camera, std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, bool lowQuality, MyBuffers& vaos)
+glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const CharacterCamera& camera, std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, const LodsParameters lodsParameters, MyBuffers& vaos)
 {
     auto renderShadowCaster = [](const glm::mat4& ViewMatrix, const ShadowMapProgram& program, glm::mat4 MVMatrix, const glm::mat4& ProjMatrix, const GLuint& vao) {
         program.use();
@@ -167,13 +170,21 @@ glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const Char
             glm::mat4 MVMatrix  = glm::translate(glm::mat4(1.0f), boid.getPosition());
             glm::mat4 rotMatrix = boid.getRotationMatrix();
             MVMatrix            = MVMatrix * rotMatrix;
-            if (lowQuality)
+            if (lodsParameters.lowQuality)
             {
                 renderShadowCaster(ViewMatrix, program, MVMatrix, ProjMatrix, vaos.m_["boidLD"]);
             }
             else
+
             {
-                renderShadowCaster(ViewMatrix, program, MVMatrix, ProjMatrix, vaos.m_["boidHD"]);
+                if (glm::length(boid.getPosition() - camera.getPosition()) < lodsParameters.HDDistance)
+                {
+                    renderShadowCaster(ViewMatrix, program, MVMatrix, ProjMatrix, vaos.m_["boidHD"]);
+                }
+                else
+                {
+                    renderShadowCaster(ViewMatrix, program, MVMatrix, ProjMatrix, vaos.m_["boidLD"]);
+                }
             }
         }
     };
@@ -193,7 +204,7 @@ glm::mat4 shadowPass(const glm::vec3 lightPosition, p6::Context& ctx, const Char
             MVMatrix           = glm::rotate(MVMatrix, ctx.time() / obstacle.getSize() / std::sqrt(obstacle.getSize()) / 50, obstacle.getRotationAxis());
             MVMatrix           = glm::scale(MVMatrix, obstacle.getSize() * glm::vec3(1));
 
-            if (lowQuality)
+            if (lodsParameters.lowQuality)
             {
                 renderShadowCaster(ViewMatrix, program, MVMatrix, ProjMatrix, vaos.m_["obstacleLD"]);
             }

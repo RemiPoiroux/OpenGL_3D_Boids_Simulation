@@ -25,8 +25,12 @@ int main()
 
     // SIMULATION PARAMETERS
 
-    BoidsParameters BOIDS_PARAMETERS  = {200, 10};
-    bool            BOIDS_LOW_QUALITY = false;
+    BoidsParameters BOIDS_PARAMETERS = {200, 10};
+
+    ObstaclesParameters OBSTACLES_PARAMETERS =
+        {100, 0.05, 0.5, {0.1, 0.1}};
+
+    LodsParameters LODS_PARAMETERS = {false, 1};
 
     Parameters BORDERS_FORCE = {0.2, 0.02f};
 
@@ -36,9 +40,6 @@ int main()
         {{0.35f, 0.02f},
          {0.25f, 0.002f},
          {0.1f, 0.2f}};
-
-    ObstaclesParameters OBSTACLES_PARAMETERS =
-        {100, 0.05, 0.5, {0.1, 0.1}};
 
     LaserParameters LASERS_PARAMETERS = {2, 0.04};
     LaserDelays     laserDelays{};
@@ -84,7 +85,7 @@ int main()
 
     // Declare your infinite update loop.
     ctx.update = [&]() {
-        ImGuiInterface(BOIDS_LOW_QUALITY, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_FORCE, LASERS_PARAMETERS, camera.getLives(), CHARACTER_FORCE, static_cast<int>(boids.size()), RANDOM_VARIABLES_PARAMETERS);
+        ImGuiInterface(LODS_PARAMETERS, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_FORCE, LASERS_PARAMETERS, camera.getLives(), CHARACTER_FORCE, static_cast<int>(boids.size()), RANDOM_VARIABLES_PARAMETERS);
 
         cameraInputsEvents(ctx, CAM_PARAMETERS, camera);
 
@@ -101,7 +102,7 @@ int main()
         borderManager(boids, BORDERS_FORCE);
         boidsDisplacement(boids, ctx.delta_time());
 
-        render(ctx, boids, obstacles, lasers, BOIDS_LOW_QUALITY, vaos, camera, textures, ProjMatrix, SPOT_LIGHT);
+        render(ctx, boids, obstacles, lasers, LODS_PARAMETERS, vaos, camera, textures, ProjMatrix, SPOT_LIGHT);
 
         if (camera.getLives() < 1)
         {

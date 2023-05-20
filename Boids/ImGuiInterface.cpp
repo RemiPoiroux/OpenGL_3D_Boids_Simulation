@@ -1,8 +1,7 @@
-#include <imgui.h>
-#include <string>
 #include "Laser.hpp"
 #include "Obstacle.hpp"
 #include "RandomManager.hpp"
+#include "Render.hpp"
 #include "SimulationManager.hpp"
 
 std::string BoidBehaviorToString(BoidBehavior behavior)
@@ -20,7 +19,7 @@ std::string BoidBehaviorToString(BoidBehavior behavior)
     }
 }
 
-void ImGuiInterface(bool& lowQuality, Parameters& obstaclesParameters, NeighborsParameters& neighborsParameters, Parameters& bordersParameters, LaserParameters& lasersParameters, const int lives, Parameters& characterForce, const int boidsNb, RandomVariablesParameters& randomParameters)
+void ImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesParameters, NeighborsParameters& neighborsParameters, Parameters& bordersParameters, LaserParameters& lasersParameters, const int lives, Parameters& characterForce, const int boidsNb, RandomVariablesParameters& randomParameters)
 {
     ImGui::Begin("Simulation forces control");
     ImGui::Text("Ennemies' alignment force");
@@ -52,6 +51,7 @@ void ImGuiInterface(bool& lowQuality, Parameters& obstaclesParameters, Neighbors
     ImGui::SliderFloat("Speed", &lasersParameters.speed, 0.f, 3.f);
     ImGui::Separator();
     ImGui::Text("Objects' quality");
+    ImGui::SliderFloat("HD distance", &lodsParameters.HDDistance, 0.f, 2.f);
     bool changeQuality = ImGui::Button("HD/LD");
     ImGui::End();
 
@@ -93,6 +93,6 @@ void ImGuiInterface(bool& lowQuality, Parameters& obstaclesParameters, Neighbors
 
     if (changeQuality)
     {
-        lowQuality = !lowQuality;
+        lodsParameters.lowQuality = !lodsParameters.lowQuality;
     }
 }
