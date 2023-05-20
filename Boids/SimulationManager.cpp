@@ -146,12 +146,17 @@ void boidsDisplacement(std::vector<Boid>& boids, const float deltaTime)
     }
 }
 
-void boidsBehaviorManager(const CharacterCamera& camera, std::vector<Boid>& boids, Parameters characterForce, const DiscreteRandomVariable<BoidBehavior>& behaviorVar)
+void boidsBehaviorManager(const CharacterCamera& camera, std::vector<Boid>& boids, Parameters characterForce, const DiscreteRandomVariable<BoidBehavior>& behaviorVar, const bool spotLight)
 {
     for (Boid& boid : boids)
     {
         float distance = myDistance(camera, boid);
-        if (distance < characterForce.distance)
+        float factor   = 1;
+        if (spotLight)
+        {
+            factor = 3;
+        }
+        if (distance < characterForce.distance * factor)
         {
             if (boid.getTimeNearCharacter() == 0)
             {

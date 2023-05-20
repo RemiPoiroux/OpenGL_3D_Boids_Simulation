@@ -90,7 +90,7 @@ int main()
         // Shooting simulation
         lasersDisplacement(lasers, ctx.delta_time());
         characterFiringManager(lasers, LASERS_PARAMETERS, ctx, camera, randomVariables.characterFiringVar, laserDelays);
-        boidsBehaviorManager(camera, boids, CHARACTER_FORCE, randomVariables.boidsAttitudeVar);
+        boidsBehaviorManager(camera, boids, CHARACTER_FORCE, randomVariables.boidsAttitudeVar, SPOT_LIGHT);
         boidsFiringManager(lasers, boids, LASERS_PARAMETERS, camera.getPosition(), randomVariables.boidsFiringVar, RANDOM_VARIABLES_PARAMETERS.boidsFiring, randomVariables.boidsPrecisionVar);
         lasersManager(lasers, obstacles, boids);
 
