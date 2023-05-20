@@ -84,7 +84,7 @@ int main()
 
     // Declare your infinite update loop.
     ctx.update = [&]() {
-        ImGuiInterface(BOIDS_LOW_QUALITY, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_FORCE, LASERS_PARAMETERS, camera.getLives(), CHARACTER_FORCE, static_cast<int>(boids.size()));
+        ImGuiInterface(BOIDS_LOW_QUALITY, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_FORCE, LASERS_PARAMETERS, camera.getLives(), CHARACTER_FORCE, static_cast<int>(boids.size()), RANDOM_VARIABLES_PARAMETERS);
 
         cameraInputsEvents(ctx, CAM_PARAMETERS, camera);
 
