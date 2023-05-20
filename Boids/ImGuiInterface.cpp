@@ -3,7 +3,7 @@
 #include "Obstacle.hpp"
 #include "SimulationManager.hpp"
 
-void ImGuiInterface(bool& lowQuality, Parameters& obstaclesParameters, NeighborsParameters& neighborsParameters, Parameters& bordersParameters, LaserParameters& lasersParameters, Parameters& characterForce)
+void ImGuiInterface(bool& lowQuality, Parameters& obstaclesParameters, NeighborsParameters& neighborsParameters, Parameters& bordersParameters, LaserParameters& lasersParameters, const int lives, Parameters& characterForce, const int boidsNb)
 {
     ImGui::Begin("Simulation control");
     ImGui::SliderFloat("Alignment distance", &neighborsParameters.alignment.distance, 0.f, 2.f);
@@ -21,6 +21,11 @@ void ImGuiInterface(bool& lowQuality, Parameters& obstaclesParameters, Neighbors
     ImGui::SliderFloat("Lasers range", &lasersParameters.range, 0.f, 0.1f);
     ImGui::SliderFloat("Lasers speed", &lasersParameters.speed, 0.f, 3.f);
     bool changeQuality = ImGui::Button("HD/LD");
+    ImGui::End();
+
+    ImGui::Begin("Game UI");
+    ImGui::Text("Lives: %d", lives);
+    ImGui::Text("%d enemies left", boidsNb);
     ImGui::End();
 
     if (changeQuality)

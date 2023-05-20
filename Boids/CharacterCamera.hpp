@@ -24,11 +24,13 @@ private:
     bool m_turningLeft;
     bool m_turningRight;
 
+    int m_lives;
+
 private:
     void computeDirectionVectors();
 
 public:
-    CharacterCamera();
+    CharacterCamera(uint livesNb);
 
     void moveFront(float delta, float deltaTime);
     void moveLeft(float delta, float deltaTime);
@@ -53,4 +55,8 @@ public:
     glm::vec3 getBotRCanonPosition() const;
 
     glm::mat4 getViewMatrix() const;
+
+    int  getLives() const;
+    void hit();
+    void hitABoid();
 };

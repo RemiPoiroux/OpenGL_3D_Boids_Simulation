@@ -15,6 +15,7 @@ int main()
     // CAMERA PARAMETERS
 
     const float      viewField = 70.f;
+    const uint       livesNb   = 300;
     CameraParameters CAM_PARAMETERS =
         {0.2,
          2,
@@ -63,7 +64,7 @@ int main()
     RandomVariables randomVariables = initializeRandomVariables(RANDOM_VARIABLES_PARAMETERS);
 
     // Initialize camera, boids, obstacles and lasers
-    CharacterCamera       camera;
+    CharacterCamera       camera(livesNb);
     std::vector<Boid>     boids     = createBoids(BOIDS_PARAMETERS);
     std::vector<Obstacle> obstacles = createObstacles(OBSTACLES_PARAMETERS);
     std::vector<Laser>    lasers{};
@@ -83,7 +84,7 @@ int main()
 
     // Declare your infinite update loop.
     ctx.update = [&]() {
-        ImGuiInterface(BOIDS_LOW_QUALITY, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_FORCE, LASERS_PARAMETERS, CHARACTER_FORCE);
+        ImGuiInterface(BOIDS_LOW_QUALITY, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_FORCE, LASERS_PARAMETERS, camera.getLives(), CHARACTER_FORCE, static_cast<int>(boids.size()));
 
         cameraInputsEvents(ctx, CAM_PARAMETERS, camera);
 
@@ -92,7 +93,7 @@ int main()
         characterFiringManager(lasers, LASERS_PARAMETERS, ctx, camera, randomVariables.characterFiringVar, laserDelays);
         boidsBehaviorManager(camera, boids, CHARACTER_FORCE, randomVariables.boidsAttitudeVar, SPOT_LIGHT);
         boidsFiringManager(lasers, boids, LASERS_PARAMETERS, camera.getPosition(), randomVariables.boidsFiringVar, RANDOM_VARIABLES_PARAMETERS.boidsFiring, randomVariables.boidsPrecisionVar);
-        lasersManager(lasers, obstacles, boids);
+        lasersManager(lasers, obstacles, boids, camera);
 
         // Boids simulation
         neighborsManager(boids, NEIGHBORS_PARAMETERS);
@@ -101,6 +102,11 @@ int main()
         boidsDisplacement(boids, ctx.delta_time());
 
         render(ctx, boids, obstacles, lasers, BOIDS_LOW_QUALITY, vaos, camera, textures, ProjMatrix, SPOT_LIGHT);
+
+        if (camera.getLives() < 1)
+        {
+            ctx.stop();
+        }
     };
 
     /////////////////////////////////

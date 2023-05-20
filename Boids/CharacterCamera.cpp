@@ -19,8 +19,8 @@ void BordersCheck(glm::vec3& position)
     // clang-format on
 }
 
-CharacterCamera::CharacterCamera()
-    : m_Position({0, 0, 0.9}), m_fPhi(glm::pi<float>()), m_fTheta(0), m_FrontVector(), m_LeftVector(), m_UpVector(), m_turningLeft(false), m_turningRight(false)
+CharacterCamera::CharacterCamera(const uint livesNb)
+    : m_Position({0, 0, 0.9}), m_fPhi(glm::pi<float>()), m_fTheta(), m_FrontVector(), m_LeftVector(), m_UpVector(), m_turningLeft(false), m_turningRight(false), m_lives(static_cast<int>(livesNb))
 {
     this->computeDirectionVectors();
 }
@@ -217,4 +217,19 @@ glm::vec3 CharacterCamera::getBotRCanonPosition() const
 
     glm::vec3 rotatedPosition = getPosition() - offset.x * rotatedLeft - offset.y * rotatedUp + offset.z * this->m_FrontVector;
     return rotatedPosition;
+}
+
+int CharacterCamera::getLives() const
+{
+    return m_lives;
+}
+
+void CharacterCamera::hit()
+{
+    --m_lives;
+}
+
+void CharacterCamera::hitABoid()
+{
+    ++m_lives;
 }

@@ -17,7 +17,7 @@ void      renderWithOneTextureAndLighting(const glm::mat4& ViewMatrix, const One
 
 void render(p6::Context& ctx, std::vector<Boid>& boids, std::vector<Obstacle>& obstacles, std::vector<Laser>& lasers, bool lowQuality, MyBuffers& vaos, const CharacterCamera& camera, MyBuffers& textures, const glm::mat4& ProjMatrix, bool& spotLight)
 {
-    DirectionalLight globalLight        = DirectionalLight({1, 1, 1}, {0.6, 0.6, 0.6});
+    DirectionalLight globalLight        = DirectionalLight({1, 1, 1}, {0.8, 0.8, 0.8});
     auto             createPointsLights = [&]() -> std::vector<PointLight> {
         float     characterLightOffset    = 0.14;
         float     characterLightIntensity = 0.1;
