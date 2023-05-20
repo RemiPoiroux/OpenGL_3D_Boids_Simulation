@@ -72,8 +72,11 @@ public:
 
 class NormalRandomVariable : public RandomVariable
 {
+private:
+    float m_standardDeviation;
+
 public:
-    explicit NormalRandomVariable(float expectation);
+    explicit NormalRandomVariable(float variance);
     float generate() const override;
 };
 

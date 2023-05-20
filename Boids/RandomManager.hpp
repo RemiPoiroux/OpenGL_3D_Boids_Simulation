@@ -32,7 +32,7 @@ struct BinomialRandomParameters
 };
 struct NormalRandomParameters
 {
-    float accuracyExpectation;
+    float inaccuracyExpectation;
 };
 struct GeometricRandomParameters
 {

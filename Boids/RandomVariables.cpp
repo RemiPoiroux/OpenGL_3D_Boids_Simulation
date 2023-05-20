@@ -126,19 +126,19 @@ float BinomialRandomVariable::generate() const
     return result;
 }
 
-NormalRandomVariable::NormalRandomVariable(const float expectation)
-    : RandomVariable()
+NormalRandomVariable::NormalRandomVariable(const float variance)
+    : RandomVariable(), m_standardDeviation(std::sqrt(variance))
 {
-    m_parameter   = expectation;
-    m_expectation = expectation;
-    m_variance    = expectation * expectation;
+    m_variance    = variance;
+    m_parameter   = 0.0f;
+    m_expectation = 0.0f;
 }
 float NormalRandomVariable::generate() const
 {
     float u1 = randomFloatBtw0and1();
     float u2 = randomFloatBtw0and1();
     auto  z1 = static_cast<float>(std::sqrt(-2 * std::log(u1)) * std::cos(2 * M_PI * u2));
-    return m_parameter + z1;
+    return m_standardDeviation * z1;
 }
 
 GeometricRandomVariable::GeometricRandomVariable(float successProbability)

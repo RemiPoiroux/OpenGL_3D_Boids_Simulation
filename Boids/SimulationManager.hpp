@@ -39,7 +39,7 @@ void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obs
 
 void boidsBehaviorManager(const CharacterCamera& camera, std::vector<Boid>& boids, Parameters characterForce, const DiscreteRandomVariable<BoidBehavior>& behaviorVar, bool spotLight);
 
-void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, LaserParameters parameters, glm::vec3 characterPosition, const BinomialRandomVariable& fireVar, const BinomialRandomParameters& fireParam, const NormalRandomVariable& accuracyVar);
+void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, LaserParameters parameters, glm::vec3 characterPosition, const BinomialRandomVariable& fireVar, const BinomialRandomParameters& fireParam, const NormalRandomVariable& inaccuracyVar);
 
 void characterFiringManager(std::vector<Laser>& lasers, LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera, const GeometricRandomVariable& var, LaserDelays& delays);
 

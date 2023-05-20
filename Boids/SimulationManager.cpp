@@ -198,7 +198,7 @@ glm::mat4 getRotationMatrix(glm::vec3 targetVec)
 
     return rotMatrix;
 }
-void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, const LaserParameters parameters, const glm::vec3 characterPosition, const BinomialRandomVariable& fireVar, const BinomialRandomParameters& fireParam, const NormalRandomVariable& accuracyVar)
+void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, const LaserParameters parameters, const glm::vec3 characterPosition, const BinomialRandomVariable& fireVar, const BinomialRandomParameters& fireParam, const NormalRandomVariable& inaccuracyVar)
 {
     for (Boid& boid : boids)
     {
@@ -206,8 +206,15 @@ void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, con
         {
             if (fireVar.generate() > 0.0)
             {
-                glm::vec3 direction = glm::normalize(characterPosition - boid.getPosition());
-                lasers.emplace_back(boid.getPosition() + direction * (1.1f * parameters.range), parameters, direction, getRotationMatrix(direction), glm::vec3(0, 1, 0));
+                glm::vec3 direction           = glm::normalize(characterPosition - boid.getPosition());
+                float     inaccuracyFactor    = 0.2;
+                glm::vec3 randomizedDirection = glm::vec3(
+                    direction.x + inaccuracyVar.generate() * inaccuracyFactor,
+                    direction.y + inaccuracyVar.generate() * inaccuracyFactor,
+                    direction.z + inaccuracyVar.generate() * inaccuracyFactor
+                );
+                glm::vec3 finalDirection = glm::normalize(randomizedDirection);
+                lasers.emplace_back(boid.getPosition() + finalDirection * (1.1f * parameters.range), parameters, finalDirection, getRotationMatrix(finalDirection), glm::vec3(0, 1, 0));
             }
             boid.setBehavior(BoidBehavior::Flees);
         }
