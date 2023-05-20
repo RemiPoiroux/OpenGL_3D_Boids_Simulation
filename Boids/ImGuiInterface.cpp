@@ -1,6 +1,9 @@
+#include <imgui.h>
+#include "Boid.hpp"
 #include "Laser.hpp"
 #include "Obstacle.hpp"
 #include "RandomManager.hpp"
+#include "RandomVariables.hpp"
 #include "Render.hpp"
 #include "SimulationManager.hpp"
 
@@ -19,7 +22,7 @@ std::string BoidBehaviorToString(BoidBehavior behavior)
     }
 }
 
-void ImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesParameters, NeighborsParameters& neighborsParameters, Parameters& bordersParameters, LaserParameters& lasersParameters, const int lives, Parameters& characterForce, const int boidsNb, RandomVariablesParameters& randomParameters)
+void ImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesParameters, NeighborsParameters& neighborsParameters, Parameters& bordersParameters, LaserParameters& lasersParameters, const int lives, Parameters& characterForce, const int boidsNb, RandomVariablesParameters& randomParameters, RandomVariables& randomVariables)
 {
     ImGui::Begin("Simulation forces control");
     ImGui::Text("Ennemies' alignment force");
@@ -61,38 +64,78 @@ void ImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesParamet
     ImGui::End();
 
     ImGui::Begin("Random variables control");
+
     ImGui::Text("Ennemies' behavior : discrete variable");
     float sumProbs = 0.0f;
+    bool  edited   = false;
     for (size_t i = 0; i < randomParameters.boidsAttitude.stateNames.size(); i++)
     {
         std::string label = BoidBehaviorToString(randomParameters.boidsAttitude.stateNames[i]) + " prob";
         ImGui::SliderFloat(label.c_str(), &randomParameters.boidsAttitude.stateProbs[i], 0.f, 1.f);
         sumProbs += randomParameters.boidsAttitude.stateProbs[i];
+        if (ImGui::IsItemEdited())
+        {
+            edited = true;
+        };
     }
-    if (sumProbs > 1.0f)
+    if (sumProbs != 1.0f)
     {
         for (float& stateProb : randomParameters.boidsAttitude.stateProbs)
         {
             stateProb /= sumProbs;
         }
     }
+    if (edited)
+    {
+        randomVariables.boidsAttitudeVar = DiscreteRandomVariable<BoidBehavior>(randomParameters.boidsAttitude.stateProbs, randomParameters.boidsAttitude.stateNames);
+    }
     ImGui::Separator();
+
     ImGui::Text("Ennemies' collision with asteroid : Bernoulli variable");
     ImGui::SliderFloat("Collision prob", &randomParameters.collisionWithObstacles.collisionProb, 0.f, 1.f);
+    if (ImGui::IsItemEdited())
+    {
+        randomVariables.collisionWithObstaclesVar = BernoulliRandomVariable(randomParameters.collisionWithObstacles.collisionProb);
+    }
     ImGui::Separator();
+
     ImGui::Text("Ennemies' fire : Binomial variable");
+    bool editedBoidsFiring = false;
     ImGui::SliderFloat("Shoot prob/frame", &randomParameters.boidsFiring.shootProbPerFrame, 0.f, 1.f);
+    if (ImGui::IsItemEdited())
+    {
+        editedBoidsFiring = true;
+    }
     ImGui::SliderFloat("Seconds to shoot", &randomParameters.boidsFiring.secondsToShoot, 0.f, 2.f);
+    if (ImGui::IsItemEdited())
+    {
+        editedBoidsFiring = true;
+    }
+    if (editedBoidsFiring)
+    {
+        randomVariables.boidsFiringVar = BinomialRandomVariable(randomParameters.boidsFiring.shootProbPerFrame, static_cast<uint>(randomParameters.boidsFiring.secondsToShoot * 60));
+    }
+
     ImGui::Separator();
     ImGui::Text("Ennemies' inaccuracy : Normal variable");
     ImGui::SliderFloat("Inaccuracy variance", &randomParameters.boidsAccuracy.inaccuracyExpectation, 0.f, 1.f);
+    if (ImGui::IsItemEdited())
+    {
+        randomVariables.boidsPrecisionVar = NormalRandomVariable(randomParameters.boidsAccuracy.inaccuracyExpectation);
+    }
+
     ImGui::Separator();
     ImGui::Text("Character's fire : Geometric variable");
     ImGui::SliderFloat("My shoot prob/frame", &randomParameters.characterFiring.shootProbPerFrame, 0.f, 1.f);
-    ImGui::End();
+    if (ImGui::IsItemEdited())
+    {
+        randomVariables.characterFiringVar = GeometricRandomVariable(randomParameters.characterFiring.shootProbPerFrame);
+    }
 
     if (changeQuality)
     {
         lodsParameters.lowQuality = !lodsParameters.lowQuality;
     }
+
+    ImGui::End();
 }
