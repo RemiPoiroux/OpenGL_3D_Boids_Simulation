@@ -49,11 +49,12 @@ Obstacle randomObstacle(ObstaclesParameters p)
 std::vector<Obstacle> createObstacles(ObstaclesParameters p)
 {
     std::vector<Obstacle> obstacles;
+    obstacles.reserve(p.number);
 
     auto checkOverlap = [&obstacles](Obstacle obstacle) {
         return std::any_of(obstacles.begin(), obstacles.end(), [&](const Obstacle& o) {
-            double distance = sqrt(pow(obstacle.getPosition().x - o.getPosition().x, 2) + pow(obstacle.getPosition().y - o.getPosition().y, 2));
-            return distance < (obstacle.getSize() + o.getSize()) / 2;
+            double squaredDistance = pow(obstacle.getPosition().x - o.getPosition().x, 2) + pow(obstacle.getPosition().y - o.getPosition().y, 2);
+            return squaredDistance < pow((obstacle.getSize() + o.getSize()) / 2, 2);
         });
     };
 

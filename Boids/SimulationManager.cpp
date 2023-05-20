@@ -4,6 +4,7 @@
 #include "Boid.hpp"
 #include "CharacterCamera.hpp"
 #include "GLFW/glfw3.h"
+#include "Obstacle.hpp"
 #include "RandomManager.hpp"
 #include "RandomVariables.hpp"
 #include "glm/ext/quaternion_geometric.hpp"
@@ -38,11 +39,28 @@ float myDistance(const T1& entity1, const T2& entity2)
     return glm::length(pos2 - pos1);
 }
 
-std::vector<Boid> createBoids(const BoidsParameters boidsParameters)
+std::vector<Boid> createBoids(const BoidsParameters boidsParameters, const std::vector<Obstacle>& obstacles)
 {
     std::vector<Boid> boids;
     boids.reserve(boidsParameters.number);
-    std::generate_n(std::back_inserter(boids), boidsParameters.number, [&] { return randomBoid(boidsParameters.livesExpectation); });
+
+    auto checkOverlap = [&obstacles](Boid boid) {
+        return std::any_of(obstacles.begin(), obstacles.end(), [&](const Obstacle& o) {
+            double squaredDistance = pow(boid.getPosition().x - o.getPosition().x, 2) + pow(boid.getPosition().y - o.getPosition().y, 2);
+            return squaredDistance < pow(o.getSize() / 2 + 0.1, 2);
+        });
+    };
+
+    std::generate_n(std::back_inserter(boids), boidsParameters.number, [&]() {
+        Boid newBoid = randomBoid(boidsParameters.livesExpectation);
+        ;
+        while (checkOverlap(newBoid))
+        {
+            newBoid = randomBoid(boidsParameters.livesExpectation);
+        };
+        return newBoid;
+    });
+
     return boids;
 }
 

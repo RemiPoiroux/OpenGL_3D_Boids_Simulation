@@ -65,8 +65,8 @@ int main()
 
     // Initialize camera, boids, obstacles and lasers
     CharacterCamera       camera(livesNb);
-    std::vector<Boid>     boids     = createBoids(BOIDS_PARAMETERS);
     std::vector<Obstacle> obstacles = createObstacles(OBSTACLES_PARAMETERS);
+    std::vector<Boid>     boids     = createBoids(BOIDS_PARAMETERS, obstacles);
     std::vector<Laser>    lasers{};
 
     // Initialize Render Matrices
