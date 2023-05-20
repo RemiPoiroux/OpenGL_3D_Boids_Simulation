@@ -284,42 +284,44 @@ void characterFiringManager(std::vector<Laser>& lasers, const LaserParameters pa
 void lasersManager(std::vector<Laser>& lasers, const std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, CharacterCamera& camera)
 {
     // Boids and character lose a life if in the field of a laser
-    // Boids and character lose a life if in the field of a laser
     for (auto it = lasers.begin(); it != lasers.end();)
     {
         const float laserField = it->getRange();
-
-        // Check for boids
-        auto partitionIt = std::partition(boids.begin(), boids.end(), [&it, laserField](const Boid& boid) {
-            const float distance = myDistance(*it, boid);
-            return distance >= laserField;
-        });
-
-        for (auto partitionIt2 = partitionIt; partitionIt2 != boids.end(); ++partitionIt2)
-        {
-            partitionIt2->hit();
-            camera.hitABoid();
-        }
-
-        boids.erase(std::remove_if(partitionIt, boids.end(), [](const Boid& boid) {
-                        return boid.getLives() < 1;
-                    }),
-                    boids.end());
 
         // Check for camera
         const float cameraDistance = myDistance(*it, camera);
         if (cameraDistance < laserField)
         {
             camera.hit();
-        }
-
-        if (partitionIt != boids.end() || camera.getLives() < 1)
-        {
             it = lasers.erase(it);
         }
         else
         {
-            ++it;
+            // Check for boids
+            auto partitionIt = std::partition(boids.begin(), boids.end(), [&it, laserField](const Boid& boid) {
+                const float distance = myDistance(*it, boid);
+                return distance >= laserField;
+            });
+
+            for (auto partitionIt2 = partitionIt; partitionIt2 != boids.end(); ++partitionIt2)
+            {
+                partitionIt2->hit();
+                camera.hitABoid();
+            }
+
+            boids.erase(std::remove_if(partitionIt, boids.end(), [](const Boid& boid) {
+                            return boid.getLives() < 1;
+                        }),
+                        boids.end());
+
+            if (partitionIt != boids.end())
+            {
+                it = lasers.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
         }
     }
 
