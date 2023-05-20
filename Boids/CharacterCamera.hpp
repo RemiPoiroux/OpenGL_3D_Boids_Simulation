@@ -30,7 +30,7 @@ private:
     void computeDirectionVectors();
 
 public:
-    CharacterCamera(uint livesNb);
+    explicit CharacterCamera(uint livesNb);
 
     void moveFront(float delta, float deltaTime);
     void moveLeft(float delta, float deltaTime);
