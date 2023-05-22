@@ -1,45 +1,42 @@
 #pragma once
 
-struct UniformStats
+#include <sys/types.h>
+#include <vector>
+
+struct UnchangedVarStats
 {
+    float              expectation;
+    float              variance;
+    std::vector<float> generations;
 };
 
-struct ExponentialStats
+struct ModifiableVarStats
 {
-};
-
-struct PoissonStats
-{
-};
-
-struct BernoulliStats
-{
+    std::vector<float> expectations;
+    std::vector<float> variances;
+    std::vector<int>   counts;
+    std::vector<float> generationsVariances;
 };
 
 struct DiscreteStats
 {
+    std::vector<float> expectations;
+    std::vector<uint>  counts;
+};
+template<typename namesType>
+struct ModifiableDiscreteVarStats
+{
+    std::vector<namesType>     names;
+    std::vector<DiscreteStats> stats;
 };
 
-struct BinomialStats
-{
-};
+void initializeUnchangedVarStats(float expectation, UnchangedVarStats& stats, float variance);
+void uptateUnchangedVarStats(UnchangedVarStats& stats, float generation);
 
-struct NormalStats
-{
-};
+void initializeModifiableVarStats(float expectation, ModifiableVarStats& stats, float variance);
+void updateModifiableVarStats(ModifiableVarStats& stats, float generation);
 
-struct GeometricStats
-{
-};
-
-struct RandomVariablesStats
-{
-    UniformStats     uniform;
-    ExponentialStats exponential;
-    PoissonStats     poisson;
-    BernoulliStats   bernouilli;
-    DiscreteStats    discrete;
-    BinomialStats    binomial;
-    NormalStats      normal;
-    GeometricStats   geometric;
-};
+template<typename namesType>
+void initializationDiscreteVarStats(ModifiableDiscreteVarStats<namesType>& stats, const std::vector<namesType>& names, const std::vector<float>& probabilities);
+template<typename namesType>
+void updateDiscreteVarStats(ModifiableDiscreteVarStats<namesType>, namesType generation);
