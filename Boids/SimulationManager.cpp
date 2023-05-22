@@ -99,7 +99,7 @@ void neighborsManager(std::vector<Boid>& boids, const NeighborsParameters parame
     }
 }
 
-void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obstacles, const Parameters parameters, const BernoulliRandomVariable& var)
+void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obstacles, const Parameters parameters, BernoulliRandomVariable& var)
 {
     for (Obstacle currentObstacle : obstacles)
     {
@@ -165,7 +165,7 @@ void boidsDisplacement(std::vector<Boid>& boids, const float deltaTime)
     }
 }
 
-void boidsBehaviorManager(const CharacterCamera& camera, std::vector<Boid>& boids, Parameters characterForce, const DiscreteRandomVariable<BoidBehavior>& behaviorVar, const bool spotLight)
+void boidsBehaviorManager(const CharacterCamera& camera, std::vector<Boid>& boids, Parameters characterForce, DiscreteRandomVariable<BoidBehavior>& behaviorVar, const bool spotLight)
 {
     for (Boid& boid : boids)
     {
@@ -216,7 +216,7 @@ glm::mat4 getRotationMatrix(glm::vec3 targetVec)
 
     return rotMatrix;
 }
-void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, const LaserParameters parameters, const glm::vec3 characterPosition, const BinomialRandomVariable& fireVar, const BinomialRandomParameters& fireParam, const NormalRandomVariable& inaccuracyVar)
+void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, const LaserParameters parameters, const glm::vec3 characterPosition, BinomialRandomVariable& fireVar, const BinomialRandomParameters& fireParam, NormalRandomVariable& inaccuracyVar)
 {
     for (Boid& boid : boids)
     {
@@ -227,7 +227,7 @@ void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, con
                 glm::vec3 direction           = glm::normalize(characterPosition - boid.getPosition());
                 float     inaccuracyFactor    = 0.2;
                 glm::vec3 randomizedDirection = glm::vec3(
-                    direction.x + inaccuracyVar.generate() * inaccuracyFactor,
+                    direction.x + (inaccuracyVar.generate()) * inaccuracyFactor,
                     direction.y + inaccuracyVar.generate() * inaccuracyFactor,
                     direction.z + inaccuracyVar.generate() * inaccuracyFactor
                 );
@@ -239,7 +239,7 @@ void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, con
     }
 }
 
-void characterFiringManager(std::vector<Laser>& lasers, const LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera, const GeometricRandomVariable& var, LaserDelays& delays)
+void characterFiringManager(std::vector<Laser>& lasers, const LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera, GeometricRandomVariable& var, LaserDelays& delays)
 {
     if (ctx.key_is_pressed(GLFW_KEY_SPACE))
     {

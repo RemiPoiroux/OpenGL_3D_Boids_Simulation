@@ -35,13 +35,13 @@ std::vector<Boid> createBoids(BoidsParameters boidsParameters, const std::vector
 
 void neighborsManager(std::vector<Boid>& boids, NeighborsParameters parameters);
 
-void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obstacles, Parameters parameters, const BernoulliRandomVariable& var);
+void obstaclesManager(std::vector<Boid>& boids, const std::vector<Obstacle>& obstacles, Parameters parameters, BernoulliRandomVariable& var);
 
-void boidsBehaviorManager(const CharacterCamera& camera, std::vector<Boid>& boids, Parameters characterForce, const DiscreteRandomVariable<BoidBehavior>& behaviorVar, bool spotLight);
+void boidsBehaviorManager(const CharacterCamera& camera, std::vector<Boid>& boids, Parameters characterForce, DiscreteRandomVariable<BoidBehavior>& behaviorVar, bool spotLight);
 
-void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, LaserParameters parameters, glm::vec3 characterPosition, const BinomialRandomVariable& fireVar, const BinomialRandomParameters& fireParam, const NormalRandomVariable& inaccuracyVar);
+void boidsFiringManager(std::vector<Laser>& lasers, std::vector<Boid> boids, LaserParameters parameters, glm::vec3 characterPosition, BinomialRandomVariable& fireVar, const BinomialRandomParameters& fireParam, NormalRandomVariable& inaccuracyVar);
 
-void characterFiringManager(std::vector<Laser>& lasers, LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera, const GeometricRandomVariable& var, LaserDelays& delays);
+void characterFiringManager(std::vector<Laser>& lasers, LaserParameters parameters, const p6::Context& ctx, const CharacterCamera& camera, GeometricRandomVariable& var, LaserDelays& delays);
 
 void lasersManager(std::vector<Laser>& lasers, const std::vector<Obstacle>& obstacles, std::vector<Boid>& boids, CharacterCamera& camera);
 

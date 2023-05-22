@@ -1,5 +1,6 @@
 #include "RandomStats.hpp"
 #include <algorithm>
+#include "Boid.hpp"
 
 void initializeUnchangedVarStats(float expectation, UnchangedVarStats& stats, float variance)
 {
@@ -41,28 +42,22 @@ void updateModifiableVarStats(ModifiableVarStats& stats, const float generation)
     ++stats.counts.back();
 }
 
-template<typename namesType>
-void initializationDiscreteVarStats(ModifiableDiscreteVarStats<namesType>& stats, const std::vector<namesType>& names, const std::vector<float>& probabilities)
+void initializationDiscreteVarStats(ModifiableDiscreteVarStats<BoidBehavior>& stats, const std::vector<BoidBehavior>& names, const std::vector<float>& probabilities)
 {
-    if (!names.empty())
-    {
-        stats.names = names;
-    }
     DiscreteStats discreteStats;
     discreteStats.expectations = probabilities;
-    discreteStats.counts.reserve(probabilities.size());
+    discreteStats.counts.resize(probabilities.size(), 0);
 
+    stats.names = names;
     stats.stats.emplace_back(discreteStats);
 }
 
-template<typename namesType>
-void updateDiscreteVarStats(ModifiableDiscreteVarStats<namesType>& stats, const namesType& generation)
+void updateDiscreteVarStats(ModifiableDiscreteVarStats<BoidBehavior>& stats, const BoidBehavior generation)
 {
     auto it = std::find(stats.names.begin(), stats.names.end(), generation);
     if (it != stats.names.end())
     {
         size_t index = std::distance(stats.names.begin(), it);
-
-        ++stats.stats[index].counts;
+        ++stats.stats.back().counts[index];
     }
 }

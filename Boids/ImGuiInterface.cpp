@@ -139,3 +139,36 @@ void ImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesParamet
 
     ImGui::End();
 }
+
+// #include <imgui.h>
+// #include <cmath>
+// #include "implot.h"
+
+// void drawGraph(const UnchangedStats& stats)
+// {
+//     double x_min = 0.0;
+//     double x_max = stats.generations.size();
+//     double y_min = 0.0;
+//     double y_max = stats.generations.size() / 100.0;
+
+//     ImPlot::SetupAxisLimits(ImPlotAxis_X, x_min, x_max);
+//     ImPlot::SetupAxisLimits(ImPlotAxis_Y, y_min, y_max);
+//     if (ImPlot::BeginPlot("Graphique", "Génération", "Nombre de valeurs", ImVec2(800, 600)))
+//     {
+//         ImPlot::PlotStems("Nombre de valeurs", stats.generations.data(), stats.generations.size(), 0.5f);
+
+//         ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+//         ImPlot::PlotLine("Espérance", &stats.expectation, 1);
+//         ImPlot::PopStyleColor();
+
+//         float varianceMin = stats.expectation - std::sqrt(stats.variance);
+//         float varianceMax = stats.expectation + std::sqrt(stats.variance);
+
+//         ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+//         ImPlot::PlotLine("Espérance", &varianceMin, 1);
+//         ImPlot::PlotLine("Espérance", &varianceMax, 1);
+//         ImPlot::PopStyleColor();
+
+//         ImPlot::EndPlot();
+//     }
+// }
