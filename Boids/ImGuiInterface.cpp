@@ -22,7 +22,7 @@ std::string BoidBehaviorToString(BoidBehavior behavior)
     }
 }
 
-void ImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesParameters, NeighborsParameters& neighborsParameters, Parameters& bordersParameters, LaserParameters& lasersParameters, const int lives, Parameters& characterForce, const int boidsNb, RandomVariablesParameters& randomParameters, RandomVariables& randomVariables)
+void gameImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesParameters, NeighborsParameters& neighborsParameters, Parameters& bordersParameters, LaserParameters& lasersParameters, const int lives, Parameters& characterForce, const int boidsNb, RandomVariablesParameters& randomParameters, RandomVariables& randomVariables)
 {
     ImGui::Begin("Simulation forces control");
     ImGui::Text("Ennemies' alignment force");
@@ -137,6 +137,19 @@ void ImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesParamet
         lodsParameters.lowQuality = !lodsParameters.lowQuality;
     }
 
+    ImGui::End();
+}
+
+void endImGuiInterface(bool victory, RandomVariables randomVariables)
+{
+    if (victory)
+    {
+        ImGui::Begin("Victory!");
+    }
+    else
+    {
+        ImGui::Begin("Game over!");
+    }
     ImGui::End();
 }
 

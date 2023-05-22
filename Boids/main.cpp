@@ -49,7 +49,7 @@ int main()
          {{BoidBehavior::Attacks, BoidBehavior::Neutral, BoidBehavior::Flees},
           {0.3, 0.5, 0.2}},
          {0.3, 0.5},
-         {0.3},
+         {0.2},
          {0.03}};
 
     /////////////////////////////////
@@ -80,12 +80,20 @@ int main()
     MyBuffers textures{};
     initializesBuffers(vbos, ibos, vaos, textures);
 
+    bool victory = false;
+
     /////////////////////////////////
     /////////////////////////////////
 
     // Declare your infinite update loop.
     ctx.update = [&]() {
-        ImGuiInterface(LODS_PARAMETERS, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_FORCE, LASERS_PARAMETERS, camera.getLives(), CHARACTER_FORCE, static_cast<int>(boids.size()), RANDOM_VARIABLES_PARAMETERS, randomVariables);
+        // Victory or defeat check
+        if (boids.empty() || camera.getLives() < 1)
+        {
+            ctx.resume();
+        }
+
+        gameImGuiInterface(LODS_PARAMETERS, OBSTACLES_PARAMETERS.force, NEIGHBORS_PARAMETERS, BORDERS_FORCE, LASERS_PARAMETERS, camera.getLives(), CHARACTER_FORCE, static_cast<int>(boids.size()), RANDOM_VARIABLES_PARAMETERS, randomVariables);
 
         cameraInputsEvents(ctx, CAM_PARAMETERS, camera);
 
@@ -104,9 +112,15 @@ int main()
 
         render(ctx, boids, obstacles, lasers, LODS_PARAMETERS, vaos, camera, textures, ProjMatrix, SPOT_LIGHT);
 
+        // Victory or defeat check
+        if (boids.empty())
+        {
+            victory = true;
+            endImGuiInterface(victory, randomVariables);
+        }
         if (camera.getLives() < 1)
         {
-            ctx.stop();
+            endImGuiInterface(victory, randomVariables);
         }
     };
 
