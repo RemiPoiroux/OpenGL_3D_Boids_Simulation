@@ -87,7 +87,7 @@ void gameImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesPar
     }
     if (edited)
     {
-        randomVariables.boidsAttitudeVar = DiscreteRandomVariable<BoidBehavior>(randomParameters.boidsAttitude.stateProbs, randomParameters.boidsAttitude.stateNames);
+        randomVariables.boidsAttitudeVar.modify(randomParameters.boidsAttitude.stateProbs);
     }
     ImGui::Separator();
 
@@ -95,7 +95,7 @@ void gameImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesPar
     ImGui::SliderFloat("Collision prob", &randomParameters.collisionWithObstacles.collisionProb, 0.f, 1.f);
     if (ImGui::IsItemEdited())
     {
-        randomVariables.collisionWithObstaclesVar = BernoulliRandomVariable(randomParameters.collisionWithObstacles.collisionProb);
+        randomVariables.collisionWithObstaclesVar.modify(randomParameters.collisionWithObstacles.collisionProb);
     }
     ImGui::Separator();
 
@@ -113,7 +113,7 @@ void gameImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesPar
     }
     if (editedBoidsFiring)
     {
-        randomVariables.boidsFiringVar = BinomialRandomVariable(randomParameters.boidsFiring.shootProbPerFrame, static_cast<uint>(randomParameters.boidsFiring.secondsToShoot * 60));
+        randomVariables.boidsFiringVar.modify(randomParameters.boidsFiring.shootProbPerFrame, static_cast<uint>(randomParameters.boidsFiring.secondsToShoot * 60));
     }
 
     ImGui::Separator();
@@ -121,7 +121,7 @@ void gameImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesPar
     ImGui::SliderFloat("Inaccuracy variance", &randomParameters.boidsAccuracy.inaccuracyExpectation, 0.f, 1.f);
     if (ImGui::IsItemEdited())
     {
-        randomVariables.boidsPrecisionVar = NormalRandomVariable(randomParameters.boidsAccuracy.inaccuracyExpectation);
+        randomVariables.boidsPrecisionVar.modify(randomParameters.boidsAccuracy.inaccuracyExpectation);
     }
 
     ImGui::Separator();
@@ -129,7 +129,7 @@ void gameImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesPar
     ImGui::SliderFloat("My shoot prob/frame", &randomParameters.characterFiring.shootProbPerFrame, 0.f, 1.f);
     if (ImGui::IsItemEdited())
     {
-        randomVariables.characterFiringVar = GeometricRandomVariable(randomParameters.characterFiring.shootProbPerFrame);
+        randomVariables.characterFiringVar.modify(randomParameters.characterFiring.shootProbPerFrame);
     }
 
     if (changeQuality)

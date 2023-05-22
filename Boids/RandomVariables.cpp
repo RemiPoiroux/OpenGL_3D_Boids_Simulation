@@ -74,6 +74,13 @@ BernoulliRandomVariable::BernoulliRandomVariable(float successProbability)
     m_variance    = successProbability * (1 - successProbability);
     initializeModifiableVarStats(m_expectation, m_stats, m_variance);
 }
+void BernoulliRandomVariable::modify(float successProbability)
+{
+    m_parameter   = successProbability;
+    m_expectation = successProbability;
+    m_variance    = successProbability * (1 - successProbability);
+    initializeModifiableVarStats(m_expectation, m_stats, m_variance);
+}
 float BernoulliRandomVariable::generate()
 {
     float generation = randomFloatBtw0and1() < m_parameter ? 1 : 0;
@@ -106,6 +113,30 @@ DiscreteRandomVariable<T>::DiscreteRandomVariable(const std::vector<float>& prob
     initializationDiscreteVarStats(m_stats, names, probabilities);
 }
 template<typename T>
+void DiscreteRandomVariable<T>::modify(const std::vector<float>& probabilities)
+{
+    m_probabilities = probabilities;
+    if (m_probabilities.size() != m_names.size())
+    {
+        throw std::invalid_argument("The number of probabilities must match the number of values.");
+    }
+
+    float sum = 0.0;
+    for (float probability : m_probabilities)
+    {
+        if (probability < 0.0)
+        {
+            throw std::invalid_argument("Probabilities must be non-negative.");
+        }
+        sum += probability;
+    }
+    if (std::abs(sum - 1.0) > 0.0001)
+    {
+        throw std::invalid_argument("Probabilities must sum to 1.");
+    }
+    initializationDiscreteVarStats(m_stats, m_names, m_probabilities);
+}
+template<typename T>
 T DiscreteRandomVariable<T>::generate()
 {
     float randomValue           = randomFloatBtw0and1();
@@ -132,6 +163,14 @@ BinomialRandomVariable::BinomialRandomVariable(const float successProbability, c
     m_variance    = successProbability * (1 - successProbability) * static_cast<float>(trialsNb);
     initializeModifiableVarStats(m_expectation, m_stats, m_variance);
 }
+void BinomialRandomVariable::modify(const float successProbability, const uint trialsNb)
+{
+    m_trialsNb    = trialsNb;
+    m_parameter   = successProbability;
+    m_expectation = successProbability * static_cast<float>(trialsNb);
+    m_variance    = successProbability * (1 - successProbability) * static_cast<float>(trialsNb);
+    initializeModifiableVarStats(m_expectation, m_stats, m_variance);
+}
 float BinomialRandomVariable::generate()
 {
     float result = 0;
@@ -152,6 +191,12 @@ NormalRandomVariable::NormalRandomVariable(const float variance)
     m_expectation = 0.0f;
     initializeModifiableVarStats(m_expectation, m_stats, m_variance);
 }
+void NormalRandomVariable::modify(float variance)
+{
+    m_standardDeviation = std::sqrt(variance);
+    m_variance          = variance;
+    initializeModifiableVarStats(m_expectation, m_stats, m_variance);
+}
 float NormalRandomVariable::generate()
 {
     float u1         = randomFloatBtw0and1();
@@ -164,6 +209,13 @@ float NormalRandomVariable::generate()
 
 GeometricRandomVariable::GeometricRandomVariable(float successProbability)
     : RandomVariable()
+{
+    m_parameter   = successProbability;
+    m_expectation = 1 / successProbability;
+    m_variance    = (1 - successProbability) / (successProbability * successProbability);
+    initializeModifiableVarStats(m_expectation, m_stats, m_variance);
+}
+void GeometricRandomVariable::modify(float successProbability)
 {
     m_parameter   = successProbability;
     m_expectation = 1 / successProbability;

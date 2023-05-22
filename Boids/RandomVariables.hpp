@@ -60,6 +60,7 @@ private:
 public:
     explicit BernoulliRandomVariable(float successProbability);
     float generate() override;
+    void  modify(float successProbability);
 };
 template<typename namesType>
 class DiscreteRandomVariable
@@ -71,7 +72,7 @@ private:
 
 public:
     explicit DiscreteRandomVariable(const std::vector<float>& probabilities, const std::vector<namesType>& names);
-
+    void                                  modify(const std::vector<float>& probabilities);
     namesType                             generate();
     std::vector<float>                    getProbabilities() const { return m_probabilities; }
     std::vector<namesType>                getNames() const { return m_names; }
@@ -86,6 +87,7 @@ private:
 
 public:
     explicit BinomialRandomVariable(float successProbability, uint trialsNb);
+    void               modify(float successProbability, uint trialsNb);
     float              generate() override;
     uint               getTrialsNb() const { return m_trialsNb; };
     ModifiableVarStats getStats() const { return m_stats; };
@@ -99,6 +101,8 @@ private:
 
 public:
     explicit NormalRandomVariable(float variance);
+    void modify(float variance);
+
     float              generate() override;
     ModifiableVarStats getStats() const { return m_stats; };
 };
@@ -110,6 +114,7 @@ private:
 
 public:
     explicit GeometricRandomVariable(float successProbability);
+    void               modify(float successProbability);
     float              generate() override;
     ModifiableVarStats getStats() const { return m_stats; };
 };
