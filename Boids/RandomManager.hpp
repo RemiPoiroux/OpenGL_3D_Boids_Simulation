@@ -7,6 +7,8 @@ struct RandomVariablesParameters;
 
 struct RandomVariables
 {
+    ExponentialRandomVariable            obstacleSizesVar;
+    PoissonRandomVariable                boidsLivesVar;
     BernoulliRandomVariable              collisionWithObstaclesVar;
     DiscreteRandomVariable<BoidBehavior> boidsAttitudeVar;
     BinomialRandomVariable               boidsFiringVar;
@@ -16,6 +18,14 @@ struct RandomVariables
 
 RandomVariables initializeRandomVariables(const RandomVariablesParameters& parameters);
 
+struct ExponentialRandomParameters
+{
+    float sizeExpectation;
+};
+struct PoissonRandomParameters
+{
+    float livesExpectation;
+};
 struct BernoulliRandomParameters
 {
     float collisionProb;
@@ -41,9 +51,11 @@ struct GeometricRandomParameters
 
 struct RandomVariablesParameters
 {
-    BernoulliRandomParameters collisionWithObstacles{};
-    DiscreteRandomParameters  boidsAttitude;
-    BinomialRandomParameters  boidsFiring{};
-    NormalRandomParameters    boidsAccuracy{};
-    GeometricRandomParameters characterFiring{};
+    ExponentialRandomParameters obstaclesSizes{};
+    PoissonRandomParameters     boidsLifeVar{};
+    BernoulliRandomParameters   collisionWithObstacles{};
+    DiscreteRandomParameters    boidsAttitude;
+    BinomialRandomParameters    boidsFiring{};
+    NormalRandomParameters      boidsAccuracy{};
+    GeometricRandomParameters   characterFiring{};
 };

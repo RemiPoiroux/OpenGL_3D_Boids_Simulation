@@ -30,11 +30,9 @@ glm::vec3 RandomVec3(float maxCoord)
     return vec;
 }
 
-Obstacle randomObstacle(ObstaclesParameters p)
+Obstacle randomObstacle(ObstaclesParameters p, ExponentialRandomVariable& expVar)
 {
-    float                     expectation = (p.minSize + p.maxSize) / 2;
-    ExponentialRandomVariable expVar      = ExponentialRandomVariable(expectation);
-    float                     size        = expVar.generate();
+    float size = expVar.generate();
     if (size > p.maxSize)
     {
         size = p.maxSize;
@@ -46,7 +44,7 @@ Obstacle randomObstacle(ObstaclesParameters p)
     return {RandomVec3(1 - size), size, RandomVec3(1)};
 }
 
-std::vector<Obstacle> createObstacles(ObstaclesParameters p)
+std::vector<Obstacle> createObstacles(ObstaclesParameters p, ExponentialRandomVariable& expVar)
 {
     std::vector<Obstacle> obstacles;
     obstacles.reserve(p.number);
@@ -60,10 +58,10 @@ std::vector<Obstacle> createObstacles(ObstaclesParameters p)
 
     for (size_t i = 0; i < p.number; ++i)
     {
-        Obstacle obstacle = randomObstacle(p);
+        Obstacle obstacle = randomObstacle(p, expVar);
         while (checkOverlap(obstacle))
         {
-            obstacle = randomObstacle(p);
+            obstacle = randomObstacle(p, expVar);
         }
         obstacles.push_back(obstacle);
     }

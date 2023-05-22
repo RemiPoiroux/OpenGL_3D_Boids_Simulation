@@ -1,6 +1,5 @@
 #include "RandomStats.hpp"
 #include <algorithm>
-#include "Boid.hpp"
 
 void initializeUnchangedVarStats(float expectation, UnchangedVarStats& stats, float variance)
 {

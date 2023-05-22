@@ -25,7 +25,7 @@ int main()
 
     // SIMULATION PARAMETERS
 
-    BoidsParameters BOIDS_PARAMETERS = {200, 10};
+    int boidsNumber = 200;
 
     ObstaclesParameters OBSTACLES_PARAMETERS =
         {100, 0.05, 0.5, {0.1, 0.1}};
@@ -45,7 +45,9 @@ int main()
     LaserDelays     laserDelays{};
 
     RandomVariablesParameters RANDOM_VARIABLES_PARAMETERS =
-        {{0.3},
+        {{(OBSTACLES_PARAMETERS.maxSize + OBSTACLES_PARAMETERS.minSize) / 2},
+         {10},
+         {0.3},
          {{BoidBehavior::Attacks, BoidBehavior::Neutral, BoidBehavior::Flees},
           {0.3, 0.5, 0.2}},
          {0.3, 0.5},
@@ -66,8 +68,8 @@ int main()
 
     // Initialize camera, boids, obstacles and lasers
     CharacterCamera       camera(livesNb);
-    std::vector<Obstacle> obstacles = createObstacles(OBSTACLES_PARAMETERS);
-    std::vector<Boid>     boids     = createBoids(BOIDS_PARAMETERS, obstacles);
+    std::vector<Obstacle> obstacles = createObstacles(OBSTACLES_PARAMETERS, randomVariables.obstacleSizesVar);
+    std::vector<Boid>     boids     = createBoids(boidsNumber, randomVariables.boidsLivesVar, obstacles);
     std::vector<Laser>    lasers{};
 
     // Initialize Render Matrices

@@ -2,7 +2,7 @@
 
 #include <sys/types.h>
 #include <vector>
-#include "Boid.hpp"
+#include "BoidBehavior.hpp"
 
 struct UnchangedVarStats
 {

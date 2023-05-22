@@ -24,10 +24,9 @@ glm::vec3 RandomDirection()
     return vec;
 }
 
-Boid randomBoid(float livesExpectation)
+Boid randomBoid(PoissonRandomVariable& livesVar)
 {
-    PoissonRandomVariable poissonVar = PoissonRandomVariable(livesExpectation);
-    int                   lives      = static_cast<int>(poissonVar.generate());
+    int lives = static_cast<int>(livesVar.generate());
     return {RandomVec3(1), RandomFloat(MAX_SPEED_MIN, MAX_SPEED_MAX), RandomDirection(), lives};
 }
 
@@ -39,10 +38,10 @@ float myDistance(const T1& entity1, const T2& entity2)
     return glm::length(pos2 - pos1);
 }
 
-std::vector<Boid> createBoids(const BoidsParameters boidsParameters, const std::vector<Obstacle>& obstacles)
+std::vector<Boid> createBoids(const int boidsNb, PoissonRandomVariable& livesVar, const std::vector<Obstacle>& obstacles)
 {
     std::vector<Boid> boids;
-    boids.reserve(boidsParameters.number);
+    boids.reserve(boidsNb);
 
     auto checkOverlap = [&obstacles](Boid boid) {
         return std::any_of(obstacles.begin(), obstacles.end(), [&](const Obstacle& o) {
@@ -51,12 +50,12 @@ std::vector<Boid> createBoids(const BoidsParameters boidsParameters, const std::
         });
     };
 
-    std::generate_n(std::back_inserter(boids), boidsParameters.number, [&]() {
-        Boid newBoid = randomBoid(boidsParameters.livesExpectation);
+    std::generate_n(std::back_inserter(boids), boidsNb, [&]() {
+        Boid newBoid = randomBoid(livesVar);
         ;
         while (checkOverlap(newBoid))
         {
-            newBoid = randomBoid(boidsParameters.livesExpectation);
+            newBoid = randomBoid(livesVar);
         };
         return newBoid;
     });

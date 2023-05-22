@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RandomVariables.hpp"
 #include "p6/p6.h"
 
 class Obstacle
@@ -33,4 +34,4 @@ float RandomFloat(float a, float b);
 
 glm::vec3 RandomVec3(float maxCoord);
 
-std::vector<Obstacle> createObstacles(ObstaclesParameters p);
+std::vector<Obstacle> createObstacles(ObstaclesParameters p, ExponentialRandomVariable& expVar);

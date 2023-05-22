@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BoidBehavior.hpp"
 #include "CharacterCamera.hpp"
 #include "Obstacle.hpp"
 
@@ -7,12 +8,6 @@ enum AxisIndex {
     x = 0,
     y = 1,
     z = 2
-};
-
-enum class BoidBehavior {
-    Attacks,
-    Neutral,
-    Flees
 };
 
 void normaliseVector(glm::vec3& v);

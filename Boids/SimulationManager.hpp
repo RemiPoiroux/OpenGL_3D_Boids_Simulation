@@ -5,6 +5,7 @@
 #include "Laser.hpp"
 #include "Obstacle.hpp"
 #include "RandomManager.hpp"
+#include "RandomVariables.hpp"
 struct NeighborsParameters
 {
     Parameters alignment;
@@ -12,12 +13,6 @@ struct NeighborsParameters
     Parameters cohesion;
 
     Parameters separation;
-};
-
-struct BoidsParameters
-{
-    int   number;
-    float livesExpectation;
 };
 
 struct LaserDelays
@@ -31,7 +26,7 @@ struct LaserDelays
 template<typename T1, typename T2>
 float distance(const T1& entity1, const T2& entity2);
 
-std::vector<Boid> createBoids(BoidsParameters boidsParameters, const std::vector<Obstacle>& obstacles);
+std::vector<Boid> createBoids(int boidsNb, PoissonRandomVariable& livesVar, const std::vector<Obstacle>& obstacles);
 
 void neighborsManager(std::vector<Boid>& boids, NeighborsParameters parameters);
 
