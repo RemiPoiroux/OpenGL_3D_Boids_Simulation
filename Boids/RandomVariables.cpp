@@ -38,7 +38,7 @@ ExponentialRandomVariable::ExponentialRandomVariable(const float expectation)
 }
 float ExponentialRandomVariable::generate()
 {
-    float generation = -m_parameter * std::log(1 - randomFloatBtw0and1());
+    float generation = -std::log(1 - randomFloatBtw0and1()) / m_parameter;
     uptateUnchangedVarStats(m_stats, generation);
     return generation;
 }
