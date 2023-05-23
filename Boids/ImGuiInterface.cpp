@@ -137,6 +137,91 @@ void gameImGuiInterface(LodsParameters& lodsParameters, Parameters& obstaclesPar
     ImGui::End();
 }
 
+float calculateMean(const std::vector<float>& generations)
+{
+    float sum = 0.0f;
+    for (float value : generations)
+    {
+        sum += value;
+    }
+    return sum / static_cast<float>(generations.size());
+}
+float calculateVariance(const std::vector<float>& generations)
+{
+    float mean     = calculateMean(generations);
+    float variance = 0.0f;
+    for (float value : generations)
+    {
+        variance += static_cast<float>(pow(value - mean, 2));
+    }
+    return variance / static_cast<float>(generations.size());
+}
+std::vector<uint> countValuesInIntervals(const std::vector<float>& generations)
+{
+    float minGeneration = *std::min_element(generations.begin(), generations.end());
+    float maxGeneration = *std::max_element(generations.begin(), generations.end());
+
+    std::vector<uint> intervalCounts(20, 0);
+    float             interval = (maxGeneration - minGeneration) / 20.0f;
+    for (float generation : generations)
+    {
+        uint intervalIndex = static_cast<uint>((generation - minGeneration) / interval);
+        if (intervalIndex < 20)
+        {
+            intervalCounts[intervalIndex]++;
+        }
+    }
+    return intervalCounts;
+}
+void drawUnchangedVarStatsTable(const UnchangedVarStats& stats)
+{
+    std::vector<uint> intervalCounts = countValuesInIntervals(stats.generations);
+    float             mean           = calculateMean(stats.generations);
+    float             variance       = calculateVariance(stats.generations);
+    float             relativeDiff   = std::abs(variance - stats.variance) / stats.variance;
+    size_t            population     = stats.generations.size();
+
+    ImGui::BeginTable("UnchangedVarStatsTable", 2);
+
+    ImGui::TableSetupColumn("Range");
+    ImGui::TableSetupColumn("Number of values");
+    ImGui::TableHeadersRow();
+
+    float minGeneration = *std::min_element(stats.generations.begin(), stats.generations.end());
+    float maxGeneration = *std::max_element(stats.generations.begin(), stats.generations.end());
+    float interval      = (maxGeneration - minGeneration) / 20.0f;
+
+    for (size_t i = 0; i < intervalCounts.size(); i++)
+    {
+        float intervalStart = minGeneration + static_cast<float>(i) * interval;
+        float intervalEnd   = minGeneration + static_cast<float>(i + 1) * interval;
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::Text("[%f, %f)", intervalStart, intervalEnd);
+
+        ImGui::TableSetColumnIndex(1);
+        ImGui::Text("%d", intervalCounts[i]);
+    }
+
+    ImGui::EndTable();
+
+    ImGui::Text("Expectation: %f", stats.expectation);
+    ImGui::Text("Espected variance: %f", stats.variance);
+    ImGui::Text("Mean: %f", mean);
+    ImGui::Text("Statistical variance: %f", variance);
+
+    if (relativeDiff <= 0.1f)
+    {
+        ImGui::TextColored(ImVec4(0, 1, 0, 1), "Variance Relative Diff: %.2f", relativeDiff);
+    }
+    else
+    {
+        ImGui::TextColored(ImVec4(1, 0, 0, 1), "Variance Relative Diff: %.2f", relativeDiff);
+    }
+    ImGui::Text("On a population of %zu", population);
+}
+
 void drawModifiableVarStatsTable(const ModifiableVarStats& stats)
 {
     ImGui::BeginTable("ModifiableVarStatsTable", 6);
@@ -178,16 +263,34 @@ void drawModifiableVarStatsTable(const ModifiableVarStats& stats)
             }
 
             ImGui::TableSetColumnIndex(4);
-            ImGui::Text("%.2f", relativeDiff);
+            if (relativeDiff <= 0.1f)
+            {
+                ImGui::TextColored(ImVec4(0, 1, 0, 1), "%.2f", relativeDiff);
+            }
+            else
+            {
+                ImGui::TextColored(ImVec4(1, 0, 0, 1), "%.2f", relativeDiff);
+            }
         }
     }
 
     ImGui::EndTable();
 
-    float averageRelativeDiff = totalRelativeDiff / validCount;
-    ImGui::Text("Variance average Relative Diff (Weighted): %.2f", averageRelativeDiff);
-    ImGui::Text("On a population of %zu", validCount);
+    if (validCount != 0)
+    {
+        float averageRelativeDiff = totalRelativeDiff / static_cast<float>(validCount);
+        if (averageRelativeDiff <= 0.1f)
+        {
+            ImGui::TextColored(ImVec4(0, 1, 0, 1), "Variance average Relative Diff (Weighted): %.2f", averageRelativeDiff);
+        }
+        else
+        {
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "Variance average Relative Diff (Weighted): %.2f", averageRelativeDiff);
+        }
+        ImGui::Text("On a population of %zu", validCount);
+    }
 }
+
 struct WeightedRelativeDiffAndPopulation
 {
     float weightedRelativeDiff;
@@ -195,57 +298,64 @@ struct WeightedRelativeDiffAndPopulation
 };
 WeightedRelativeDiffAndPopulation drawDiscreteStatsTable(const DiscreteStats& stats, const std::vector<BoidBehavior>& names)
 {
-    ImGui::BeginTable("DiscreteStatsTable", 5);
-
-    ImGui::TableNextRow();
-    ImGui::TableSetColumnIndex(0);
-    ImGui::Text("Behavior");
-    ImGui::TableSetColumnIndex(1);
-    ImGui::Text("Expectation");
-    ImGui::TableSetColumnIndex(2);
-    ImGui::Text("Count");
-    ImGui::TableSetColumnIndex(3);
-    ImGui::Text("Normalized Count");
-    ImGui::TableSetColumnIndex(4);
-    ImGui::Text("Relative Diff");
-
     uint  totalCount                = 0;
     float totalWeightedRelativeDiff = 0.0f;
 
-    for (size_t i = 0; i < stats.expectations.size(); i++)
+    for (unsigned int count : stats.counts)
     {
-        ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(0);
-        ImGui::Text("%s", BoidBehaviorToString(names[i]).c_str());
-        ImGui::TableSetColumnIndex(1);
-        ImGui::Text("%.2f", stats.expectations[i]);
-        ImGui::TableSetColumnIndex(2);
-        ImGui::Text("%u", stats.counts[i]);
-
-        totalCount += stats.counts[i];
-
-        ImGui::TableSetColumnIndex(3);
-        float normalizedCount = static_cast<float>(stats.counts[i]) / static_cast<float>(totalCount);
-        ImGui::Text("%.2f", normalizedCount);
-
-        ImGui::TableSetColumnIndex(4);
-        float relativeDiff = std::abs(stats.expectations[i] - normalizedCount) / stats.expectations[i];
-
-        relativeDiff = std::abs(stats.expectations[i] - normalizedCount) / stats.expectations[i];
-        ImGui::Text("%.2f", relativeDiff);
-        if (!std::isnan(relativeDiff) && std::isfinite(relativeDiff) && !std::isnan(normalizedCount) && std::isfinite(normalizedCount))
-        {
-            float weightedRelativeDiff = relativeDiff * normalizedCount;
-            totalWeightedRelativeDiff += weightedRelativeDiff;
-        }
+        totalCount += count;
     }
 
-    ImGui::EndTable();
+    if (totalCount > 0)
+    {
+        ImGui::BeginTable("DiscreteStatsTable", 5);
 
-    float averageWeightedRelativeDiff = totalWeightedRelativeDiff / stats.expectations.size();
-    ImGui::Text("Average Weighted Relative Diff: %.2f", averageWeightedRelativeDiff);
-    ImGui::Text("On a population of %u", totalCount);
-    return {averageWeightedRelativeDiff, totalCount};
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::Text("Behavior");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::Text("Expectation");
+        ImGui::TableSetColumnIndex(2);
+        ImGui::Text("Count");
+        ImGui::TableSetColumnIndex(3);
+        ImGui::Text("Normalized Count");
+        ImGui::TableSetColumnIndex(4);
+        ImGui::Text("Relative Diff");
+
+        for (size_t i = 0; i < stats.expectations.size(); i++)
+        {
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("%s", BoidBehaviorToString(names[i]).c_str());
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%.2f", stats.expectations[i]);
+            ImGui::TableSetColumnIndex(2);
+            ImGui::Text("%u", stats.counts[i]);
+
+            ImGui::TableSetColumnIndex(3);
+            float normalizedCount = static_cast<float>(stats.counts[i]) / static_cast<float>(totalCount);
+            ImGui::Text("%.2f", normalizedCount);
+
+            ImGui::TableSetColumnIndex(4);
+            float relativeDiff = std::abs(stats.expectations[i] - normalizedCount) / stats.expectations[i];
+
+            relativeDiff = std::abs(stats.expectations[i] - normalizedCount) / stats.expectations[i];
+            ImGui::Text("%.2f", relativeDiff);
+            if (!std::isnan(relativeDiff) && std::isfinite(relativeDiff) && !std::isnan(normalizedCount) && std::isfinite(normalizedCount))
+            {
+                float weightedRelativeDiff = relativeDiff * normalizedCount;
+                totalWeightedRelativeDiff += weightedRelativeDiff;
+            }
+        }
+
+        ImGui::EndTable();
+
+        float averageWeightedRelativeDiff = totalWeightedRelativeDiff / static_cast<float>(stats.expectations.size());
+        ImGui::Text("Average Weighted Relative Diff: %.2f", averageWeightedRelativeDiff);
+        ImGui::Text("On a population of %u", totalCount);
+        return {averageWeightedRelativeDiff, totalCount};
+    }
+    return {0, 0};
 }
 void drawModifiableDiscreteVarStatsTables(const ModifiableDiscreteVarStats<BoidBehavior>& stats)
 {
@@ -270,7 +380,8 @@ void drawModifiableDiscreteVarStatsTables(const ModifiableDiscreteVarStats<BoidB
 
             WeightedRelativeDiffAndPopulation relativeDiffAndPopulation =
                 drawDiscreteStatsTable(stats.stats[i], stats.names);
-            totalWeightedRelativeDiff += relativeDiffAndPopulation.weightedRelativeDiff * static_cast<float>(relativeDiffAndPopulation.population);
+            totalWeightedRelativeDiff +=
+                relativeDiffAndPopulation.weightedRelativeDiff * static_cast<float>(relativeDiffAndPopulation.population);
             population += relativeDiffAndPopulation.population;
         }
     }
@@ -281,8 +392,19 @@ void drawModifiableDiscreteVarStatsTables(const ModifiableDiscreteVarStats<BoidB
     float       lineThickness = 2.0f;
     drawList->AddLine(startPos, endPos, lineColor, lineThickness);
 
-    float averageWeightedRelativeDiff = totalWeightedRelativeDiff / population;
-    ImGui::Text("Total Average Weighted Relative Diff: %.2f", averageWeightedRelativeDiff);
+    float averageWeightedRelativeDiff = 0;
+    if (population != 0)
+    {
+        averageWeightedRelativeDiff = totalWeightedRelativeDiff / static_cast<float>(population);
+    }
+    if (averageWeightedRelativeDiff <= 0.1f)
+    {
+        ImGui::TextColored(ImVec4(0, 1, 0, 1), "Total Average Weighted Relative Diff: %.2f", averageWeightedRelativeDiff);
+    }
+    else
+    {
+        ImGui::TextColored(ImVec4(1, 0, 0, 1), "Total Average Weighted Relative Diff: %.2f", averageWeightedRelativeDiff);
+    }
     ImGui::Text("On a population of %u", population);
 }
 
@@ -301,67 +423,66 @@ void endImGuiInterface(bool victory, const RandomVariables& randomVariables)
     ImGui::Separator();
     ImGui::Separator();
 
-    // ImGui::Text("World creation random variables :");
-    // ImGui::Separator();
+    ImGui::Text("World creation random variables :");
+    ImGui::Separator();
 
-    // ImGui::Separator();
-    // ImGui::Separator();
+    ImGui::Text("Asteroids' Sizes: Exponential Var");
+    ImDrawList* drawList      = ImGui::GetWindowDrawList();
+    ImVec2      startPos      = ImGui::GetCursorScreenPos();
+    ImVec2      endPos        = ImVec2(startPos.x + ImGui::GetContentRegionAvail().x, startPos.y);
+    ImColor     lineColor     = {0, 0, 1};
+    float       lineThickness = 1.0f;
+    drawList->AddLine(startPos, endPos, lineColor, lineThickness);
+    drawUnchangedVarStatsTable(randomVariables.obstacleSizesVar.getStats());
+    ImGui::Separator();
+
+    ImGui::Text("Boids' Lives: Poisson Var");
+    drawList = ImGui::GetWindowDrawList();
+    startPos = ImGui::GetCursorScreenPos();
+    endPos   = ImVec2(startPos.x + ImGui::GetContentRegionAvail().x, startPos.y);
+    drawList->AddLine(startPos, endPos, lineColor, lineThickness);
+    drawUnchangedVarStatsTable(randomVariables.boidsLivesVar.getStats());
+    ImGui::Separator();
+    ImGui::Separator();
 
     ImGui::Text("Evolutive random variables :");
     ImGui::Separator();
 
-    ImGui::Text("Boids Collisions with Asteroids: Bernouilli Var");
+    ImGui::Text("Boids' Collisions with Asteroids: Bernouilli Var");
+    drawList = ImGui::GetWindowDrawList();
+    startPos = ImGui::GetCursorScreenPos();
+    endPos   = ImVec2(startPos.x + ImGui::GetContentRegionAvail().x, startPos.y);
+    drawList->AddLine(startPos, endPos, lineColor, lineThickness);
     drawModifiableVarStatsTable(randomVariables.collisionWithObstaclesVar.getStats());
     ImGui::Separator();
 
-    ImGui::Text("Boids firing : Binomial Var");
+    ImGui::Text("Boids' firing : Binomial Var");
+    drawList = ImGui::GetWindowDrawList();
+    startPos = ImGui::GetCursorScreenPos();
+    endPos   = ImVec2(startPos.x + ImGui::GetContentRegionAvail().x, startPos.y);
+    drawList->AddLine(startPos, endPos, lineColor, lineThickness);
     drawModifiableVarStatsTable(randomVariables.boidsFiringVar.getStats());
     ImGui::Separator();
 
-    ImGui::Text("Boids Precision : Normal Var");
+    ImGui::Text("Boids' Precision : Normal Var");
+    drawList = ImGui::GetWindowDrawList();
+    startPos = ImGui::GetCursorScreenPos();
+    endPos   = ImVec2(startPos.x + ImGui::GetContentRegionAvail().x, startPos.y);
+    drawList->AddLine(startPos, endPos, lineColor, lineThickness);
     drawModifiableVarStatsTable(randomVariables.boidsPrecisionVar.getStats());
     ImGui::Separator();
 
     ImGui::Text("Character's firing delays : Geometric Var");
+    drawList = ImGui::GetWindowDrawList();
+    startPos = ImGui::GetCursorScreenPos();
+    endPos   = ImVec2(startPos.x + ImGui::GetContentRegionAvail().x, startPos.y);
+    drawList->AddLine(startPos, endPos, lineColor, lineThickness);
     drawModifiableVarStatsTable(randomVariables.characterFiringVar.getStats());
     ImGui::Separator();
 
-    ImGui::Text("Boids Behavior : Discrete Var");
+    ImGui::Text("Boids' Behavior : Discrete Var");
     drawModifiableDiscreteVarStatsTables(randomVariables.boidsAttitudeVar.getStats());
     ImGui::Separator();
 
     ImGui::End();
 }
-
-// #include <imgui.h>
-// #include <cmath>
-// #include "implot.h"
-
-// void drawGraph(const UnchangedStats& stats)
-// {
-//     double x_min = 0.0;
-//     double x_max = stats.generations.size();
-//     double y_min = 0.0;
-//     double y_max = stats.generations.size() / 100.0;
-
-//     ImPlot::SetupAxisLimits(ImPlotAxis_X, x_min, x_max);
-//     ImPlot::SetupAxisLimits(ImPlotAxis_Y, y_min, y_max);
-//     if (ImPlot::BeginPlot("Graphique", "Génération", "Nombre de valeurs", ImVec2(800, 600)))
-//     {
-//         ImPlot::PlotStems("Nombre de valeurs", stats.generations.data(), stats.generations.size(), 0.5f);
-
-//         ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-//         ImPlot::PlotLine("Espérance", &stats.expectation, 1);
-//         ImPlot::PopStyleColor();
-
-//         float varianceMin = stats.expectation - std::sqrt(stats.variance);
-//         float varianceMax = stats.expectation + std::sqrt(stats.variance);
-
-//         ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
-//         ImPlot::PlotLine("Espérance", &varianceMin, 1);
-//         ImPlot::PlotLine("Espérance", &varianceMax, 1);
-//         ImPlot::PopStyleColor();
-
-//         ImPlot::EndPlot();
-//     }
-// }
