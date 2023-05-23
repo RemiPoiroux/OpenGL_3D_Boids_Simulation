@@ -59,8 +59,9 @@ private:
 
 public:
     explicit BernoulliRandomVariable(float successProbability);
-    float generate() override;
-    void  modify(float successProbability);
+    float              generate() override;
+    void               modify(float successProbability);
+    ModifiableVarStats getStats() const { return m_stats; };
 };
 template<typename namesType>
 class DiscreteRandomVariable
